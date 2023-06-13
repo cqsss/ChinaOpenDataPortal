@@ -34,6 +34,125 @@
           "cataId": ""
         }
       }
+    },
+    "yichang": {
+      "resultList": {
+        "dataset": {
+          "url": "https://data.yichang.gov.cn/athena/catalog/page",
+          "method": "post",
+          "headers": {
+            "authority": "data.yichang.gov.cn",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "max-age=0",
+            "content-type": "application/json;charset=UTF-8",
+            "if-modified-since": "0",
+            "origin": "https://data.yichang.gov.cn",
+            "referer": "https://data.yichang.gov.cn/kf/open/table",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "x-requested-with": "XMLHttpRequest"
+          },
+          "data": {
+            "pageNum": 0,
+            "pageSize": 10,
+            "deptId": "",
+            "domainId": "",
+            "orderField": "2",
+            "isDownload": "",
+            "uncode": "",
+            "scene": "",
+            "searchString": "",
+            "content": "",
+            "orderDefault": "",
+            "isCatalog": "",
+            "searchType": ""
+          }
+        },
+        "interface": {
+          "url": "https://data.yichang.gov.cn/athena/interface/getInterfaceDataByPage",
+          "method": "post",
+          "headers": {
+            "authority": "data.yichang.gov.cn",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "max-age=0",
+            "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "if-modified-since": "0",
+            "origin": "https://data.yichang.gov.cn",
+            "referer": "https://data.yichang.gov.cn/kf/open/interface/interfaceList",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "x-requested-with": "XMLHttpRequest"
+          },
+          "data": {
+            "useOn": "",
+            "deptId": "",
+            "domainId": "",
+            "orderField": "2",
+            "uncode": "",
+            "pageNum": "",
+            "pageSize": "10"
+          }
+        }
+      },
+      "detail": {
+        "dataset": {
+          "url": "https://data.yichang.gov.cn/athena/catalog/getDetails",
+          "method": "get",
+          "headers": {
+            "authority": "data.yichang.gov.cn",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "referer": "https://data.yichang.gov.cn/kf/open/table/detail/1000814",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
+          },
+          "queries": {
+            "dataId": ""
+          }
+        },
+        "interface": {
+          "url": "https://data.yichang.gov.cn/athena/interface/getApiData",
+          "method": "post",
+          "headers": {
+            "authority": "data.yichang.gov.cn",
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "max-age=0",
+            "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "if-modified-since": "0",
+            "origin": "https://data.yichang.gov.cn",
+            "referer": "https://data.yichang.gov.cn/kf/open/interface/detail/1000713?down=2&visit=346",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "x-requested-with": "XMLHttpRequest"
+          },
+          "data": {
+            "baseDataId": ""
+          }
+        }
+      }
     }
   }
 }

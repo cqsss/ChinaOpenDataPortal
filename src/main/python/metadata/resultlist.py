@@ -204,5 +204,19 @@ class ResultList:
         cataIds = list(map(lambda x:x['cataId'],resultList['records']))
         return cataIds
 
+    def result_list_hubei_yichang(self,curl):
+        if curl['crawl_type'] == 'dataset':
+            response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], verify=False,
+                                     timeout=REQUEST_TIME_OUT)
+            resultList = json.loads(response.text)['data']
+            cataIds = list(map(lambda x: x['iid'], resultList['rows']))
+            return cataIds
+        else:
+            response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'],
+                                     timeout=REQUEST_TIME_OUT)
+            resultList = json.loads(response.text)['data']
+            cataIds = list(map(lambda x: x['iid'], resultList['list']))
+            return cataIds
+
     def result_list_other(self):
         print("暂无该省")

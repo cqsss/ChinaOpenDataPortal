@@ -290,6 +290,31 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
+    def crawl_hubei_yichang(self):
+        for page in range(1, 2):
+            curl = self.result_list_curl.copy()
+            curl['dataset']['crawl_type'] = 'dataset'
+            curl['dataset']['data']['pageNum'] = page
+            ids = self.result_list.get_result_list(curl['dataset'])
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['dataset']['crawl_type'] = 'dataset'
+                curl['dataset']['queries']['dataId'] = id
+                metadata = self.detail.get_detail(curl['dataset'])
+                self.metadata_list.append(metadata)
+        for page in range(1,2):
+            curl = self.result_list_curl.copy()
+            curl['interface']['crawl_type'] = 'interface'
+            curl['interface']['data']['pageNum'] = page
+            ids = self.result_list.get_result_list(curl['interface'])
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['interface']['crawl_type'] = 'interface'
+                curl['interface']['data']['baseDataId'] = id
+                metadata = self.detail.get_detail(curl['interface'])
+                self.metadata_list.append(metadata)
+        print(self.metadata_list)
+
     def crawl_other(self):
         print("暂无该省")
 
