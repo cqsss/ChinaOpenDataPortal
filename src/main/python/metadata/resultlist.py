@@ -2,6 +2,7 @@ import json
 import re
 import urllib
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 from constants import REQUEST_TIME_OUT
@@ -217,6 +218,21 @@ class ResultList:
             resultList = json.loads(response.text)['data']
             cataIds = list(map(lambda x: x['iid'], resultList['list']))
             return cataIds
+
+    def result_list_hubei_ezhou(self,curl):
+
+        response = requests.get(curl['url'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text)
+        ul = soup.find('ul', class_='sjj_right_list')
+        links = []
+        for li in ul.find_all('li', class_='fbc'):
+            h3 = li.find('h3')
+            if h3 is not None:
+                a = h3.find('a')
+                # links.append(a['href'])
+                links.append('/'.join(curl['url'].split('/')[:-1]) + (a['href'].lstrip('.')))
+        return links
 
     def result_list_other(self):
         print("暂无该省")

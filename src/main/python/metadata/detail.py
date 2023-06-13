@@ -4,6 +4,7 @@ import re
 import time
 import unicodedata as ucd
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 from constants import REQUEST_TIME_OUT
@@ -590,7 +591,22 @@ class Detail:
                     metadata[name] = value
         return metadata
 
-
+    def detail_hubei_ezhou(self,curl):
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.content,'html.parser')
+        table = soup.find('ul',class_='table_p1')
+        metadata_key = ['摘要','资源标签','更新周期','资源格式','数据单位','数据领域','','行业分类','','数据分级','开放条件','更新日期','发布日期']
+        number = 0
+        metadata = {}
+        for content in table.find_all('div',class_='content-td'):
+            if not metadata_key[number]:
+                number+=1
+                continue
+            text = content.text
+            text = text.replace(' ','').strip()
+            metadata[metadata_key[number]] = text
+            number+=1
+        return metadata
 
     def detail_other(self, curl):
         print("暂无该省")

@@ -1,6 +1,6 @@
 import json
 import urllib
-
+import copy
 from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST)
 from detail import Detail
 from resultlist import ResultList
@@ -280,41 +280,61 @@ class Crawler:
 
     def crawl_hubei_wuhan(self):
         for page in range(1, 5):
-            curl = self.result_list_curl.copy()
+            curl = copy.deepcopy(self.result_list_curl)
             curl['data']['current'] = page
             curl['data']['size'] = 6
             ids = self.result_list.get_result_list(curl)
             for id in ids:
-                curl = self.detail_list_curl.copy()
+                curl = copy.deepcopy(self.detail_list_curl)
                 curl['queries']['cataId'] = id
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
     def crawl_hubei_yichang(self):
-        for page in range(1, 2):
-            curl = self.result_list_curl.copy()
+        for page in range(1, 5):
+            curl = copy.deepcopy(self.result_list_curl)
             curl['dataset']['crawl_type'] = 'dataset'
             curl['dataset']['data']['pageNum'] = page
             ids = self.result_list.get_result_list(curl['dataset'])
             for id in ids:
-                curl = self.detail_list_curl.copy()
+                curl = copy.deepcopy(self.detail_list_curl)
                 curl['dataset']['crawl_type'] = 'dataset'
                 curl['dataset']['queries']['dataId'] = id
                 metadata = self.detail.get_detail(curl['dataset'])
                 self.metadata_list.append(metadata)
-        for page in range(1,2):
-            curl = self.result_list_curl.copy()
+        for page in range(1,5):
+            curl = copy.deepcopy(self.result_list_curl)
             curl['interface']['crawl_type'] = 'interface'
             curl['interface']['data']['pageNum'] = page
             ids = self.result_list.get_result_list(curl['interface'])
             for id in ids:
-                curl = self.detail_list_curl.copy()
+                curl = copy.deepcopy(self.detail_list_curl)
                 curl['interface']['crawl_type'] = 'interface'
                 curl['interface']['data']['baseDataId'] = id
                 metadata = self.detail.get_detail(curl['interface'])
                 self.metadata_list.append(metadata)
-        print(self.metadata_list)
 
+    def crawl_hubei_ezhou(self):
+        for page in range(0, 5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['hangye']['crawl_type'] = 'hangye'
+            curl['hangye']['url'] = curl['hangye']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
+            urls = self.result_list.get_result_list(curl['hangye'])
+            for url in urls:
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = url
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+        for page in range(0,5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['shiji']['crawl_type'] = 'shiji'
+            curl['shiji']['url'] = curl['shiji']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
+            urls = self.result_list.get_result_list(curl['shiji'])
+            for url in urls:
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = url
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
     def crawl_other(self):
         print("暂无该省")
 
