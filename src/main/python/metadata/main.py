@@ -278,6 +278,18 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
+    def crawl_hubei_wuhan(self):
+        for page in range(1, 5):
+            curl = self.result_list_curl.copy()
+            curl['data']['current'] = page
+            curl['data']['size'] = 6
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['queries']['cataId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 

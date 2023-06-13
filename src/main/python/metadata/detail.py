@@ -1,3 +1,4 @@
+import copy
 import json
 import re
 import time
@@ -484,6 +485,45 @@ class Detail:
                 detail_json[key] = "有条件开放" if detail_json[key] == 1 else "无条件开放"
             dataset_matadata[value] = detail_json[key]
         return dataset_matadata
+
+    def detail_hubei_wuhan(self, curl):
+
+        key_map = {
+            '名称': "cataTitle",
+            '摘要': "summary",
+            '标签': "resLabel",
+            '数据提供方': "registerOrgName",
+            '主题分类': "dataTopicDetail",
+            '行业分类': "industryTypeDetail",
+            '发布日期': "createTime",
+            '更新日期': "updateTime",
+            '更新频率': {'cataFileDTO':"updateCycle"},
+            '开放条件':'openLevelDetail',
+            '提供方联系方式':'providerPhon',
+            '资源格式':'fileFormatDetail',
+        }
+        response = requests.get(curl['url'],params=curl['queries'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']
+        metadata = {}
+        def get_meta_data(data,key):
+            all_data = copy.deepcopy(data)
+            while not isinstance(key,str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '',key
+        for name in key_map:
+            k = key_map[name]
+            value,k = get_meta_data(data,k)
+            if value:
+                metadata[name] = value
+                if k in ['createTime','updateTime']:
+                    metadata[name] = metadata[name].split(' ')[0]
+        return metadata
+
 
     def detail_other(self, curl):
         print("暂无该省")
