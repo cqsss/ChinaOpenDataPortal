@@ -298,5 +298,11 @@ class ResultList:
             ids.append(a['href'].split('=')[1])
         return ids
 
+    def result_list_guangdong_guangdong(self,curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']
+        ids = list(map(lambda x:x['resId'],data['page']['list']))
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

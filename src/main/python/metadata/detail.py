@@ -756,5 +756,46 @@ class Detail:
                     metadata[key] = metadata[key].replace('/', '-')
         return metadata
 
+    def detail_guangdong_guangdong(self,curl):
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
+            all_data = copy.deepcopy(data)
+            while not isinstance(key, str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '', key
+        key_map = {
+            '名称': "resTitle",
+            '简介': "resAbstract",
+            '关键字': "keyword",
+            '数据提供方': "officeName",
+            '主题分类': "subjectName",
+            '行业分类': "None",
+            '发布日期': "publishDate",
+            '更新日期': "lastModifyTime",
+            '更新频率': "None",
+            '开放方式': "openMode",
+            '版本':'None',
+            '联系方式':'None',
+            '邮箱':'email',
+            '资源格式':'sourceSuffix',
+        }
+        response = requests.post(curl['url'],json=curl['data'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']
+        metadata = {}
+        for name in key_map:
+            k = key_map[name]
+            value,k = get_meta_data(data,k)
+            if value:
+                metadata[name] = value
+                if name in ['发布日期','更新日期']:
+                    metadata[name] = metadata[name][:10]
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")
