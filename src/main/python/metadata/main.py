@@ -421,6 +421,34 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
+    def crawl_hunan_chenzhou(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['all_type']['url'], params=curl['all_type']['queries'],
+                                headers=curl['all_type']['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        lis = soup.find_all('li', class_='wb-tree-item')
+        type_ids = []
+        for li in lis:
+            text = str(li.find_next('a')['onclick'])
+            type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        for type, id in type_ids:
+            all_links = []
+            for page in range(0, 3):
+                curl = copy.deepcopy(self.result_list_curl)
+                curl['frame']['queries']['dataInfo.offset'] = page * 6
+                curl['frame']['queries']['type'] = type
+                curl['frame']['queries']['id'] = id
+                links = self.result_list.get_result_list(curl['frame'])
+                for link in links:
+                    if link in all_links:
+                        continue
+                    else:
+                        all_links.append(link)
+                    curl = copy.deepcopy(self.detail_list_curl)
+                    curl['queries']['id'] = link
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
 
     def crawl_other(self):
         print("暂无该省")

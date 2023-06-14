@@ -272,5 +272,18 @@ class ResultList:
         cata_ids = list(map(lambda x:x['CATA_ID'],data['list']))
         return cata_ids
 
+    def result_list_hunan_chenzhou(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        tables = soup.find_all('table', class_='table-data')
+        ids = []
+        for table in tables:
+            tr = table.find_all('tr')[-1]
+            a = tr.find_next('a')
+            ids.append(a['href'].split('=')[1])
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

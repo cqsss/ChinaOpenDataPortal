@@ -378,6 +378,83 @@
           "cataId": "0"
         }
       }
+    },
+    "chenzhou": {
+      "resultList": {
+        "all_type": {
+          "url": "https://www.czs.gov.cn/webapp/czs/dataPublic/dataList.jsp",
+          "method": "get",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive",
+            "Referer": "https://www.czs.gov.cn/webapp/czs/dataPublic/top.jsp",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\""
+          },
+          "queries": {
+            "data": "all"
+          }
+        },
+        "frame": {
+          "url": "https://www.czs.gov.cn/webapp/czs/dataPublic/dataListIframe.jsp",
+          "method": "get",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "Connection": "keep-alive",
+            "Referer": "https://www.czs.gov.cn/webapp/czs/dataPublic/dataListIframe.jsp?type=1&id=19&sort=1&formId=",
+            "Sec-Fetch-Dest": "iframe",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\""
+          },
+          "queries": {
+            "type": "0",
+            "id": "0",
+            "sort": "1",
+            "formId": "",
+            "dataInfo.offset": "0",
+            "dataInfo.desc": "false"
+          }
+        }
+      },
+      "detail": {
+        "url": "https://www.czs.gov.cn/webapp/czs/dataPublic/dataDetail.jsp",
+        "method": "get",
+        "headers": {
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Cache-Control": "max-age=0",
+          "Connection": "keep-alive",
+          "Referer": "https://www.czs.gov.cn/webapp/czs/dataPublic/dataListIframe.jsp?type=1&id=19&sort=1&formId=",
+          "Sec-Fetch-Dest": "document",
+          "Sec-Fetch-Mode": "navigate",
+          "Sec-Fetch-Site": "same-origin",
+          "Sec-Fetch-User": "?1",
+          "Upgrade-Insecure-Requests": "1",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+          "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "queries": {
+          "id": "0"
+        }
+      }
     }
   }
 }
