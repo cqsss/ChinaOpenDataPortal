@@ -639,5 +639,49 @@ class Detail:
                 key = None
         return metadata
 
+    def detail_hubei_suizhou(self,curl):
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        if curl['crawl_type'] == 'dataset':
+            data = json.loads(response.text)['setMetadata']
+        else:
+            data = json.loads(response.text)['apiMetadata']
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
+            all_data = copy.deepcopy(data)
+            while not isinstance(key, str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '', key
+        key_map = {
+            '名称': "resTitle",
+            '摘要': "resAbstract",
+            '关键字': "keyword",
+            '提供方': 'officeName',
+            '主题': "classifName",
+            '行业分类': "None",
+            '发布时间': "publishDate",
+            '数据更新时间': "dataUpdateTime",
+            '更新频率': "UpdateCycle",
+            '开放等级': 'openLevel',
+            '版本': 'None',
+            '联系方式': 'None',
+            '邮箱': 'None',
+            '文件格式': 'metadataFileSuffix',
+        }
+        metadata = {}
+        for name in key_map:
+            k = key_map[name]
+            value, k = get_meta_data(data, k)
+            if value:
+                metadata[name] = value
+                if name in ['数据更新时间','发布时间']:
+                    metadata[name] = metadata[name][:10]
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")

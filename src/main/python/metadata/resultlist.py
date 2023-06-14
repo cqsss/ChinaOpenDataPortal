@@ -246,5 +246,12 @@ class ResultList:
                 ids.append(a['href'].split('/')[-1])
         return ids
 
+    def result_list_hubei_suizhou(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], verify=False,
+                                 timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        ids = list(map(lambda x:x['id'],data['list']))
+        return ids
+
     def result_list_other(self):
         print("暂无该省")
