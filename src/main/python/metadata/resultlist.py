@@ -253,5 +253,17 @@ class ResultList:
         ids = list(map(lambda x:x['id'],data['list']))
         return ids
 
+    def result_list_hunan_yueyang(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        divs = soup.find_all('div',class_='szkf-box-list')
+        ids = []
+        for div in divs:
+            a = div.find_next('div',class_='name').find_next('a')
+            ids.append(a['href'].split('=')[1])
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

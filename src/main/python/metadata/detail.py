@@ -683,5 +683,23 @@ class Detail:
                     metadata[name] = metadata[name][:10]
         return metadata
 
+    def detail_hunan_yueyang(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        tbody = soup.find('table')
+        metadata = {}
+
+        metadata['名称'] = soup.find('h1',class_='content-title').text
+
+        for tr in tbody.find_all('tr'):
+            tds = tr.find_all_next('td')
+            key = tds[0].text.replace(' ','').strip().strip('：')
+            value = tds[1].text.replace(' ','').strip()
+            if value:
+                metadata[key] = value
+                if key in ['首次发布时间']:
+                    metadata[key] = metadata[key].replace('/','-')
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")

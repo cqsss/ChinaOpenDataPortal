@@ -1,6 +1,12 @@
 import json
 import urllib
 import copy
+
+import bs4
+
+from constants import REQUEST_TIME_OUT
+import requests
+
 from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST)
 from detail import Detail
 from resultlist import ResultList
@@ -371,6 +377,34 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
+    def crawl_hunan_yueyang(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['all_type']['url'], params=curl['all_type']['queries'], headers=curl['all_type']['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        lis = soup.find_all('li',class_='list-group-item-action')
+        type_ids = []
+        for li in lis:
+            text = str(li.find_next('a')['onclick'])
+            type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        for type,id in type_ids:
+            all_links = []
+            for page in range(0,5):
+                curl = copy.deepcopy(self.result_list_curl)
+                curl['frame']['queries']['dataInfo.offset'] = page*6
+                curl['frame']['queries']['type'] = type
+                curl['frame']['queries']['id'] = id
+                links = self.result_list.get_result_list(curl['frame'])
+                for link in links:
+                    if link in all_links:
+                        continue
+                    else:
+                        all_links.append(link)
+                    curl = copy.deepcopy(self.detail_list_curl)
+                    curl['queries']['id'] = link
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 
@@ -378,7 +412,6 @@ class Crawler:
         filename = save_dir + self.province + '_' + self.city + '.json'
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(f, self.metadata_list)
-
 
 if __name__ == '__main__':
     provinces = PROVINCE_LIST
