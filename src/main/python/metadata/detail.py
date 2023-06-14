@@ -701,5 +701,26 @@ class Detail:
                     metadata[key] = metadata[key].replace('/','-')
         return metadata
 
+    def detail_hunan_changde(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        metadata = {}
+
+        div = soup.find('div',class_='info-content')
+        top_info = div.find('div',class_='top-info')
+        metadata['名称'] = top_info.find('div',class_='catalog-name').text.replace(' ','').strip()
+        metadata['资源发布日期'] = top_info.find('div',class_='time').text.split('：')[-1].replace(' ','').strip()
+
+
+        rows = div.find('div',class_='row-content')
+        keys = rows.find_all('div','info-name')
+        values = rows.find_all('div','info-detail')
+        for key,value in zip(keys,values):
+            key = key.text.replace(' ','').strip()
+            value = value.text.replace(' ','').strip()
+            if value:
+                metadata[key] = value
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")

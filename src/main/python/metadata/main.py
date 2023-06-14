@@ -405,6 +405,23 @@ class Crawler:
                     metadata = self.detail.get_detail(curl)
                     self.metadata_list.append(metadata)
 
+    def crawl_hunan_changde(self):
+        all_ids = []
+        for page in range(1, 5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['queries']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['queries']['cataId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+
     def crawl_other(self):
         print("暂无该省")
 

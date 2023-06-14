@@ -265,5 +265,12 @@ class ResultList:
             ids.append(a['href'].split('=')[1])
         return ids
 
+    def result_list_hunan_changde(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        cata_ids = list(map(lambda x:x['CATA_ID'],data['list']))
+        return cata_ids
+
     def result_list_other(self):
         print("暂无该省")
