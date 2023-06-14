@@ -335,6 +335,18 @@ class Crawler:
                 curl['url'] = url
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
+
+    def crawl_hubei_jingzhou(self):
+        for page in range(1,5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['queries']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = curl['url'].format(id)
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 

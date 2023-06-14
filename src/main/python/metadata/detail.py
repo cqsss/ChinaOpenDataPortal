@@ -604,8 +604,39 @@ class Detail:
                 continue
             text = content.text
             text = text.replace(' ','').strip()
-            metadata[metadata_key[number]] = text
+            if text:
+                metadata[metadata_key[number]] = text
             number+=1
+        return metadata
+
+    def detail_hubei_jingzhou(self,curl):
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        metadata = {}
+
+        top = soup.find('div',class_='directory-media')
+        metadata['名称'] = top.find('ul',class_='d-title').text.replace(' ', '').strip()
+
+        details = top.find('div',class_='list-details')
+        lis = details.find_all('li')
+        content = lis[1].find_next('span').text
+        metadata['重点领域'] = content.replace(' ', '').strip()
+
+        table = soup.find('div',class_='panel-content')
+        table = table.find('li',attrs={'name':'basicinfo'})
+        key = None
+        for content in table.find_all('td'):
+            text = content.text
+            text = text.replace(' ', '').strip()
+            if not key:
+                key = text
+                continue
+            else:
+                if text:
+                    metadata[key] = text
+                if key in ['发布时间','最后更新时间']:
+                    metadata[key] = metadata[key][:10]
+                key = None
         return metadata
 
     def detail_other(self, curl):

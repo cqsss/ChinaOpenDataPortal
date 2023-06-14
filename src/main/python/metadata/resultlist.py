@@ -234,5 +234,17 @@ class ResultList:
                 links.append('/'.join(curl['url'].split('/')[:-1]) + (a['href'].lstrip('.')))
         return links
 
+    def result_list_hubei_jingzhou(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        divs = soup.find_all('div', class_='cata-title')
+        ids = []
+        for div in divs:
+            if div:
+                a = div.find('a')
+                ids.append(a['href'].split('/')[-1])
+        return ids
+
     def result_list_other(self):
         print("暂无该省")
