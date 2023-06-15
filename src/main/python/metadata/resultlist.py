@@ -304,5 +304,11 @@ class ResultList:
         ids = list(map(lambda x:x['resId'],data['page']['list']))
         return ids
 
+    def result_list_guangdong_guangzhou(self,curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['body']
+        ids = list(map(lambda x: x['sid'], data))
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

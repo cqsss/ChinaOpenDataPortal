@@ -797,5 +797,75 @@ class Detail:
                     metadata[name] = metadata[name][:10]
         return metadata
 
+    def detail_guangdong_guangzhou(self,curl):
+        doc_curl = curl['doc']
+        curl = curl['detail']
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['body']
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
+            all_data = copy.deepcopy(data)
+            while not isinstance(key, str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '', key
+        key_map = {
+            '名称': "name",
+            '简介': "description",
+            '标签': "tags",
+            '来源部门': "orgName",
+            '所属主题': "subjectName",
+            '所属行业': "industryName",
+            '发布时间': "created",
+            '最后更新': "lastUpdated",
+            '更新频率': "updateCycle",
+            '开放方式': "openStatus",
+            '版本':'None',
+            '联系电话':'None',
+            '联系邮箱':'None',
+            '数据格式':'None',
+        }
+        updateTime = {
+            '1': '不定期',
+            '2': '每天',
+            '3': '每周',
+            '4': '每月',
+            '5': '每季度',
+            '6': '每半年',
+            '7': '每年',
+            '8': '实时'
+        }
+        metadata = {}
+        for name in key_map:
+            k = key_map[name]
+            value, k = get_meta_data(data, k)
+            if value:
+                metadata[name] = value
+                if name in ['更新频率']:
+                    metadata[name] = updateTime[metadata[name]]
+                if name in ['发布时间', '最后更新']:
+                    metadata[name] = metadata[name][:10]
+                if name in ['开放方式']:
+                    metadata[name] = '有条件开放' if metadata[name]==3 else '无条件开放'
+
+        metadata['数据格式'] = list(map(lambda x:x['fileFormat'],data['dataFileList']))
+
+        response = requests.get(doc_curl['url'],params=doc_curl['queries'], headers=doc_curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.content,'html.parser')
+        divs = soup.find_all('div',class_='p-tit')
+        for div in divs:
+            if '数据集发布者联系方式' not in div.text:
+                continue
+            ul = div.find_next('ul')
+            spans = ul.find_all('span')
+            metadata['联系电话'] = spans[1].text
+            metadata['联系邮箱'] = spans[3].text
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")
