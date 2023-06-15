@@ -878,7 +878,7 @@ class Detail:
             spans = ul.find_all('span')
             metadata['联系电话'] = spans[1].text
             metadata['联系邮箱'] = spans[3].text
-        metadata['url'] = curl['doc']['url']+'?sid={}'.format(curl['doc']['queries']['sid'])
+        metadata['url'] = doc_curl['url']+'?sid={}'.format(doc_curl['queries']['sid'])
         return metadata
 
     def detail_guangdong_shenzhen(self,curl):
