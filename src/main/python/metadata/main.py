@@ -521,6 +521,37 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
+    def crawl_guangdong_shenzhen(self):
+        all_ids = []
+        for page in range(1,5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['dataset']['data']['pageNo'] = page
+            curl['dataset']['crawl_type'] = 'dataset'
+            ids = self.result_list.get_result_list(curl['dataset'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['data']['resId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+        for page in range(1,5):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['api']['data']['pageNo'] = page
+            curl['api']['crawl_type'] = 'api'
+            ids = self.result_list.get_result_list(curl['api'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['data']['resId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 

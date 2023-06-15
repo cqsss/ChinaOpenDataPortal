@@ -310,5 +310,14 @@ class ResultList:
         ids = list(map(lambda x: x['sid'], data))
         return ids
 
+    def result_list_guangdong_shenzhen(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        if curl['crawl_type'] == 'dataset':
+            data = json.loads(data['dataList'])['list']
+        else:
+            data = json.loads(data['apiList'])['list']
+        ids = list(map(lambda x: x['resId'],data))
+        return ids
     def result_list_other(self):
         print("暂无该省")

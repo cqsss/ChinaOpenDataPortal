@@ -867,5 +867,46 @@ class Detail:
             metadata['联系邮箱'] = spans[3].text
         return metadata
 
+    def detail_guangdong_shenzhen(self,curl):
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
+            all_data = copy.deepcopy(data)
+            while not isinstance(key, str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '', key
+        key_map = {
+            '名称': "resTitle",
+            '摘要': "resAbstract",
+            '关键字': "keyword",
+            '数据提供方': "officeName",
+            '服务分类': "subjectName",
+            '行业分类': "tradeName",
+            '上架日期': "publishDate",
+            '更新日期': "dataUpdateTime",
+            '更新频率': "updateCycle",
+            '开放方式': "openLevelName",
+            '版本':'None',
+            '联系方式':'phone',
+            '邮箱':'None',
+            '资源格式':'sourceSuffix',
+        }
+        response = requests.post(curl['url'],data=curl['data'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        metadata = {}
+        for name in key_map:
+            k = key_map[name]
+            value,k = get_meta_data(data,k)
+            if value:
+                metadata[name] = value
+                if name in ['上架日期','更新日期']:
+                    metadata[name] = metadata[name][:10]
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")

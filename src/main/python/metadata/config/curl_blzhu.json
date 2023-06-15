@@ -707,6 +707,84 @@
           }
         }
       }
+    },
+    "shenzhen": {
+      "resultList": {
+        "dataset": {
+          "url": "https://opendata.sz.gov.cn/data/dataSet/findPage",
+          "method": "post",
+          "headers": {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "Connection": "keep-alive",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "https://opendata.sz.gov.cn",
+            "Referer": "https://opendata.sz.gov.cn/data/dataSet/toDataSet",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "X-Requested-With": "XMLHttpRequest",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\""
+          },
+          "data": {
+            "pageNo": "1",
+            "pageSize": "6",
+            "sortType": "DESC",
+            "sourceTypeArray": ""
+          }
+        },
+        "api": {
+          "url": "https://opendata.sz.gov.cn/data/api/findPageByParams",
+          "method": "post",
+          "headers": {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "Connection": "keep-alive",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "https://opendata.sz.gov.cn",
+            "Referer": "https://opendata.sz.gov.cn/data/api/toApi",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+            "X-Requested-With": "XMLHttpRequest",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\""
+          },
+          "data": {
+            "pageNo": "1",
+            "pageSize": "6",
+            "sortType": "DESC"
+          }
+        }
+      },
+      "detail": {
+        "url": "https://opendata.sz.gov.cn/data/catalog/selectDataCatalogByResId",
+        "method": "post",
+        "headers": {
+          "Accept": "application/json, text/javascript, */*; q=0.01",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Connection": "keep-alive",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "Origin": "https://opendata.sz.gov.cn",
+          "Referer": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_00900273",
+          "Sec-Fetch-Dest": "empty",
+          "Sec-Fetch-Mode": "cors",
+          "Sec-Fetch-Site": "same-origin",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43",
+          "X-Requested-With": "XMLHttpRequest",
+          "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "data": {
+          "resId": "0"
+        }
+      }
     }
   }
 }
