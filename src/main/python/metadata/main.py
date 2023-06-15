@@ -469,14 +469,18 @@ class Crawler:
         for li in lis:
             text = str(li.find_next('a')['onclick'])
             type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        all_links = []
         for type, id in type_ids:
-            all_links = []
+            before_links = []
             for page in range(0, 32):
                 curl = copy.deepcopy(self.result_list_curl)
                 curl['frame']['queries']['dataInfo.offset'] = page * 6
                 curl['frame']['queries']['type'] = type
                 curl['frame']['queries']['id'] = id
                 links = self.result_list.get_result_list(curl['frame'])
+                if before_links == links:
+                    break
+                before_links = links
                 for link in links:
                     if link in all_links:
                         continue
@@ -498,14 +502,18 @@ class Crawler:
         for li in lis:
             text = str(li.find_next('a')['onclick'])
             type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        all_links = []
         for type, id in type_ids:
-            all_links = []
+            before_links = []
             for page in range(0, 10):
                 curl = copy.deepcopy(self.result_list_curl)
                 curl['frame']['queries']['dataInfo.offset'] = page * 6
                 curl['frame']['queries']['type'] = type
                 curl['frame']['queries']['id'] = id
                 links = self.result_list.get_result_list(curl['frame'])
+                if links == before_links:
+                    break
+                before_links = links
                 for link in links:
                     if link in all_links:
                         continue
