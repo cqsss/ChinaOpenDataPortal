@@ -330,17 +330,26 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_hubei_ezhou(self):
-        for page in range(0, 25):
+        all_ids = []
+        for page in range(0, 30):
             curl = copy.deepcopy(self.result_list_curl)
             curl['hangye']['crawl_type'] = 'hangye'
             curl['hangye']['url'] = curl['hangye']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
             urls = self.result_list.get_result_list(curl['hangye'])
             for url in urls:
+                if url in all_ids:
+                    continue
+                else:
+                    all_ids.append(url)
                 curl = copy.deepcopy(self.detail_list_curl)
                 curl['url'] = url
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
         for page in range(0,1):
+            if url in all_ids:
+                continue
+            else:
+                all_ids.append(url)
             curl = copy.deepcopy(self.result_list_curl)
             curl['shiji']['crawl_type'] = 'shiji'
             curl['shiji']['url'] = curl['shiji']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
