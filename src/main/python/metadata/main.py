@@ -563,6 +563,34 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
+    def crawl_hubei_huangshi(self):
+        all_ids = []
+        curl = copy.deepcopy(self.result_list_curl)
+        curl['url'] = curl['url'].format("1")
+        ids = self.result_list.get_result_list(curl)
+        for id in ids:
+            if id in all_ids:
+                continue
+            else:
+                all_ids.append(id)
+            curl = copy.deepcopy(self.detail_list_curl)
+            curl['queries']['infoid'] = id
+            metadata = self.detail.get_detail(curl)
+            self.metadata_list.append(metadata)
+
+        curl = copy.deepcopy(self.result_list_curl)
+        curl['url'] = curl['url'].format("0")
+        ids = self.result_list.get_result_list(curl)
+        for id in ids:
+            if id in all_ids:
+                continue
+            else:
+                all_ids.append(id)
+            curl = copy.deepcopy(self.detail_list_curl)
+            curl['queries']['infoid'] = id
+            metadata = self.detail.get_detail(curl)
+            self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 

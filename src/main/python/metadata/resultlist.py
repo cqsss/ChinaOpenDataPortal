@@ -330,5 +330,12 @@ class ResultList:
             ids.append(href.split('\'')[1])
         return ids
 
+    def result_list_hubei_huangshi(self,curl):
+        response = requests.get(curl['url'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']['list']
+        ids = list(map(lambda x:x['infoid'],data))
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

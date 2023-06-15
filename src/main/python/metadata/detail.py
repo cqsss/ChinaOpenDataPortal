@@ -940,5 +940,220 @@ class Detail:
         metadata['url'] = curl['url']+'?id={}&pageNum={}'.format(curl['queries']['id'],curl['queries']['pageNum'])
         return metadata
 
+    def detail_hubei_huangshi(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
+
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
+            all_data = copy.deepcopy(data)
+            while not isinstance(key, str):
+                now_key = list(key.keys())[0]
+                key = key[now_key]
+                if now_key in all_data:
+                    all_data = all_data[now_key]
+                else:
+                    all_data = {}
+            return all_data[key] if key in all_data else '', key
+        key_map = {
+            '名称': "title",
+            '摘要': "summary",
+            '资源标签': "tag",
+            '数源单位': "departmentname",
+            '数据领域': "lyid",
+            '行业分类': "bshy",
+            '发布日期': "c_date",
+            '更新日期': "e_data",
+            '更新周期': "None_field",
+            '开放条件': "dataopen",
+            '版本':'None',
+            '联系方式':'phone',
+            '邮箱':'None',
+            '资源格式':'datafmt',
+        }
+
+        lylist = [
+            {
+                "id": 1,
+                "name": "教育培训",
+                "value": 4
+            },
+            {
+                "id": 2,
+                "name": "企业扶持",
+                "value": 1
+            },
+            {
+                "id": 3,
+                "name": "就业招聘",
+                "value": 3
+            },
+            {
+                "id": 4,
+                "name": "城市安全",
+                "value": 2
+            },
+            {
+                "id": 5,
+                "name": "生活服务",
+                "value": 18
+            },
+            {
+                "id": 6,
+                "name": "结婚生育",
+                "value": 0
+            },
+            {
+                "id": 7,
+                "name": "交通出行",
+                "value": 4
+            },
+            {
+                "id": 8,
+                "name": "社会保险",
+                "value": 2
+            },
+            {
+                "id": 9,
+                "name": "退休养老",
+                "value": 0
+            },
+            {
+                "id": 10,
+                "name": "医疗保健",
+                "value": 2
+            }
+        ]
+        hylist = [
+            {
+                "id": 1,
+                "name": "信用服务",
+                "value": 2
+            },
+            {
+                "id": 2,
+                "name": "医疗卫生",
+                "value": 2
+            },
+            {
+                "id": 3,
+                "name": "社保就业",
+                "value": 4
+            },
+            {
+                "id": 4,
+                "name": "公共安全",
+                "value": 1
+            },
+            {
+                "id": 5,
+                "name": "城建住房",
+                "value": 2
+            },
+            {
+                "id": 6,
+                "name": "交通运输",
+                "value": 4
+            },
+            {
+                "id": 7,
+                "name": "教育文化",
+                "value": 4
+            },
+            {
+                "id": 8,
+                "name": "科技创新",
+                "value": 0
+            },
+            {
+                "id": 9,
+                "name": "资源能源",
+                "value": 0
+            },
+            {
+                "id": 10,
+                "name": "生态环境",
+                "value": 1
+            },
+            {
+                "id": 11,
+                "name": "工业农业",
+                "value": 0
+            },
+            {
+                "id": 12,
+                "name": "商贸流通",
+                "value": 2
+            },
+            {
+                "id": 13,
+                "name": "财税金融",
+                "value": 0
+            },
+            {
+                "id": 14,
+                "name": "安全生产",
+                "value": 1
+            },
+            {
+                "id": 15,
+                "name": "市场监督",
+                "value": 1
+            },
+            {
+                "id": 16,
+                "name": "社会救助",
+                "value": 3
+            },
+            {
+                "id": 17,
+                "name": "法律服务",
+                "value": 4
+            },
+            {
+                "id": 18,
+                "name": "生活服务",
+                "value": 6
+            },
+            {
+                "id": 19,
+                "name": "气象服务",
+                "value": 1
+            },
+            {
+                "id": 20,
+                "name": "地理空间",
+                "value": 0
+            },
+            {
+                "id": 21,
+                "name": "机构团体",
+                "value": 0
+            },
+            {
+                "id": 22,
+                "name": "其他",
+                "value": 0
+            }]
+
+        data = json.loads(response.text)['data']
+        metadata = {}
+        for name in key_map:
+            k = key_map[name]
+            value, k = get_meta_data(data, k)
+            if value:
+                metadata[name] = value
+                if name in ['发布日期', '更新日期']:
+                    metadata[name] = time.strftime('%Y-%m-%d',time.localtime(metadata[name]))
+                if name in ['数据领域']:
+                    item = list(filter(lambda x: x['id'] == int(metadata[name]),lylist))
+                    metadata[name] = item[0]['name']
+                if name in ['行业分类']:
+                    item = list(filter(lambda x: x['id'] == int(metadata[name]), hylist))
+                    metadata[name] = item[0]['name']
+                if name in ['开放条件']:
+                    metadata[name] = '无条件开放' if int(metadata[name])==1 else '申请公开'
+        metadata['url'] = 'http://data.huangshi.gov.cn/html/#/opentableinfo?infoid={}'.format(curl['queries']['id'])
+        return metadata
     def detail_other(self, curl):
         print("暂无该省")
