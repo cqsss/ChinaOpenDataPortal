@@ -319,5 +319,16 @@ class ResultList:
             data = json.loads(data['apiList'])['list']
         ids = list(map(lambda x: x['resId'],data))
         return ids
+
+    def result_list_guangdong_zhongshan(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        dl = soup.find('dl')
+        ids = []
+        for dd in dl.find_all('dd'):
+            href = dd.find('h2').find('a')['href']
+            ids.append(href.split('\'')[1])
+        return ids
+
     def result_list_other(self):
         print("暂无该省")

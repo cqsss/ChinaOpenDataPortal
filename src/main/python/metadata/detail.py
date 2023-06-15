@@ -908,5 +908,23 @@ class Detail:
                     metadata[name] = metadata[name][:10]
         return metadata
 
+    def detail_guangdong_zhongshan(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        table = soup.find('table',class_='table-main')
+        ths = table.find_all('th')
+        tds = table.find_all('td')
+        metadata = {}
+        metadata['名称'] = soup.find('h2').text
+
+        for th,td in zip(ths,tds):
+            th = th.text.replace(' ','').strip()
+            td = td.text.replace(' ','').strip()
+            if td:
+                metadata[th] = td
+                if th in ['创建时间','更新时间']:
+                    metadata[th] = metadata[th].replace('年','-').replace('月','-').replace('日','')
+        return metadata
+
     def detail_other(self, curl):
         print("暂无该省")
