@@ -506,16 +506,18 @@ class Detail:
         response = requests.get(curl['url'],params=curl['queries'],headers=curl['headers'],timeout=REQUEST_TIME_OUT)
         data = json.loads(response.text)['data']
         metadata = {}
-        def get_meta_data(data,key):
+        def get_meta_data(data, key):
+            if not data:
+                return '',key
             all_data = copy.deepcopy(data)
-            while not isinstance(key,str):
+            while not isinstance(key, str):
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '',key
+            return (all_data[key] if (key in all_data) else ''), key
         for name in key_map:
             k = key_map[name]
             value,k = get_meta_data(data,k)
@@ -538,7 +540,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         if curl['crawl_type'] == 'dataset':
             key_map = {
                 '名称': "title",
@@ -661,7 +663,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         key_map = {
             '名称': "resTitle",
             '摘要': "resAbstract",
@@ -778,7 +780,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         key_map = {
             '名称': "resTitle",
             '简介': "resAbstract",
@@ -824,7 +826,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         key_map = {
             '名称': "name",
             '简介': "description",
@@ -891,7 +893,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         key_map = {
             '名称': "resTitle",
             '摘要': "resAbstract",
@@ -945,7 +947,7 @@ class Detail:
 
         def get_meta_data(data, key):
             if not data:
-                return '',key
+                return '', key
             all_data = copy.deepcopy(data)
             while not isinstance(key, str):
                 now_key = list(key.keys())[0]
@@ -954,7 +956,7 @@ class Detail:
                     all_data = all_data[now_key]
                 else:
                     all_data = {}
-            return all_data[key] if key in all_data else '', key
+            return (all_data[key] if (key in all_data) else ''), key
         key_map = {
             '名称': "title",
             '摘要': "summary",
