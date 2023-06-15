@@ -226,6 +226,8 @@ class ResultList:
         soup = bs4.BeautifulSoup(response.text)
         ul = soup.find('ul', class_='sjj_right_list')
         links = []
+        if not ul:
+            return []
         for li in ul.find_all('li', class_='fbc'):
             h3 = li.find('h3')
             if h3 is not None:
