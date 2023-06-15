@@ -1155,7 +1155,7 @@ class Detail:
                     metadata[name] = item[0]['name']
                 if name in ['开放条件']:
                     metadata[name] = '无条件开放' if int(metadata[name])==1 else '申请公开'
-        metadata['url'] = 'http://data.huangshi.gov.cn/html/#/opentableinfo?infoid={}'.format(curl['queries']['id'])
+        metadata['url'] = 'http://data.huangshi.gov.cn/html/#/opentableinfo?infoid={}'.format(curl['queries']['infoid'])
         return metadata
     def detail_other(self, curl):
         print("暂无该省")
