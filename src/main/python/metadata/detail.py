@@ -523,6 +523,7 @@ class Detail:
                 metadata[name] = value
                 if k in ['createTime','updateTime']:
                     metadata[name] = metadata[name].split(' ')[0]
+        metadata['url'] = 'http://data.wuhan.gov.cn/page/data/data_set_details.html?cataId={}'.format(curl['queries']['cataId'])
         return metadata
 
     def detail_hubei_yichang(self, curl):
@@ -563,6 +564,7 @@ class Detail:
                 value,k = get_meta_data(data,k)
                 if value:
                     metadata[name] = value
+            metadata['url'] = 'https://data.yichang.gov.cn/kf/open/table/detail/{}'.format(curl['queries']['dataId'])
         else:
             key_map = {
                 '名称': "title",
@@ -589,6 +591,7 @@ class Detail:
                 value, k = get_meta_data(data, k)
                 if value:
                     metadata[name] = value
+            metadata['url'] = 'https://data.yichang.gov.cn/kf/open/interface/detail/{}'.format(curl['data']['baseDataId'])
         return metadata
 
     def detail_hubei_ezhou(self,curl):
@@ -607,6 +610,7 @@ class Detail:
             if text:
                 metadata[metadata_key[number]] = text
             number+=1
+        metadata['url'] = curl['url']
         return metadata
 
     def detail_hubei_jingzhou(self,curl):
@@ -637,6 +641,7 @@ class Detail:
                 if key in ['发布时间','最后更新时间']:
                     metadata[key] = metadata[key][:10]
                 key = None
+        metadata['url'] = curl['url']
         return metadata
 
     def detail_hubei_suizhou(self,curl):
@@ -681,6 +686,7 @@ class Detail:
                 metadata[name] = value
                 if name in ['数据更新时间','发布时间']:
                     metadata[name] = metadata[name][:10]
+        metadata['url'] = curl['url']
         return metadata
 
     def detail_hunan_yueyang(self,curl):
@@ -699,6 +705,7 @@ class Detail:
                 metadata[key] = value
                 if key in ['首次发布时间']:
                     metadata[key] = metadata[key].replace('/','-')
+        metadata['url'] = curl['url']+"?id={}".format(curl['queries']['id'])
         return metadata
 
     def detail_hunan_changde(self,curl):
@@ -720,6 +727,7 @@ class Detail:
             value = value.text.replace(' ','').strip()
             if value:
                 metadata[key] = value
+        metadata['url'] = 'https://www.changde.gov.cn/cdwebsite/dataopen/detail?cataId={}'.format(curl['queries']['cataId'])
         return metadata
 
     def detail_hunan_chenzhou(self,curl):
@@ -737,6 +745,7 @@ class Detail:
                 metadata[key] = value
                 if key in ['首次发布时间','更新时间']:
                     metadata[key] = metadata[key].replace('/', '-')
+        metadata['url'] = curl['url']+'?id={}'.format(curl['queries']['id'])
         return metadata
 
     def detail_hunan_yiyang(self,curl):
@@ -754,6 +763,7 @@ class Detail:
                 metadata[key] = value
                 if key in ['首次发布时间', '更新时间']:
                     metadata[key] = metadata[key].replace('/', '-')
+        metadata['url'] = curl['url'] + '?id={}'.format(curl['queries']['id'])
         return metadata
 
     def detail_guangdong_guangdong(self,curl):
@@ -795,6 +805,7 @@ class Detail:
                 metadata[name] = value
                 if name in ['发布日期','更新日期']:
                     metadata[name] = metadata[name][:10]
+        metadata['url'] = 'https://gddata.gd.gov.cn/opdata/index'
         return metadata
 
     def detail_guangdong_guangzhou(self,curl):
@@ -865,6 +876,7 @@ class Detail:
             spans = ul.find_all('span')
             metadata['联系电话'] = spans[1].text
             metadata['联系邮箱'] = spans[3].text
+        metadata['url'] = curl['doc']['url']+'?sid={}'.format(curl['doc']['queries']['sid'])
         return metadata
 
     def detail_guangdong_shenzhen(self,curl):
@@ -906,6 +918,7 @@ class Detail:
                 metadata[name] = value
                 if name in ['上架日期','更新日期']:
                     metadata[name] = metadata[name][:10]
+        metadata['url'] = 'https://opendata.sz.gov.cn/data/dataSet/toDataDetails/{}'.format(curl['data']['resId'].replace('/','_'))
         return metadata
 
     def detail_guangdong_zhongshan(self,curl):
@@ -924,6 +937,7 @@ class Detail:
                 metadata[th] = td
                 if th in ['创建时间','更新时间']:
                     metadata[th] = metadata[th].replace('年','-').replace('月','-').replace('日','')
+        metadata['url'] = curl['url']+'?id={}&pageNum={}'.format(curl['queries']['id'],curl['queries']['pageNum'])
         return metadata
 
     def detail_other(self, curl):
