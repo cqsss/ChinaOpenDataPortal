@@ -654,10 +654,23 @@ class Crawler:
     def crawl_other(self):
         print("暂无该省")
 
-    def save_matadata_as_json(self, save_dir):
+    def save_metadata_as_json(self, save_dir):
+        keys = {}
+        for item in self.metadata_list:
+            for k in item:
+                keys[k] = type(item[k])
+        all_data = []
+        for item in self.metadata_list:
+            for k in keys:
+                if k not in item:
+                    if keys[k] == type(' ') or keys[k] == type(0):
+                        item[k] = ''
+                    if keys[k] == type(['0']):
+                        item[k] = []
+            all_data.append(item)
         filename = save_dir + self.province + '_' + self.city + '.json'
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(f, self.metadata_list)
+            json.dump(all_data, f, indent=4, ensure_ascii=False)
 
 if __name__ == '__main__':
     provinces = PROVINCE_LIST
@@ -666,7 +679,7 @@ if __name__ == '__main__':
 
     crawler = Crawler("anhui", "anhui")
     crawler.crawl()
-    crawler.save_as_json(METADATA_SAVE_PATH)
+    crawler.save_metadata_as_json(METADATA_SAVE_PATH)
     # for province in provinces:
     #     crawler = Crawler(province)
     #     crawler.crawl()
