@@ -526,7 +526,7 @@ class Detail:
                 if k in ['createTime','updateTime']:
                     metadata[name] = metadata[name].split(' ')[0]
         if '资源格式' in metadata:
-            metadata['资源格式'] = list(metadata['资源格式'].split(','))
+            metadata['资源格式'] = list(metadata['资源格式'].lower().split(','))
         metadata['url'] = 'http://data.wuhan.gov.cn/page/data/data_set_details.html?cataId={}'.format(curl['queries']['cataId'])
         return metadata
 
@@ -698,7 +698,7 @@ class Detail:
         if 'dataApi' in curl['url']:
             metadata['文件格式'] = 'api'
         if '文件格式' in metadata:
-            metadata['文件格式'] = list(metadata['文件格式'].split(','))
+            metadata['文件格式'] = list(metadata['文件格式'].lower().split(','))
         metadata['url'] = curl['url']
         return metadata
 
@@ -720,7 +720,7 @@ class Detail:
                     metadata[key] = metadata[key].replace('/','-')
 
         if '数据格式' in metadata:
-            metadata['数据格式'] = list(metadata['数据格式'].split(','))
+            metadata['数据格式'] = list(metadata['数据格式'].lower().split(','))
         metadata['url'] = curl['url']+"?id={}".format(curl['queries']['id'])
         return metadata
 
@@ -762,7 +762,7 @@ class Detail:
                 if key in ['首次发布时间','更新时间']:
                     metadata[key] = metadata[key].replace('/', '-')
         if '数据格式' in metadata:
-            metadata['数据格式'] = list(metadata['数据格式'].split(','))
+            metadata['数据格式'] = list(metadata['数据格式'].lower().split(','))
         metadata['url'] = curl['url']+'?id={}'.format(curl['queries']['id'])
         return metadata
 
@@ -782,7 +782,7 @@ class Detail:
                 if key in ['首次发布时间', '更新时间']:
                     metadata[key] = metadata[key].replace('/', '-')
         if '数据格式' in metadata:
-            metadata['数据格式'] = list(metadata['数据格式'].split(','))
+            metadata['数据格式'] = list(metadata['数据格式'].lower().split(','))
         metadata['url'] = curl['url'] + '?id={}'.format(curl['queries']['id'])
         return metadata
 
@@ -826,7 +826,7 @@ class Detail:
                 if name in ['发布日期','更新日期']:
                     metadata[name] = metadata[name][:10]
         if '资源格式' in metadata:
-            metadata['资源格式'] = list(metadata['资源格式'].split(','))
+            metadata['资源格式'] = list(metadata['资源格式'].lower().split(','))
         metadata['url'] = 'https://gddata.gd.gov.cn/opdata/index'
         return metadata
 
@@ -941,7 +941,7 @@ class Detail:
                 if name in ['上架日期','更新日期']:
                     metadata[name] = metadata[name][:10]
         if '资源格式' in metadata:
-            metadata['资源格式'] = list(metadata['资源格式'].split(','))
+            metadata['资源格式'] = list(metadata['资源格式'].lower().split(','))
         metadata['url'] = 'https://opendata.sz.gov.cn/data/dataSet/toDataDetails/{}'.format(curl['data']['resId'].replace('/','_'))
         return metadata
 
@@ -1178,7 +1178,7 @@ class Detail:
                 if name in ['开放条件']:
                     metadata[name] = '无条件开放' if int(metadata[name])==1 else '申请公开'
         if '资源格式' in metadata:
-            metadata['资源格式'] = list(metadata['资源格式'].split(','))
+            metadata['资源格式'] = list(metadata['资源格式'].lower().split(','))
         metadata['url'] = 'http://data.huangshi.gov.cn/html/#/opentableinfo?infoid={}'.format(curl['queries']['infoid'])
         return metadata
     def detail_other(self, curl):
