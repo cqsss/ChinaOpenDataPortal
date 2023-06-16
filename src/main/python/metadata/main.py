@@ -720,6 +720,18 @@ class Crawler:
             metadata = self.detail.get_detail(curl)
             self.metadata_list.append(metadata)
 
+    def crawl_hubei_xianning(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['url'],headers=curl['headers'])
+        data = json.loads(response.text)
+        for item in data:
+            metadata = {'名称':item['title'],"详情页网址":item['link'],"创建时间":item['pubDate'],"更新时间":item['update'],"数据来源":item["department"],"数据领域":item['theme'],"文件类型":item['chnldesc']}
+            metadata['更新时间'] = metadata['更新时间'].replace('年','-').replace('月','-').replace('日','')
+            metadata['创建时间'] = metadata['创建时间'].replace('年','-').replace('月','-').replace('日','')
+            metadata['文件类型'] = 'file' if metadata['文件类型']=='数据集' else 'api'
+            metadata['文件类型'] = metadata['文件类型'].split(',')
+            self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 

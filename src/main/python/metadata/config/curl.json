@@ -1041,6 +1041,19 @@
         }
     },
     "hubei": {
+        "xianning": {
+            "resultList": {
+                "url": "http://www.xianning.gov.cn/cysjdy/sjmljson/sjml.json",
+                "method": "get",
+                "headers": {
+                    "Accept": "application/json, text/javascript, */*; q=0.01",
+                    "Referer": "http://www.xianning.gov.cn/data/list/",
+                    "X-Requested-With": "XMLHttpRequest",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"
+                }
+            },
+            "detail": {}
+        },
         "huangshi": {
             "resultList": {
                 "url": "http://data.huangshi.gov.cn/myapi/Datainfo/index?departmentid=&lyid=&bshy=&dataifa={}&d=2023-06-15T08:49:57.037Z",
