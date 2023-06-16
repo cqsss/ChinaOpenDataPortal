@@ -2,6 +2,7 @@ import json
 import re
 import urllib
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 from constants import REQUEST_TIME_OUT
@@ -203,12 +204,6 @@ class ResultList:
             links.append(link['href'])
         return links
 
-    def result_list_guangdong_guangdong(self, curl):
-        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        resultList = json.loads(response.text)['data']['page']['list']
-        res_ids = [x['resId'] for x in resultList]
-        return res_ids
-
     def result_list_guangxi_guangxi(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
@@ -269,6 +264,146 @@ class ResultList:
         print(response)
         resultList = json.loads(response.text)['data']
         ids = [x['id'] for x in resultList]
+        return ids
+
+    def result_list_hubei_wuhan(self, curl):
+        response = requests.post(curl['url'],json=curl['data'],headers=curl['headers'],verify=False,timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['data']
+        cataIds = list(map(lambda x:x['cataId'],resultList['records']))
+        return cataIds
+
+    def result_list_hubei_yichang(self,curl):
+        if curl['crawl_type'] == 'dataset':
+            response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], verify=False,
+                                     timeout=REQUEST_TIME_OUT)
+            resultList = json.loads(response.text)['data']
+            cataIds = list(map(lambda x: x['iid'], resultList['rows']))
+            return cataIds
+        else:
+            response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'],
+                                     timeout=REQUEST_TIME_OUT)
+            resultList = json.loads(response.text)['data']
+            cataIds = list(map(lambda x: x['iid'], resultList['list']))
+            return cataIds
+
+    def result_list_hubei_ezhou(self,curl):
+
+        response = requests.get(curl['url'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text)
+        ul = soup.find('ul', class_='sjj_right_list')
+        links = []
+        if not ul:
+            return []
+        for li in ul.find_all('li', class_='fbc'):
+            h3 = li.find('h3')
+            if h3 is not None:
+                a = h3.find('a')
+                # links.append(a['href'])
+                links.append('/'.join(curl['url'].split('/')[:-1]) + (a['href'].lstrip('.')))
+        return links
+
+    def result_list_hubei_jingzhou(self,curl):
+        response = requests.get(curl['url'],params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        divs = soup.find_all('div', class_='cata-title')
+        ids = []
+        for div in divs:
+            if div:
+                a = div.find('a')
+                ids.append(a['href'].split('/')[-1])
+        return ids
+
+    def result_list_hubei_suizhou(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], verify=False,
+                                 timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        ids = list(map(lambda x:x['id'],data['list']))
+        return ids
+
+    def result_list_hunan_yueyang(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        divs = soup.find_all('div',class_='szkf-box-list')
+        ids = []
+        for div in divs:
+            a = div.find_next('div',class_='name').find_next('a')
+            ids.append(a['href'].split('=')[1])
+        return ids
+
+    def result_list_hunan_changde(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        cata_ids = list(map(lambda x:x['CATA_ID'],data['list']))
+        return cata_ids
+
+    def result_list_hunan_chenzhou(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        tables = soup.find_all('table', class_='table-data')
+        ids = []
+        for table in tables:
+            tr = table.find_all('tr')[-1]
+            a = tr.find_next('a')
+            ids.append(a['href'].split('=')[1])
+        return ids
+
+    def result_list_hunan_yiyang(self,curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        tables = soup.find_all('table', class_='table-data')
+        ids = []
+        for table in tables:
+            tr = table.find_all('tr')[-1]
+            a = tr.find_next('a')
+            ids.append(a['href'].split('=')[1])
+        return ids
+
+    def result_list_guangdong_guangdong(self,curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']
+        ids = list(map(lambda x:x['resId'],data['page']['list']))
+        return ids
+
+    def result_list_guangdong_guangzhou(self,curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['body']
+        ids = list(map(lambda x: x['sid'], data))
+        return ids
+
+    def result_list_guangdong_shenzhen(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)
+        if curl['crawl_type'] == 'dataset':
+            data = json.loads(data['dataList'])['list']
+        else:
+            data = json.loads(data['apiList'])['list']
+        ids = list(map(lambda x: x['resId'],data))
+        return ids
+
+    def result_list_guangdong_zhongshan(self,curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        dl = soup.find('dl')
+        ids = []
+        for dd in dl.find_all('dd'):
+            href = dd.find('h2').find('a')['href']
+            ids.append(href.split('\'')[1])
+        return ids
+
+    def result_list_hubei_huangshi(self,curl):
+        response = requests.get(curl['url'], headers=curl['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        data = json.loads(response.text)['data']['list']
+        ids = list(map(lambda x:x['infoid'],data))
         return ids
 
     def result_list_other(self):

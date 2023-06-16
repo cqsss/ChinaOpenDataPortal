@@ -1,6 +1,12 @@
 import json
 import time
 import urllib
+import copy
+
+import bs4
+
+from constants import REQUEST_TIME_OUT
+import requests
 
 from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH,
                        PROVINCE_LIST)
@@ -269,19 +275,6 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
-    def crawl_guangdong_guangdong(self):
-        for page in range(1, 5):
-            print(page)
-            curl = self.result_list_curl.copy()
-            curl['data']['pageNo'] = page
-            res_ids = self.result_list.get_result_list(curl)
-            for res_id in res_ids:
-                curl = self.detail_list_curl.copy()
-                curl['data']['resId'] = res_id
-                metadata = self.detail.get_detail(curl)
-                print(metadata)
-                self.metadata_list.append(metadata)
-
     def crawl_guangxi_guangxi(self):
         for page in range(1, 5):
             print(page)
@@ -360,14 +353,405 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
+    def crawl_hubei_wuhan(self):
+        all_ids = []
+        for page in range(1, 236):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['data']['current'] = page
+            curl['data']['size'] = 6
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['queries']['cataId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hubei_yichang(self):
+        all_ids = []
+        for page in range(1, 66):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['dataset']['crawl_type'] = 'dataset'
+            curl['dataset']['data']['pageNum'] = page
+            ids = self.result_list.get_result_list(curl['dataset'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['dataset']['crawl_type'] = 'dataset'
+                curl['dataset']['queries']['dataId'] = id
+                metadata = self.detail.get_detail(curl['dataset'])
+                self.metadata_list.append(metadata)
+        for page in range(1,14):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['interface']['crawl_type'] = 'interface'
+            curl['interface']['data']['pageNum'] = page
+            ids = self.result_list.get_result_list(curl['interface'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['interface']['crawl_type'] = 'interface'
+                curl['interface']['data']['baseDataId'] = id
+                metadata = self.detail.get_detail(curl['interface'])
+                self.metadata_list.append(metadata)
+
+    def crawl_hubei_ezhou(self):
+        all_ids = []
+        for page in range(0, 30):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['hangye']['crawl_type'] = 'hangye'
+            curl['hangye']['url'] = curl['hangye']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
+            urls = self.result_list.get_result_list(curl['hangye'])
+            for url in urls:
+                if url in all_ids:
+                    continue
+                else:
+                    all_ids.append(url)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = url
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+        for page in range(0,1):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['shiji']['crawl_type'] = 'shiji'
+            curl['shiji']['url'] = curl['shiji']['url'].format('index{}.html'.format(f'_{page}'if page else ''))
+            urls = self.result_list.get_result_list(curl['shiji'])
+            for url in urls:
+                if url in all_ids:
+                    continue
+                else:
+                    all_ids.append(url)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = url
+                curl['api'] = True
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hubei_jingzhou(self):
+        all_ids = []
+        for page in range(1,121):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['queries']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['url'] = curl['url'].format(id)
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hubei_suizhou(self):
+        all_ids = []
+        for page in range(1, 48):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['url'] = curl['url'].format('dataSet')
+            curl['data']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['crawl_type'] = 'dataset'
+                curl['url'] = curl['url'].format('dataSet/toDataDetails/'+str(id))
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+        for page in range(1,2):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['url'] = curl['url'].format('dataApi')
+            curl['data']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['crawl_type'] = 'api'
+                curl['url'] = curl['url'].format('dataApi/toDataDetails/'+str(id))
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hunan_yueyang(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['all_type']['url'], params=curl['all_type']['queries'], headers=curl['all_type']['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text,'html.parser')
+        lis = soup.find_all('li',class_='list-group-item-action')
+        type_ids = []
+        for li in lis:
+            text = str(li.find_next('a')['onclick'])
+            type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        for type,id in type_ids:
+            all_links = []
+            for page in range(0,5):
+                curl = copy.deepcopy(self.result_list_curl)
+                curl['frame']['queries']['dataInfo.offset'] = page*6
+                curl['frame']['queries']['type'] = type
+                curl['frame']['queries']['id'] = id
+                links = self.result_list.get_result_list(curl['frame'])
+                for link in links:
+                    if link in all_links:
+                        continue
+                    else:
+                        all_links.append(link)
+                    curl = copy.deepcopy(self.detail_list_curl)
+                    curl['queries']['id'] = link
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
+
+    def crawl_hunan_changde(self):
+        all_ids = []
+        for page in range(1, 3):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['queries']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['queries']['cataId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hunan_chenzhou(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['all_type']['url'], params=curl['all_type']['queries'],
+                                headers=curl['all_type']['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        lis = soup.find_all('li', class_='wb-tree-item')
+        type_ids = []
+        for li in lis:
+            text = str(li.find_next('a')['onclick'])
+            type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        all_links = []
+        for type, id in type_ids:
+            before_links = []
+            for page in range(0, 32):
+                curl = copy.deepcopy(self.result_list_curl)
+                curl['frame']['queries']['dataInfo.offset'] = page * 6
+                curl['frame']['queries']['type'] = type
+                curl['frame']['queries']['id'] = id
+                links = self.result_list.get_result_list(curl['frame'])
+                if before_links == links:
+                    break
+                before_links = links
+                for link in links:
+                    if link in all_links:
+                        continue
+                    else:
+                        all_links.append(link)
+                    curl = copy.deepcopy(self.detail_list_curl)
+                    curl['queries']['id'] = link
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
+
+    def crawl_hunan_yiyang(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['all_type']['url'],
+                                headers=curl['all_type']['headers'], verify=False,
+                                timeout=REQUEST_TIME_OUT)
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        lis = soup.find_all('li', class_='wb-tree-item')
+        type_ids = []
+        for li in lis:
+            text = str(li.find_next('a')['onclick'])
+            type_ids.append(text.split('(')[1].split(')')[0].split(','))
+        all_links = []
+        for type, id in type_ids:
+            before_links = []
+            for page in range(0, 10):
+                curl = copy.deepcopy(self.result_list_curl)
+                curl['frame']['queries']['dataInfo.offset'] = page * 6
+                curl['frame']['queries']['type'] = type
+                curl['frame']['queries']['id'] = id
+                links = self.result_list.get_result_list(curl['frame'])
+                if links == before_links:
+                    break
+                before_links = links
+                for link in links:
+                    if link in all_links:
+                        continue
+                    else:
+                        all_links.append(link)
+                    curl = copy.deepcopy(self.detail_list_curl)
+                    curl['queries']['id'] = link
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
+
+    def crawl_guangdong_guangdong(self):
+        all_ids = []
+        for page in range(1,7574):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['dataset']['data']['pageNo'] = page
+            curl['dataset']['crawl_type'] = 'dataset'
+            ids = self.result_list.get_result_list(curl['dataset'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['dataset']['crawl_type'] = 'dataset'
+                curl['dataset']['data']['resId'] = id
+                metadata = self.detail.get_detail(curl['dataset'])
+                self.metadata_list.append(metadata)
+        for page in range(1,37):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['api']['data']['pageNo'] = page
+            curl['api']['crawl_type'] = 'api'
+            ids = self.result_list.get_result_list(curl['api'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['api']['data']['resId'] = id
+                curl['api']['crawl_type'] = 'api'
+                metadata = self.detail.get_detail(curl['api'])
+                self.metadata_list.append(metadata)
+
+    def crawl_guangdong_guangzhou(self):
+        all_ids = []
+        for page in range(1,129):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['data']['body']['useType'] = None
+            curl['data']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['detail']['url'] = curl['detail']['url'].format(id)
+                curl['doc']['queries']['sid'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_guangdong_shenzhen(self):
+        all_ids = []
+        for page in range(1,553):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['dataset']['data']['pageNo'] = page
+            curl['dataset']['crawl_type'] = 'dataset'
+            ids = self.result_list.get_result_list(curl['dataset'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['data']['resId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+        for page in range(1,548):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['api']['data']['pageNo'] = page
+            curl['api']['crawl_type'] = 'api'
+            ids = self.result_list.get_result_list(curl['api'])
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['data']['resId'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_guangdong_zhongshan(self):
+        all_ids = []
+        for page in range(1, 85):
+            curl = copy.deepcopy(self.result_list_curl)
+            curl['data']['page'] = page
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                if id in all_ids:
+                    continue
+                else:
+                    all_ids.append(id)
+                curl = copy.deepcopy(self.detail_list_curl)
+                curl['queries']['id'] = id
+                metadata = self.detail.get_detail(curl)
+                self.metadata_list.append(metadata)
+
+    def crawl_hubei_huangshi(self):
+        all_ids = []
+        curl = copy.deepcopy(self.result_list_curl)
+        curl['url'] = curl['url'].format("1")
+        ids = self.result_list.get_result_list(curl)
+        for id in ids:
+            if id in all_ids:
+                continue
+            else:
+                all_ids.append(id)
+            curl = copy.deepcopy(self.detail_list_curl)
+            curl['queries']['infoid'] = id
+            metadata = self.detail.get_detail(curl)
+            self.metadata_list.append(metadata)
+
+        curl = copy.deepcopy(self.result_list_curl)
+        curl['url'] = curl['url'].format("0")
+        ids = self.result_list.get_result_list(curl)
+        for id in ids:
+            if id in all_ids:
+                continue
+            else:
+                all_ids.append(id)
+            curl = copy.deepcopy(self.detail_list_curl)
+            curl['queries']['infoid'] = id
+            metadata = self.detail.get_detail(curl)
+            self.metadata_list.append(metadata)
+
+    def crawl_hubei_xianning(self):
+        curl = copy.deepcopy(self.result_list_curl)
+        response = requests.get(curl['url'],headers=curl['headers'])
+        data = json.loads(response.text)
+        for item in data:
+            metadata = {'名称':item['title'],"详情页网址":item['link'],"创建时间":item['pubDate'],"更新时间":item['update'],"数据来源":item["department"],"数据领域":item['theme'],"文件类型":item['chnldesc']}
+            metadata['更新时间'] = metadata['更新时间'].replace('年','-').replace('月','-').replace('日','')
+            metadata['创建时间'] = metadata['创建时间'].replace('年','-').replace('月','-').replace('日','')
+            metadata['文件类型'] = 'file' if metadata['文件类型']=='数据集' else 'api'
+            metadata['文件类型'] = metadata['文件类型'].split(',')
+            self.metadata_list.append(metadata)
+
     def crawl_other(self):
         print("暂无该省")
 
-    def save_matadata_as_json(self, save_dir):
+    def save_metadata_as_json(self, save_dir):
+        keys = {}
+        for item in self.metadata_list:
+            for k in item:
+                keys[k] = type(item[k])
+        all_data = []
+        for item in self.metadata_list:
+            for k in keys:
+                if k not in item:
+                    if keys[k] == type(' ') or keys[k] == type(0):
+                        item[k] = ''
+                    if keys[k] == type(['0']):
+                        item[k] = []
+            all_data.append(item)
         filename = save_dir + self.province + '_' + self.city + '.json'
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(self.metadata_list, f, ensure_ascii=False)
-
+            json.dump(all_data, f, indent=4, ensure_ascii=False)
 
 if __name__ == '__main__':
     provinces = PROVINCE_LIST
@@ -376,7 +760,8 @@ if __name__ == '__main__':
 
     crawler = Crawler("anhui", "suzhou")
     crawler.crawl()
-    crawler.save_matadata_as_json(METADATA_SAVE_PATH)
+    crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+
     # for province in provinces:
     #     crawler = Crawler(province)
     #     crawler.crawl()
