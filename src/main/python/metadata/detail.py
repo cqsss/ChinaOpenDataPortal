@@ -593,6 +593,7 @@ class Detail:
                 value, k = get_meta_data(data, k)
                 if value:
                     metadata[name] = value
+            metadata['数据下载'] = 'api'
             metadata['url'] = 'https://data.yichang.gov.cn/kf/open/interface/detail/{}'.format(curl['data']['baseDataId'])
         return metadata
 
@@ -612,6 +613,8 @@ class Detail:
             if text:
                 metadata[metadata_key[number]] = text
             number+=1
+        if 'api' in curl:
+            metadata['资源格式'] = 'api'
         metadata['url'] = curl['url']
         return metadata
 
@@ -688,6 +691,8 @@ class Detail:
                 metadata[name] = value
                 if name in ['数据更新时间','发布时间']:
                     metadata[name] = metadata[name][:10]
+        if 'dataApi' in curl['url']:
+            metadata['文件格式'] = 'api'
         metadata['url'] = curl['url']
         return metadata
 

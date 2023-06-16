@@ -362,6 +362,7 @@ class Crawler:
                     all_ids.append(url)
                 curl = copy.deepcopy(self.detail_list_curl)
                 curl['url'] = url
+                curl['api'] = True
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
 
