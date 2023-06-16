@@ -131,12 +131,6 @@ class ResultList:
             links.append(link['href'])
         return links
 
-    def result_list_guangdong_guangdong(self, curl):
-        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        resultList = json.loads(response.text)['data']['page']['list']
-        res_ids = [x['resId'] for x in resultList]
-        return res_ids
-
     def result_list_guangxi_guangxi(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content

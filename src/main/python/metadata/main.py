@@ -193,19 +193,6 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
-    def crawl_guangdong_guangdong(self):
-        for page in range(1, 5):
-            print(page)
-            curl = self.result_list_curl.copy()
-            curl['data']['pageNo'] = page
-            res_ids = self.result_list.get_result_list(curl)
-            for res_id in res_ids:
-                curl = self.detail_list_curl.copy()
-                curl['data']['resId'] = res_id
-                metadata = self.detail.get_detail(curl)
-                print(metadata)
-                self.metadata_list.append(metadata)
-
     def crawl_guangxi_guangxi(self):
         for page in range(1, 5):
             print(page)

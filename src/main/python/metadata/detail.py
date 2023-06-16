@@ -314,31 +314,6 @@ class Detail:
             dataset_matadata[td_name] = td_text
         return dataset_matadata
 
-    def detail_guangdong_guangdong(self, curl):
-
-        key_map = {
-            'resTitle': "名称",
-            'resAbstract': "简介",
-            'subjectName': "主题分类",
-            'resAbstract': "数据更新时间",
-            'openMode': "开放方式",
-            'resAbstract': "更新频率",
-            'publishDate': "发布日期",
-            'dataUpdateTime': "更新时间",
-            'officeName': "数据提供方",
-            'sourceSuffix': "资源格式",
-            'email': "邮箱",
-            'landLine': "座机",
-        }
-
-        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-
-        dataset_matadata = {}
-        detail_json = json.loads(response.text)['data']
-        for key, value in key_map.items():
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
-
     def detail_guangxi_guangxi(self, curl):
 
         list_fields = ["来源部门", "重点领域", "发布时间", " 更新时间", "开放条件"]
