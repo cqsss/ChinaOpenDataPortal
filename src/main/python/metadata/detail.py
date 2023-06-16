@@ -250,7 +250,8 @@ class Detail:
             'belongFieldName': "所属领域",
             'shareTypeName': "开放属性",
             'summary': "摘要信息",
-            'updateCycleTxt': "更新频率"
+            'updateCycleTxt': "更新频率",
+            'formats': "数据格式"
         }
 
         response = requests.post(curl['url'],
@@ -262,7 +263,89 @@ class Detail:
         dataset_matadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
+            if key in ['publishTime', 'updateTime']:
+                detail_json[key] = detail_json[key][:4] + '-' + detail_json[key][4:6] + '-' + detail_json[key][6:8]
+            if key == 'formats':
+                detail_json[key] = str(detail_json[key]).lower()
             dataset_matadata[value] = detail_json[key]
+        return dataset_matadata
+
+    def detail_anhui_hefei(self, curl):
+
+        key_map = {
+            'zy': "标题",
+            'zymc': "摘要信息",
+            'zxtbsj': "发布时间",
+            'gxsj': "更新时间",
+            'tgdwmc': "提供单位",
+            'filedName': "所属领域",
+            'fjhzm': "数据格式"
+        }
+
+        response = requests.post(curl['url'],
+                                 data=curl['data'],
+                                 cookies=curl['cookies'],
+                                 headers=curl['headers'],
+                                 timeout=REQUEST_TIME_OUT)
+        print(response)
+        dataset_matadata = {}
+        detail_json = json.loads(response.text)['data']
+        for key, value in key_map.items():
+            if key in ['zxtbsj', 'gxsj']:
+                detail_json[key] = detail_json[key][:4] + '-' + detail_json[key][4:6] + '-' + detail_json[key][6:8]
+            if key == 'fjhzm':
+                detail_json[key] = '[' + detail_json[key].lower().replace(' ', ',') + ']'
+            dataset_matadata[value] = detail_json[key]
+        return dataset_matadata
+
+    def detail_anhui_suzhou(self, curl):
+
+        list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放类型"]
+        table_fields = ["数据量", "文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        dataset_matadata = {}
+        title = soup.find('ul', attrs={'class': 'd-title pull-left'})
+        title = title.find('h4').get_text()
+        dataset_matadata['标题'] = title
+        for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
+            li_name = li.get_text().split('：')[0].strip()
+            if li_name in list_fields:
+                li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
+                dataset_matadata[li_name] = li_text
+        table = soup.find('li', attrs={'name': 'basicinfo'})
+        for td_name in table_fields:
+            td_text = table.find('td', text=td_name)
+            if td_text is not None:
+                td_text = td_text.find_next('td').get_text().strip()
+                td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
+                dataset_matadata[td_name] = td_text
+        return dataset_matadata
+
+    def detail_anhui_luan(self, curl):
+
+        list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放类型"]
+        table_fields = ["数据量", "文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        dataset_matadata = {}
+        title = soup.find('ul', attrs={'class': 'd-title pull-left'})
+        title = title.find('h4').get_text()
+        dataset_matadata['标题'] = title
+        for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
+            li_name = li.get_text().split('：')[0].strip()
+            if li_name in list_fields:
+                li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
+                dataset_matadata[li_name] = li_text
+        table = soup.find('li', attrs={'name': 'basicinfo'})
+        for td_name in table_fields:
+            td_text = table.find('td', text=td_name)
+            if td_text is not None:
+                td_text = td_text.find_next('td').get_text().strip()
+                td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
+                dataset_matadata[td_name] = td_text
         return dataset_matadata
 
     def detail_jiangxi_jiangxi(self, curl):

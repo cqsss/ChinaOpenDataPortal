@@ -1,4 +1,5 @@
 import json
+import time
 import urllib
 import copy
 
@@ -7,7 +8,8 @@ import bs4
 from constants import REQUEST_TIME_OUT
 import requests
 
-from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST)
+from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH,
+                       PROVINCE_LIST)
 from detail import Detail
 from resultlist import ResultList
 
@@ -153,16 +155,96 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_anhui(self):
-        for page in range(1, 5):
+        for page in range(1, 100000000):
             print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNum'] = str(page)
             rids = self.result_list.get_result_list(curl)
+            if len(rids) == 0:
+                break
             for rid in rids:
                 curl = self.detail_list_curl.copy()
                 curl['headers']['Referer'] = curl['headers']['Referer'].format(rid)
                 curl['data']['rid'] = rid
                 metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_hefei(self):
+        for page in range(1, 5):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['currentPageNo'] = str(page)
+            curl['queries']['_'] = str(int(round(time.time() * 1000)))
+            curl['headers']['Referer'] = curl['headers']['Referer'].format(str(page))
+            ids = self.result_list.get_result_list(curl)
+            if len(ids) == 0:
+                break
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['data']['id'] = id
+                curl['data']['zyId'] = id
+                curl['headers']['Referer'] = curl['headers']['Referer'].format(str(page), id, id)
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_wuhu(self):
+        for page in range(1, 5):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['data']['pageNo'] = str(page)
+            ids = self.result_list.get_result_list(curl)
+            if len(ids) == 0:
+                break
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['headers']['Referer'] = curl['headers']['Referer'].format(str(page), id, id)
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_suzhou(self):
+        for page in range(1, 54):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            links = self.result_list.get_result_list(curl)
+            if len(links) == 0:
+                break
+            for link in links:
+                curl = self.detail_list_curl.copy()
+                curl['url'] += link['link']
+                metadata = self.detail.get_detail(curl)
+                metadata['数据格式'] = link['data_formats']
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_luan(self):
+        for page in range(1, 56):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            links = self.result_list.get_result_list(curl)
+            if len(links) == 0:
+                break
+            for link in links:
+                curl = self.detail_list_curl.copy()
+                curl['url'] += link['link']
+                metadata = self.detail.get_detail(curl)
+                metadata['数据格式'] = link['data_formats']
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_chizhou(self):
+        for page in range(1, 276):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            metadatas = self.result_list.get_result_list(curl)
+            if len(metadatas) == 0:
+                break
+            for metadata in metadatas:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
@@ -664,9 +746,10 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    crawler = Crawler("anhui", "anhui")
+    crawler = Crawler("anhui", "suzhou")
     crawler.crawl()
     crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+
     # for province in provinces:
     #     crawler = Crawler(province)
     #     crawler.crawl()

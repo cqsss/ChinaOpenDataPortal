@@ -115,6 +115,79 @@ class ResultList:
         rids = [x['rid'] for x in resultList]
         return rids
 
+    def result_list_anhui_hefei(self, curl):
+        response = requests.get(curl['url'],
+                                params=curl['queries'],
+                                cookies=curl['cookies'],
+                                headers=curl['headers'],
+                                timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['data']['result']
+        ids = [x['id'] for x in resultList]
+        return ids
+
+    def result_list_anhui_wuhu(self, curl):
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['smcDataSetList']
+        ids = [x['id'] for x in resultList]
+        return ids
+
+    def result_list_anhui_suzhou(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        links = []
+
+        for dataset in soup.find('div', attrs={'class': 'bottom-content'}).find('ul').find_all('li', recursive=False):
+            link = dataset.find('div', attrs={
+                'class': 'cata-title'
+            }).find('a', attrs={'href': re.compile("/oportal/catalog/*")})
+            data_formats = []
+            for data_format in dataset.find('div', attrs={'class': 'file-type'}).find_all('li'):
+                data_format_text = data_format.get_text()
+                if data_format_text == '接口':
+                    data_format_text = 'api'
+                data_formats.append(data_format_text.lower())
+            links.append({'link': link['href'], 'data_formats': str(data_formats)})
+        return links
+
+    def result_list_anhui_luan(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        links = []
+
+        for dataset in soup.find('div', attrs={'class': 'bottom-content'}).find('ul').find_all('li', recursive=False):
+            link = dataset.find('div', attrs={
+                'class': 'cata-title'
+            }).find('a', attrs={'href': re.compile("/oportal/catalog/*")})
+            data_formats = []
+            for data_format in dataset.find('div', attrs={'class': 'file-type'}).find_all('li'):
+                data_format_text = data_format.get_text()
+                if data_format_text == '接口':
+                    data_format_text = 'api'
+                data_formats.append(data_format_text.lower())
+            links.append({'link': link['href'], 'data_formats': str(data_formats)})
+        return links
+
+    def result_list_anhui_chizhou(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        matadata_list = []
+        for dataset in soup.find('div', attrs={
+                'id': 'listContent'
+        }).find_all('div', attrs={'class': 'list-content-item'}):
+            dataset_matadata = {}
+            dataset_matadata["标题"] = dataset.find('div', attrs={'class': 'text ell'}).get_text().strip()
+            dataset_matadata["数据格式"] = dataset.find('div', attrs={'class': 'file-type-wrap'}).get_text().strip().lower()
+            for field in dataset.find_all('div', attrs={'class': 'content-item ell'}):
+                field_name = field.get_text().strip().split('：')[0]
+                field_text = field.get_text().strip().split('：')[1]
+                dataset_matadata[field_name] = field_text
+
+            matadata_list.append(dataset_matadata)
+        return matadata_list
+
     def result_list_jiangxi_jiangxi(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         resultList = json.loads(response.text)['data']
