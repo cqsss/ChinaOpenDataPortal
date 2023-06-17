@@ -65,6 +65,26 @@ class ResultList:
             links.append(link['href'])
         return links
 
+    def result_list_liaoning_shenyang(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        links = []
+        for title in soup.find_all('div', attrs={'class': 'cata-title'}):
+            link = title.find('a', attrs={'href': re.compile("/oportal/catalog/*")})
+            links.append(link['href'])
+        return links
+
+    def result_list_heilongjiang_harbin(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        links = []
+        for title in soup.find_all('div', attrs={'class': 'cata-title'}):
+            link = title.find('a', attrs={'href': re.compile("/oportal/catalog/*")})
+            links.append(link['href'])
+        return links
+
     def result_list_shandong_shandong(self, curl):
         response = requests.get(curl['url'], params=curl['params'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
@@ -252,5 +272,5 @@ class ResultList:
         ids = [x['id'] for x in resultList]
         return ids
 
-    def result_list_other(self):
+    def result_list_other(self, curl):
         print("暂无该省")

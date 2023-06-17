@@ -79,10 +79,49 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_liaoning_liaoning(self):
-        for page in range(1, 5):
+        for page in range(1, 26):
             print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
+            links = self.result_list.get_result_list(curl)
+            for link in links:
+                curl = self.detail_list_curl.copy()
+                curl['url'] += link
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_liaoning_shenyang(self):
+        for page in range(1, 202):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            links = self.result_list.get_result_list(curl)
+            for link in links:
+                curl = self.detail_list_curl.copy()
+                curl['url'] += link
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_heilongjiang_harbin(self):
+        for page in range(1, 295):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            links = self.result_list.get_result_list(curl)
+            for link in links:
+                curl = self.detail_list_curl.copy()
+                curl['url'] += link
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_jilin_jilin(self):
+        for page in range(1, 25):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['data']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
             for link in links:
                 curl = self.detail_list_curl.copy()
@@ -349,7 +388,7 @@ class Crawler:
     def save_matadata_as_json(self, save_dir):
         filename = save_dir + self.province + '_' + self.city + '.json'
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(self.metadata_list, f, ensure_ascii=False)
+            json.dump(self.metadata_list, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == '__main__':
@@ -357,7 +396,7 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    crawler = Crawler("anhui", "suzhou")
+    crawler = Crawler("heilongjiang", "harbin")
     crawler.crawl()
     crawler.save_matadata_as_json(METADATA_SAVE_PATH)
     # for province in provinces:

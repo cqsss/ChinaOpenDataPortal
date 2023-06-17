@@ -215,6 +215,156 @@
                 },
                 "url": "http://data.ln.gov.cn"
             }
+        },
+        "shenyang": {
+            "resultList": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Connection": "keep-alive",
+                    "Referer": "http://data.shenyang.gov.cn/",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "queries": {
+                    "page": "{}"
+                },
+                "url": "http://data.shenyang.gov.cn/oportal/catalog/index"
+            },
+            "detail": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Connection": "keep-alive",
+                    "Referer": "http://data.shenyang.gov.cn/",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "url": "http://data.shenyang.gov.cn/"
+            }
+        }
+    },
+    "jilin": {
+        "jilin": {
+            "resultList": {
+                "method": "post",
+                "headers": {
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Authorization": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlQ29kZXMiOlsidmlzaXRvciJdLCJtZW1iZXJJZCI6InZpc2l0b3IiLCJqdGkiOiIxNjAwODQyNTQ2Mzk2IiwiaWF0IjoxNjAwODQyNTQ2LCJpc3MiOiJjbGllbnQifQ.NtIyGw9ev2uvgJgTRIZVhjfT_pqaIbYKZ9m9t-nqBm8",
+                    "Connection": "keep-alive",
+                    "Content-Type": "application/json;charset=UTF-8",
+                    "Origin": "https://data.jl.gov.cn",
+                    "Sec-Fetch-Dest": "empty",
+                    "Sec-Fetch-Mode": "cors",
+                    "Sec-Fetch-Site": "same-origin",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                    "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"Windows\""
+                },
+                "url": "https://data.jl.gov.cn/data-api/c/catalogs/new",
+                "data": {
+                    "pageNum": 1,
+                    "pageSize": 10,
+                    "keyword": "",
+                    "orderBy": "new",
+                    "identifier": "220000"
+                }
+            },
+            "detail": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Connection": "keep-alive",
+                    "If-Modified-Since": "Fri, 03 Mar 2023 10:51:13 GMT",
+                    "If-None-Match": "W/\"6401d121-1a22\"",
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "same-origin",
+                    "Sec-Fetch-User": "?1",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                    "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"Windows\""
+                },
+            "queries": {
+                "name": "",
+                "catalogId": "",
+                "collectType": "1",
+                "type": "base"
+            },
+            "url": "https://data.jl.gov.cn/datacatalog/datacatalog_view"
+            }
+        }
+    },
+    "heilongjiang": {
+        "harbin": {
+            "resultList": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Connection": "keep-alive",
+                    "Referer": "http://data.harbin.gov.cn/oportal/catalog/",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "queries": {
+                    "page": ""
+                },
+                "url": "http://data.harbin.gov.cn/oportal/catalog/index"
+            },
+            "detail": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Connection": "keep-alive",
+                    "Referer": "http://data.harbin.gov.cn/oportal/catalog/",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "url": "http://data.harbin.gov.cn/"
+            }
+        },
+        "shuangyashan": {
+            "resultList": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "queries": {
+                    "pxtj": "",
+                    "ssztid": ""
+                },
+                "url": "http://www.shuangyashan.gov.cn/NewCMS/index/html/shujupt/newslist_all.jsp"
+            },
+            "detail": {
+                "method": "get",
+                "headers": {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "max-age=0",
+                    "Connection": "keep-alive",
+                    "Referer": "http://data.harbin.gov.cn/oportal/catalog/",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                },
+                "url": "http://data.harbin.gov.cn/"
+            }
         }
     },
     "shandong": {
