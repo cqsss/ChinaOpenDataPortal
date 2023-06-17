@@ -1,0 +1,14 @@
+{
+    "标题": "title",
+    "来源部门": "department",
+    "重点领域": "category",
+    "发布时间": "publish_time",
+    "开放条件": "is_open",
+    "数据量": "data_volume",
+    "所属行业": "industry",
+    "更新频率": "update_frequency",
+    "部门电话": "telephone",
+    "部门邮箱": "email",
+    "描述": "description",
+    "url": "url"
+}

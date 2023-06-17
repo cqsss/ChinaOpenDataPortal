@@ -12,5 +12,6 @@
     "所属行业": "industry",
     "部门电话": "telephone",
     "部门邮箱": "email",
-    "标签": "tags"
+    "标签": "tags",
+    "url": "url"
 }

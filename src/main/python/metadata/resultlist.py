@@ -130,6 +130,18 @@ class ResultList:
         ids = [x['id'] for x in resultList]
         return ids
 
+    def result_list_anhui_huainan(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['rows']
+        data_ids = [x['dataId'] for x in resultList]
+        return data_ids
+
+    def result_list_anhui_chuzhou(self, curl):
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['content']
+        ids = [x['id'] for x in resultList]
+        return ids
+
     def result_list_anhui_suzhou(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
@@ -190,8 +202,18 @@ class ResultList:
     def result_list_jiangxi_jiangxi(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         resultList = json.loads(response.text)['data']
-        data_ids = [x['dataId'] for x in resultList]
+        data_ids = [{'dataId': x['dataId'], 'filesType': x['filesType']} for x in resultList]
         return data_ids
+
+    def result_list_jiangxi_ganzhou(self, curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        html = response.content
+        soup = BeautifulSoup(html, "html.parser")
+        ids = []
+        for title in soup.find_all('div', attrs={'class': 'com_shiye'}):
+            id = title.find('a', attrs={'class': 'shiy_rigA1'}).get('id')
+            ids.append(id)
+        return ids
 
     def result_list_fujian_fujian(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
@@ -202,6 +224,18 @@ class ResultList:
             link = title.find('a', attrs={'href': re.compile("/oportal/catalog/*")})
             links.append(link['href'])
         return links
+
+    def result_list_fujian_fuzhou(self, curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(json.loads(response.text)['dataList'])['list']
+        res_ids = [x['resId'] for x in resultList]
+        return res_ids
+
+    def result_list_fujian_xiamen(self, curl):
+        response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        resultList = json.loads(response.text)['data']['list']
+        catalog_ids = [x['catalogId'] for x in resultList]
+        return catalog_ids
 
     def result_list_guangdong_guangdong(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
@@ -214,9 +248,18 @@ class ResultList:
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         links = []
-        for title in soup.find_all('div', attrs={'class': 'cata-title'}):
-            link = title.find('a', attrs={'href': re.compile("/portal/catalog/*")})
-            links.append(link['href'])
+
+        for dataset in soup.find('div', attrs={'class': 'bottom-content'}).find('ul').find_all('li', recursive=False):
+            link = dataset.find('div', attrs={
+                'class': 'cata-title'
+            }).find('a', attrs={'href': re.compile("/portal/catalog/*")})
+            data_formats = []
+            for data_format in dataset.find('div', attrs={'class': 'file-type'}).find_all('li'):
+                data_format_text = data_format.get_text()
+                if data_format_text == '接口':
+                    data_format_text = 'api'
+                data_formats.append(data_format_text.lower())
+            links.append({'link': link['href'], 'data_formats': str(data_formats)})
         return links
 
     def result_list_hainan_hainan(self, curl):

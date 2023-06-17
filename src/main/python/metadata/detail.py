@@ -2,6 +2,7 @@ import json
 import re
 import time
 import unicodedata as ucd
+from tkinter import E
 
 import requests
 from bs4 import BeautifulSoup
@@ -296,6 +297,36 @@ class Detail:
             dataset_matadata[value] = detail_json[key]
         return dataset_matadata
 
+    def detail_anhui_huainan(self, curl):
+
+        key_map = {
+            'dataName': "标题",
+            'dataDomainName': "数据领域",
+            'dataTypeName': "数据类型",
+            'createTime': "创建时间",
+            'pubTime': "发布时间",
+            'modifyTime': "更新时间",
+            'themeName': "主题分类",
+            'openAttrName': "开放属性",
+            'pubDeptName': "所属部门"
+        }
+
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        dataset_matadata = {}
+        detail_json = json.loads(response.text)['data']
+        for key, value in key_map.items():
+            if key == 'openAttrName':
+                detail_json[key] = detail_json[key] + "开发"
+            if key == 'dataTypeName':
+                if detail_json[key] == "接口":
+                    detail_json[key] = 'api'
+                elif detail_json[key] == "数据":
+                    detail_json[key] = 'table'
+                else:
+                    detail_json[key] = 'file'
+            dataset_matadata[value] = detail_json[key]
+        return dataset_matadata
+
     def detail_anhui_suzhou(self, curl):
 
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放类型"]
@@ -358,15 +389,19 @@ class Detail:
         }
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-
         dataset_matadata = {}
-        detail_json = json.loads(response.text)['data']
+        detail_json = json.loads(response.text)
+        if detail_json['code'] != 200:
+            return {}
+        detail_json = detail_json['data']
         for key, value in key_map.items():
             if key == 'resShareType':
                 if detail_json[key] == "402882a75885fd150158860e3d170006":
                     detail_json[key] = "有条件开放"
                 else:
                     detail_json[key] = "无条件开放"
+            if key in ['createTime', 'updateTime'] and detail_json[key] is not None:
+                detail_json[key] = detail_json[key][:10]
             dataset_matadata[value] = detail_json[key]
         return dataset_matadata
 
@@ -374,7 +409,6 @@ class Detail:
 
         list_fields = ["来源部门", "重点领域", "发布时间", " 更新时间", "开放条件"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "描述"]
-        item_fields = ["英文信息项名", "中文信息项名", "数据类型", "中文描述"]
 
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
@@ -387,12 +421,81 @@ class Detail:
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
+                if li_name == "开放条件":
+                    li_text = "有条件开放" if li_text == "依申请开放" else "无条件开放"
                 dataset_matadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
-            td_text = table.find('td', text=td_name).find_next('td').get_text().strip()
+            td_text = table.find('td', text=td_name)
+            if td_text is None:
+                continue
+            td_text = td_text.find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
             dataset_matadata[td_name] = td_text
+        return dataset_matadata
+
+    def detail_fujian_fuzhou(self, curl):
+
+        key_map = {
+            'resTitle': "名称",
+            'resAbstract': "摘要",
+            'openMode': "开放方式",
+            'publishDate': "发布日期",
+            'dataUpdateTime': "更新日期",
+            'sourceSuffix': "资源格式",
+            'fullName': "数据提供方",
+            'subjectName': "主题分类",
+            'phone': "联系方式",
+            'keyword': "关键字"
+        }
+
+        response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        dataset_matadata = {}
+        detail_json = json.loads(response.text)
+        for key, value in key_map.items():
+            if key == 'openMode':
+                if detail_json[key] == "普遍开放":
+                    detail_json[key] = "无条件开放"
+                else:
+                    detail_json[key] = "有条件开放"
+            if key in ['publishDate', 'dataUpdateTime']:
+                detail_json[key] = detail_json[key][:10]
+            if key == 'sourceSuffix':
+                detail_json[key] = '[' + detail_json[key] + ']'
+            dataset_matadata[value] = detail_json[key]
+        return dataset_matadata
+
+    def detail_fujian_xiamen(self, curl):
+
+        key_map = {
+            'catalogName': "目录名称",
+            'openTypeName': "开放类型",
+            'openDataFormat': "数据格式",
+            'provideDept': "数据来源",
+            'contactMethod': "联系方式",
+            'theme': "主题领域",
+            'industry': "行业分类",
+            'tag': "标签",
+            'summary': "简介",
+            'dataUpdateRate': "更新频率",
+            'publishTime': "发布时间",
+            'updatedTime': "更新时间"
+        }
+
+        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        dataset_matadata = {}
+        detail_json = json.loads(response.text)['data']
+        for key, value in key_map.items():
+            if key == 'openMode':
+                if detail_json[key] == "普遍开放":
+                    detail_json[key] = "无条件开放"
+                else:
+                    detail_json[key] = "有条件开放"
+            if key in ['publishTime', 'updatedTime'] and detail_json[key] is not None:
+                detail_json[key] = detail_json[key][:10]
+            if key == 'openDataFormat':
+                detail_json[key] = '[' + detail_json[key].lower() + ']'
+            dataset_matadata[value] = detail_json[key]
         return dataset_matadata
 
     def detail_guangdong_guangdong(self, curl):

@@ -1,0 +1,10 @@
+{
+    "标题": "title",
+    "数源单位": "department",
+    "数据领域": "category",
+    "发布时间": "publish_time",
+    "数据更新时间": "update_time",
+    "开放类型": "is_open",
+    "数据格式": "data_formats",
+    "url": "url"
+}

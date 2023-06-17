@@ -2,10 +2,10 @@ import json
 import time
 import urllib
 
-from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH,
-                       PROVINCE_LIST)
+from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST)
 from detail import Detail
 from resultlist import ResultList
+from tqdm import tqdm
 
 curls = {}
 
@@ -161,6 +161,7 @@ class Crawler:
                 curl['headers']['Referer'] = curl['headers']['Referer'].format(rid)
                 curl['data']['rid'] = rid
                 metadata = self.detail.get_detail(curl)
+                metadata['url'] = 'http://data.ahzwfw.gov.cn:8000/dataopen-web/api-data-details.html?rid=' + rid
                 print(metadata)
                 self.metadata_list.append(metadata)
 
@@ -198,6 +199,38 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
+    def crawl_anhui_huainan(self):
+        for page in range(1, 5):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            data_ids = self.result_list.get_result_list(curl)
+            if len(data_ids) == 0:
+                break
+            for data_id in data_ids:
+                curl = self.detail_list_curl.copy()
+                curl['queries']['dataId'] = str(data_id)
+                metadata = self.detail.get_detail(curl)
+                metadata['url'] = 'https://sjzyj.huainan.gov.cn/odssite/view/page/govDataFile?pageIndex=' + metadata[
+                    '数据类型'] + '&dataId=' + str(data_id)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_anhui_chuzhou(self):
+        for page in range(1, 5):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['queries']['page'] = str(page)
+            ids = self.result_list.get_result_list(curl)
+            if len(ids) == 0:
+                break
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['headers']['Referer'] = curl['headers']['Referer'].format(str(page), id, id)
+                metadata = self.detail.get_detail(curl)
+                print(metadata)
+                self.metadata_list.append(metadata)
+
     def crawl_anhui_suzhou(self):
         for page in range(1, 54):
             print(page)
@@ -211,6 +244,7 @@ class Crawler:
                 curl['url'] += link['link']
                 metadata = self.detail.get_detail(curl)
                 metadata['数据格式'] = link['data_formats']
+                metadata['url'] = curl['url']
                 print(metadata)
                 self.metadata_list.append(metadata)
 
@@ -227,6 +261,7 @@ class Crawler:
                 curl['url'] += link['link']
                 metadata = self.detail.get_detail(curl)
                 metadata['数据格式'] = link['data_formats']
+                metadata['url'] = curl['url']
                 print(metadata)
                 self.metadata_list.append(metadata)
 
@@ -243,22 +278,42 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_jiangxi_jiangxi(self):
-        for page in range(1, 5):
+        for page in range(1, 29):
             print(page)
             curl = self.result_list_curl.copy()
             curl['data']['current'] = page
             data_ids = self.result_list.get_result_list(curl)
             for data_id in data_ids:
                 curl = self.detail_list_curl.copy()
-                curl['headers']['Referer'] = curl['headers']['Referer'].format(data_id)
-                curl['queries']['dataId'] = data_id
+                curl['headers']['Referer'] = curl['headers']['Referer'].format(data_id['dataId'])
+                curl['queries']['dataId'] = data_id['dataId']
                 metadata = self.detail.get_detail(curl)
+                if metadata == {}:
+                    continue
+                metadata['数据格式'] = '[' + data_id['filesType'] + ']' if data_id['filesType'] is not None else ''
+                metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_jiangxi_ganzhou(self):
+        for page in range(1, 24):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['url'] = curl['url'].format(page)
+            ids = self.result_list.get_result_list(curl)
+            for id in ids:
+                curl = self.detail_list_curl.copy()
+                curl['url'] = curl['url'].format(id)
+                metadata = self.detail.get_detail(curl)
+                if metadata == {}:
+                    continue
+                metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
                 print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_fujian(self):
-        for page in range(1, 5):
-            print(page)
+        for page in tqdm(range(1, 737)):
+            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -266,6 +321,37 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
+                metadata['url'] = curl['url']
+                # print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_fujian_fuzhou(self):
+        # for page in tqdm(range(1, 116)):
+        for page in range(1, 116):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['data']['pageNo'] = str(page)
+            res_ids = self.result_list.get_result_list(curl)
+            for res_id in res_ids:
+                curl = self.detail_list_curl.copy()
+                curl['data']['resId'] = res_id
+                metadata = self.detail.get_detail(curl)
+                metadata['url'] = 'http://data.fuzhou.gov.cn/data/catalog/toDataCatalog'
+                print(metadata)
+                self.metadata_list.append(metadata)
+
+    def crawl_fujian_xiamen(self):
+        # for page in tqdm(range(1, 116)):
+        for page in range(1, 102):
+            print(page)
+            curl = self.result_list_curl.copy()
+            curl['data']['page']['currentPage'] = str(page)
+            catalog_ids = self.result_list.get_result_list(curl)
+            for catalog_id in catalog_ids:
+                curl = self.detail_list_curl.copy()
+                curl['queries']['catalogId'] = catalog_id
+                metadata = self.detail.get_detail(curl)
+                metadata['url'] = curl['url'] + '?' + catalog_id
                 print(metadata)
                 self.metadata_list.append(metadata)
 
@@ -374,7 +460,7 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    crawler = Crawler("anhui", "suzhou")
+    crawler = Crawler("jiangxi", "jiangxi")
     crawler.crawl()
     crawler.save_matadata_as_json(METADATA_SAVE_PATH)
     # for province in provinces:
