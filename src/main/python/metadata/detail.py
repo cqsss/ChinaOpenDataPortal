@@ -21,12 +21,13 @@ class Detail:
 
     def detail_beijing_beijing(self, curl):
 
-        key_list = ["资源名称", "资源出版日期", "资源分类", "摘要", "资源所有权单位", "关键字说明", "资源类型", "资源记录数"]
+        key_list = ["资源名称", "资源出版日期", "资源分类", "摘要", "资源所有权单位", "关键字说明", "资源类型",
+                    "资源记录数"]
 
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         information = soup.find('div', attrs={
             "id": "zydtCont1"
         }).find('div', attrs={
@@ -35,28 +36,29 @@ class Detail:
         for line in information.split("\n"):
             print(line)
             line = line.strip().split(" ")
-            dataset_matadata[line[0]] = line[1]
-        return dataset_matadata
+            dataset_metadata[line[0]] = line[1]
+        return dataset_metadata
 
     def detail_tianjin_tianjin(self, curl):
 
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('div', attrs={'class': 'title f-cb mg-b4'}).find('span').get_text()
-        dataset_matadata['数据集名称'] = title.strip()
+        dataset_metadata['数据集名称'] = title.strip()
         table = soup.find('div', attrs={'class': 'slidecont'})
         for tr in table.find_all('tr'):
             for th, td in zip(tr.find_all('th'), tr.find_all('td')):
-                dataset_matadata[th.get_text().strip()] = td.get_text().strip()
-        return dataset_matadata
+                dataset_metadata[th.get_text().strip()] = td.get_text().strip()
+        return dataset_metadata
 
     def detail_hebei_hebei(self, curl):
 
         list_fields = ["信息资源分类", "开放条件"]
         table_fields = [
-            "信息资源名称", "信息资源代码", "资源版本", "资源提供方", "资源提供方内部部门", "资源提供方代码", "资源摘要", "格式分类", "标签", "格式类型", "格式描述", "更新周期",
+            "信息资源名称", "信息资源代码", "资源版本", "资源提供方", "资源提供方内部部门", "资源提供方代码",
+            "资源摘要", "格式分类", "标签", "格式类型", "格式描述", "更新周期",
             "资源联系人", "联系电话", "电子邮箱"
         ]
 
@@ -68,13 +70,13 @@ class Detail:
                                  timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         for tr in soup.find('div', attrs={'class': 'info'}).find_all('tr'):
             td = tr.find('td')
             td_name = td.get_text().split('：')[0].strip()
             if td_name in list_fields:
                 td_text = tr.find_next('td').get_text().strip()
-                dataset_matadata[td_name] = td_text
+                dataset_metadata[td_name] = td_text
         table = soup.find('div', attrs={'class': 'resdetails_table_box page1'})
         p_name = ""
         for p in table.find_all('p'):
@@ -83,8 +85,8 @@ class Detail:
                 p_name = p_text[:-1]
             elif p_name != "":
                 p_text = ucd.normalize('NFKC', p_text).replace(' ', '')
-                dataset_matadata[p_name] = p_text
-        return dataset_matadata
+                dataset_metadata[p_name] = p_text
+        return dataset_metadata
 
     def detail_neimenggu_neimenggu(self, curl):
 
@@ -105,11 +107,11 @@ class Detail:
                                  timeout=REQUEST_TIME_OUT,
                                  verify=False)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['record']
         for key, value in key_map.items():
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_liaoning_liaoning(self, curl):
 
@@ -119,15 +121,15 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name)
@@ -135,8 +137,8 @@ class Detail:
                 continue
             td_text = td_text.find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_shandong_shandong(self, curl):
 
@@ -147,21 +149,21 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name).find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_jiangsu_jiangsu(self, curl):
 
@@ -184,11 +186,11 @@ class Detail:
                                  timeout=REQUEST_TIME_OUT,
                                  verify=False)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['custom']
         for key, value in key_map.items():
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_shanghai_shanghai(self, curl):
 
@@ -208,22 +210,23 @@ class Detail:
 
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_zhejiang_zhejiang(self, curl):
 
-        table_fields = ["摘要", "标签", "更新周期", "数源单位", "数据领域", "行业分类", "发布日期", "更新日期", "开放条件", "联系方式", "资源格式", "数据量"]
+        table_fields = ["摘要", "标签", "更新周期", "数源单位", "数据领域", "行业分类", "发布日期", "更新日期",
+                        "开放条件", "联系方式", "资源格式", "数据量"]
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('span', attrs={'class': 'sjxqTit1'}).get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for tr in soup.find('div', attrs={'class': 'box1'}).find_all('tr'):
             if tr.has_attr('style'):
                 continue
@@ -236,8 +239,8 @@ class Detail:
                     if td_name not in table_fields:
                         td_name = ""
                 elif td_name != "":
-                    dataset_matadata[td_name] = td_text
-        return dataset_matadata
+                    dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_anhui_anhui(self, curl):
 
@@ -259,15 +262,15 @@ class Detail:
                                  verify=False,
                                  timeout=REQUEST_TIME_OUT)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             if key in ['publishTime', 'updateTime']:
                 detail_json[key] = detail_json[key][:4] + '-' + detail_json[key][4:6] + '-' + detail_json[key][6:8]
             if key == 'formats':
                 detail_json[key] = str(detail_json[key]).lower()
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_anhui_hefei(self, curl):
 
@@ -287,15 +290,15 @@ class Detail:
                                  headers=curl['headers'],
                                  timeout=REQUEST_TIME_OUT)
         print(response)
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             if key in ['zxtbsj', 'gxsj']:
                 detail_json[key] = detail_json[key][:4] + '-' + detail_json[key][4:6] + '-' + detail_json[key][6:8]
             if key == 'fjhzm':
                 detail_json[key] = '[' + detail_json[key].lower().replace(' ', ',') + ']'
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_anhui_huainan(self, curl):
 
@@ -312,7 +315,7 @@ class Detail:
         }
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             if key == 'openAttrName':
@@ -324,8 +327,8 @@ class Detail:
                     detail_json[key] = 'table'
                 else:
                     detail_json[key] = 'file'
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_anhui_suzhou(self, curl):
 
@@ -334,23 +337,23 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name)
             if td_text is not None:
                 td_text = td_text.find_next('td').get_text().strip()
                 td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-                dataset_matadata[td_name] = td_text
-        return dataset_matadata
+                dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_anhui_luan(self, curl):
 
@@ -359,23 +362,23 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name)
             if td_text is not None:
                 td_text = td_text.find_next('td').get_text().strip()
                 td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-                dataset_matadata[td_name] = td_text
-        return dataset_matadata
+                dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_jiangxi_jiangxi(self, curl):
 
@@ -389,7 +392,7 @@ class Detail:
         }
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)
         if detail_json['code'] != 200:
             return {}
@@ -402,8 +405,8 @@ class Detail:
                     detail_json[key] = "无条件开放"
             if key in ['createTime', 'updateTime'] and detail_json[key] is not None:
                 detail_json[key] = detail_json[key][:10]
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_fujian_fujian(self, curl):
 
@@ -413,17 +416,17 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
                 if li_name == "开放条件":
                     li_text = "有条件开放" if li_text == "依申请开放" else "无条件开放"
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name)
@@ -431,8 +434,8 @@ class Detail:
                 continue
             td_text = td_text.find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_fujian_fuzhou(self, curl):
 
@@ -450,7 +453,7 @@ class Detail:
         }
 
         response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)
         for key, value in key_map.items():
             if key == 'openMode':
@@ -462,8 +465,8 @@ class Detail:
                 detail_json[key] = detail_json[key][:10]
             if key == 'sourceSuffix':
                 detail_json[key] = '[' + detail_json[key] + ']'
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_fujian_xiamen(self, curl):
 
@@ -483,7 +486,7 @@ class Detail:
         }
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             if key == 'openMode':
@@ -495,8 +498,8 @@ class Detail:
                 detail_json[key] = detail_json[key][:10]
             if key == 'openDataFormat':
                 detail_json[key] = '[' + detail_json[key].lower() + ']'
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_guangdong_guangdong(self, curl):
 
@@ -517,11 +520,11 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_guangxi_guangxi(self, curl):
 
@@ -531,37 +534,38 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name).find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_hainan_hainan(self, curl):
 
-        table_fields = ["摘要", "目录名称", "开放状态", "所属主题", "来源部门", "目录发布时间", "数据更新时间", "更新频率"]
+        table_fields = ["摘要", "目录名称", "开放状态", "所属主题", "来源部门", "目录发布时间", "数据更新时间",
+                        "更新频率"]
 
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         for tr in soup.find('div', attrs={'class': 'gp-column1'}).find('table').find_all('tr'):
             th_name = tr.find('th').get_text().strip()
             if th_name in table_fields:
                 td_text = tr.find_next('td').get_text().strip()
                 td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-                dataset_matadata[th_name] = td_text
-        return dataset_matadata
+                dataset_metadata[th_name] = td_text
+        return dataset_metadata
 
     def detail_ningxia_ningxia(self, curl):
 
@@ -576,21 +580,21 @@ class Detail:
         print(response)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name).find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_shaanxi_shaanxi(self, curl):
 
@@ -600,22 +604,22 @@ class Detail:
         print(response)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('div', attrs={'class': 'title'}).get_text().strip()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         description = soup.find('div', attrs={'class': 'syno word-break'}).get_text().strip()
-        dataset_matadata['简介'] = description.replace("【简介】", "")
+        dataset_metadata['简介'] = description.replace("【简介】", "")
         for div in soup.find('dl', attrs={
-                'class': 'synoInfo commonBox'
+            'class': 'synoInfo commonBox'
         }).find('dd').find_all('div', attrs={'class': 'sub'}):
             div_text = div.get_text().strip()
             div_name = div_text.split("：")[0].strip()
             div_text = div_text.split("：")[1].strip()
             div_text = ucd.normalize('NFKC', div_text).replace(' ', '')
             if div_name in list_fields:
-                dataset_matadata[div_name] = div_text
+                dataset_metadata[div_name] = div_text
 
-        return dataset_matadata
+        return dataset_metadata
 
     def detail_sichuan_sichuan(self, curl):
 
@@ -625,21 +629,21 @@ class Detail:
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        dataset_matadata = {}
+        dataset_metadata = {}
         title = soup.find('ul', attrs={'class': 'd-title pull-left'})
         title = title.find('h4').get_text()
-        dataset_matadata['标题'] = title
+        dataset_metadata['标题'] = title
         for li in soup.find('ul', attrs={'class': 'list-inline'}).find_all('li', attrs={}):
             li_name = li.get_text().split('：')[0].strip()
             if li_name in list_fields:
                 li_text = li.find('span', attrs={'class': 'text-primary'}).get_text().strip()
-                dataset_matadata[li_name] = li_text
+                dataset_metadata[li_name] = li_text
         table = soup.find('li', attrs={'name': 'basicinfo'})
         for td_name in table_fields:
             td_text = table.find('td', text=td_name).find_next('td').get_text().strip()
             td_text = ucd.normalize('NFKC', td_text).replace(' ', '')
-            dataset_matadata[td_name] = td_text
-        return dataset_matadata
+            dataset_metadata[td_name] = td_text
+        return dataset_metadata
 
     def detail_guizhou_guizhou(self, curl):
 
@@ -659,7 +663,7 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        dataset_matadata = {}
+        dataset_metadata = {}
         detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             if key in ['updateTime', 'createTime']:
@@ -668,8 +672,8 @@ class Detail:
                 detail_json[key] = frequency_mapping[detail_json[key]]
             if key == 'openAttribute':
                 detail_json[key] = "有条件开放" if detail_json[key] == 1 else "无条件开放"
-            dataset_matadata[value] = detail_json[key]
-        return dataset_matadata
+            dataset_metadata[value] = detail_json[key]
+        return dataset_metadata
 
     def detail_other(self, curl):
         print("暂无该省")

@@ -394,6 +394,17 @@ class Crawler:
                 print(metadata)
                 self.metadata_list.append(metadata)
 
+    def crawl_chongqing_chongqing(self):
+
+        curl = self.result_list_curl.copy()
+        # curl['data']['variables']['input']['offset'] = page * 10
+        metadatas = self.result_list.get_result_list(curl)
+        # if len(metadatas) == 0:
+        #     break
+        for metadata in metadatas:
+            print(metadata)
+            self.metadata_list.append(metadata)
+
     def crawl_ningxia_ningxia(self):
         for page in range(1, 5):
             print(page)
@@ -449,7 +460,7 @@ class Crawler:
     def crawl_other(self):
         print("暂无该省")
 
-    def save_matadata_as_json(self, save_dir):
+    def save_metadata_as_json(self, save_dir):
         filename = save_dir + self.province + '_' + self.city + '.json'
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.metadata_list, f, ensure_ascii=False)
@@ -460,9 +471,9 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    crawler = Crawler("jiangxi", "jiangxi")
+    crawler = Crawler("chongqing", "chongqing")
     crawler.crawl()
-    crawler.save_matadata_as_json(METADATA_SAVE_PATH)
+    crawler.save_metadata_as_json(METADATA_SAVE_PATH)
     # for province in provinces:
     #     crawler = Crawler(province)
     #     crawler.crawl()

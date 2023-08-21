@@ -1,6 +1,7 @@
 import json
 import re
 import urllib
+from importlib.metadata import metadata
 
 import requests
 from bs4 import BeautifulSoup
@@ -184,20 +185,21 @@ class ResultList:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
-        matadata_list = []
+        metadata_list = []
         for dataset in soup.find('div', attrs={
-                'id': 'listContent'
+            'id': 'listContent'
         }).find_all('div', attrs={'class': 'list-content-item'}):
-            dataset_matadata = {}
-            dataset_matadata["标题"] = dataset.find('div', attrs={'class': 'text ell'}).get_text().strip()
-            dataset_matadata["数据格式"] = dataset.find('div', attrs={'class': 'file-type-wrap'}).get_text().strip().lower()
+            dataset_metadata = {}
+            dataset_metadata["标题"] = dataset.find('div', attrs={'class': 'text ell'}).get_text().strip()
+            dataset_metadata["数据格式"] = dataset.find('div',
+                                                        attrs={'class': 'file-type-wrap'}).get_text().strip().lower()
             for field in dataset.find_all('div', attrs={'class': 'content-item ell'}):
                 field_name = field.get_text().strip().split('：')[0]
                 field_text = field.get_text().strip().split('：')[1]
-                dataset_matadata[field_name] = field_text
+                dataset_metadata[field_name] = field_text
 
-            matadata_list.append(dataset_matadata)
-        return matadata_list
+            metadata_list.append(dataset_metadata)
+        return metadata_list
 
     def result_list_jiangxi_jiangxi(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
@@ -267,6 +269,61 @@ class ResultList:
         resultList = json.loads(response.text)['data']['content']
         res_ids = [x['id'] for x in resultList]
         return res_ids
+
+    def result_list_chongqing_chongqing(self, curl):
+
+        key_map = {
+            'resourceName': "标题",
+            'resourceDesc': "摘要",
+            'organizationName': "资源提供方",
+            'updateDate': "更新时间",
+            'openAttr': "开放类型",
+            'fileTypes': "资源格式",
+            'renewCycle': "更新周期"
+        }
+
+        openAttr_map = {"CONDITIONAL": "有条件开放", "UNCONDITIONAL": "无条件开放"}
+        renewCycle_map = {
+            "REAL_TIME": "实时",
+            "EVERY_DAY": "每日",
+            "EVERY_WEEK": "每周",
+            "EVERY_MONTH": "每月",
+            "EVERY_QUARTER": "每季度",
+            "HALF_YEAR": "每半年",
+            "EVERY_YEAR": "每年",
+            "IRREGULAR": "不定期",
+            "OTHER": "其他"
+        }
+        metadatas = []
+        response = requests.post(curl['url'],
+                                 json=curl['data'],
+                                 headers=curl['headers'],
+                                 timeout=REQUEST_TIME_OUT * 1000)
+        print(response)
+        result_list_json = json.loads(response.text)['data']['result']['data']
+        print(len(result_list_json))
+        for detail_json in result_list_json:
+            dataset_metadata = {}
+            for key, value in key_map.items():
+                if key == 'openAttr' and detail_json[key] is not None:
+                    detail_json[key] = openAttr_map[detail_json[key]]
+                if key == 'renewCycle' and detail_json[key] is not None:
+                    detail_json[key] = renewCycle_map[detail_json[key]]
+                if key == 'fileTypes':
+                    if detail_json['shareType'] == 'FILE':
+                        detail_json[key] = '[' + detail_json[key] + ']' if detail_json[key] is not None else '[]'
+                    else:
+                        detail_json[key] = '[api]'
+                if key in ['updateDate'] and detail_json[key] is not None:
+                    detail_json[key] = detail_json[key][:10]
+                dataset_metadata[value] = detail_json[key]
+            print(detail_json['tags'])
+            dataset_metadata['行业分类'] = detail_json['tags']['INDUSTRY'] if 'INDUSTRY' in detail_json[
+                'tags'] else None
+            dataset_metadata['主题分类'] = detail_json['tags']['TOPIC'] if 'TOPIC' in detail_json['tags'] else None
+            dataset_metadata['url'] = 'https://data.cq.gov.cn/rop/assets/detail?resId=' + detail_json['id']
+            metadatas.append(dataset_metadata)
+        return metadatas
 
     def result_list_ningxia_ningxia(self, curl):
         response = requests.get(curl['url'],
