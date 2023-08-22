@@ -4,11 +4,7 @@ import os
 import pymysql
 from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH
 
-db = pymysql.connect(host='114.212.190.189',
-                     user='qschen',
-                     password='chenqiaosheng123',
-                     database='china_open_data_portal_2023jun',
-                     charset='utf8')
+db = pymysql.connect(host='****', user='****', password='****', database='****', charset='utf8')
 
 c = db.cursor()
 

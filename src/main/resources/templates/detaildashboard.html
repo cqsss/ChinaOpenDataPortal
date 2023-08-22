@@ -40,7 +40,7 @@
         <a class="navbar-brand" th:href="@{/search}">各地公共数据一站式搜索</a>
         <div class="input-group">
             <form class="d-flex flex-row" method="post" th:action="@{/dosearch}">
-                <input aria-label="Search" type="text" class="form-control" name="query" placeholder="Search"
+                <input aria-label="Search" type="text" class="form-control" name="query" placeholder=""
                        th:value="${query}">
                 <button class="btn btn-primary" type="submit" style=" height: 38px; width: 76px;">搜索</button>
             </form>
