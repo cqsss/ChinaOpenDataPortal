@@ -1,13 +1,14 @@
+import os
+
+
 """Constants"""
 DEFAULT_ENCODING = 'utf-8'
 REQUEST_TIME_OUT = 5
 
-PROVINCE_CURL_JSON_PATH = 'src/main/python/metadata/config/curl.json'
+PROVINCE_CURL_JSON_PATH = f"{os.path.dirname(__file__)}/config/curl.json"
 
 PROVINCE_LIST = ['shandong', 'jiangsu']
 
-# METADATA_SAVE_PATH = 'src\\main\\python\\metadata\\json\\data\\'
-METADATA_SAVE_PATH = 'src/main/python/metadata/data/metadata/'
+METADATA_SAVE_PATH = f"{os.path.dirname(__file__)}/data/metadata/"
 
-# MAPPING_SAVE_PATH = 'src\\main\\python\\metadata\\json\\mapping\\'
-MAPPING_SAVE_PATH = 'src/main/python/metadata/data/mapping/'
+MAPPING_SAVE_PATH = f"{os.path.dirname(__file__)}/data/mapping/"
