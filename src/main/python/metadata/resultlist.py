@@ -3,6 +3,7 @@ import json
 import re
 import time
 import urllib
+import bs4
 
 import requests
 from requests.utils import add_dict_to_cookiejar

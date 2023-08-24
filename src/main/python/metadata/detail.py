@@ -1,6 +1,9 @@
+import copy
+import hashlib
 import json
 import re
 import time
+import bs4
 import execjs
 import unicodedata as ucd
 

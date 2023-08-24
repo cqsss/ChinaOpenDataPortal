@@ -1,10 +1,12 @@
 import json
+import re
 import time
 import copy
 import urllib
+import bs4
 import requests
 
-from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST)
+from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST, REQUEST_TIME_OUT)
 from detail import Detail
 from resultlist import ResultList
 from tqdm import tqdm
