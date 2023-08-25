@@ -4,14 +4,15 @@ import os
 import pymysql
 from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH, NAME_MAPPING_JSON_PATH
 
-db = pymysql.connect(host='114.212.189.98',
-                     user='qschen',
-                     password='chenqiaosheng123',
-                     database='china_open_data_portal_2023jun',
+db = pymysql.connect(host='172.28.96.1',
+                     port=8906,
+                     user='root',
+                     password='',
+                     database='china_open_data_portal_2023',
                      charset='utf8')
 
 c = db.cursor()
-
+TABLE_NAME = 'metadata_test_bshan'
 
 def write_metadata():
     field_names = [
@@ -27,14 +28,14 @@ def write_metadata():
     path = METADATA_SAVE_PATH
     file_list = os.listdir(METADATA_SAVE_PATH)
 
-    sql = "SELECT DISTINCT province, city FROM metadata"
+    sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
 
     c.execute(sql)
     finished_list = c.fetchall()
     finished_list = [x[0] + '_' + x[1] for x in finished_list]
     print(finished_list)
 
-    sql = "INSERT INTO metadata VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = f"INSERT INTO {TABLE_NAME} VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     for file in file_list:
         file_name = file.split('.')[0]
         province, city = file_name.split('_')
@@ -79,7 +80,7 @@ def write_metadata():
 
 def stastic():
     format_cnt = {}
-    sql = "SELECT data_formats FROM metadata"
+    sql = f"SELECT data_formats FROM {TABLE_NAME}"
     c.execute(sql)
     formats = c.fetchall()
     for fi in formats:
