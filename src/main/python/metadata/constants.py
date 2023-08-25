@@ -6,6 +6,7 @@ DEFAULT_ENCODING = 'utf-8'
 REQUEST_TIME_OUT = 5
 
 PROVINCE_CURL_JSON_PATH = f"{os.path.dirname(__file__)}/config/curl.json"
+NAME_MAPPING_JSON_PATH = f"{os.path.dirname(__file__)}/json/name_mapping.json"
 
 PROVINCE_LIST = ['shandong', 'jiangsu']
 
