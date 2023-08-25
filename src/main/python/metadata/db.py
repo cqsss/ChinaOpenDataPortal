@@ -2,22 +2,25 @@ import json
 import os
 
 import pymysql
-from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH
+from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH, NAME_MAPPING_JSON_PATH
 
-db = pymysql.connect(host='****', user='****', password='****', database='****', charset='utf8')
+db = pymysql.connect(host='114.212.189.98',
+                     user='qschen',
+                     password='chenqiaosheng123',
+                     database='china_open_data_portal_2023jun',
+                     charset='utf8')
 
 c = db.cursor()
 
-format_map = {''}
-
 
 def write_metadata():
-    # field_names = [
-    #     'title', 'description', 'tags', 'department', 'category', 'publish_time', 'update_time', 'is_open',
-    #     'data_volume', 'industry', 'update_frequency', 'telephone', 'email', 'data_formats', 'url'
-    # ]
+    field_names = [
+        'title', 'description', 'tags', 'department', 'category', 'publish_time', 'update_time', 'is_open',
+        'data_volume', 'industry', 'update_frequency', 'telephone', 'email', 'data_formats', 'url'
+    ]
 
-    field_names = ['update_time']
+    with open(NAME_MAPPING_JSON_PATH, "r", encoding="utf-8") as f:
+        name_mapping = json.load(f)
     cnt = 0
 
     province_city = {}
@@ -31,12 +34,14 @@ def write_metadata():
     finished_list = [x[0] + '_' + x[1] for x in finished_list]
     print(finished_list)
 
-    # sql = "INSERT INTO metadata VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO metadata VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     for file in file_list:
         file_name = file.split('.')[0]
-        if file_name in finished_list:
-            continue
         province, city = file_name.split('_')
+        city = name_mapping[province][city]
+        province = name_mapping[province][province]
+        if province + '_' + city in finished_list:
+            continue
         if province not in province_city:
             province_city[province] = []
         province_city[province].append(city)
@@ -57,16 +62,18 @@ def write_metadata():
             di = []
             di.append(None)
             for field in field_names:
-                # di.append(metadata[field]) if field in metadata else di.append(None)
+                di.append(metadata[field]) if field in metadata else di.append(None)
                 if field in metadata and metadata[field] is not None and metadata[field] not in ["暂无", "无", ""]:
                     cnt += 1
-            # di.append(province)
-            # di.append(city)
-            # dataset_list.append(di)
-        # print(len(dataset_list[0]))
-        # c.executemany(sql, dataset_list)
-        # db.commit()
-        # finished_list.append(file_name)
+            di.append(province)
+            di.append(city)
+            di.append(None)
+            dataset_list.append(di)
+        print(len(dataset_list[0]))
+        print(dataset_list[0])
+        c.executemany(sql, dataset_list)
+        db.commit()
+        finished_list.append(file_name)
         print(cnt)
 
 
