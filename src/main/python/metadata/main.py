@@ -7,10 +7,12 @@ import urllib
 import bs4
 import requests
 
-from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, PROVINCE_LIST, REQUEST_TIME_OUT)
+from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, REQUEST_TIME_OUT)
 from detail import Detail
 from resultlist import ResultList
 from tqdm import tqdm
+
+from util import log_error
 
 curls = {}
 
@@ -29,10 +31,15 @@ class Crawler:
         func_name = f"crawl_{str(self.province)}_{str(self.city)}"
         func = getattr(self, func_name, self.crawl_other)
         func()
+    
+    def log_result_list_error(self):
+        log_error("%s_%s crawl: get result list error, retrying", self.province, self.city)
+    
+    def logs_detail_error(self, link, action):
+        log_error("%s_%s crawl: get detail error with %s -> %s", self.province, self.city, link, action)
 
     def crawl_beijing_beijing(self):
         for page in range(1, 1600):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['curPage'] = str(page)
             links = None
@@ -42,24 +49,26 @@ class Crawler:
                 except (requests.exceptions.ProxyError, requests.exceptions.SSLError) as e:
                     links = None
                     time.sleep(5)
-                    print(e)
+                    self.log_result_list_error()
             for link in links:
                 curl = self.detail_list_curl.copy()
                 curl['url'] = link
                 metadata = None
+                try_cnt = 0
                 while not metadata:
+                    try_cnt += 1
+                    if try_cnt >= 3:
+                        break
                     try:
                         metadata = self.detail.get_detail(curl)
                         self.metadata_list.append(metadata)
-                    except requests.exceptions.SSLError as e:
+                    except (requests.exceptions.SSLError, requests.exceptions.ConnectionError) as e:
                         time.sleep(5)
                         metadata = None
-                        print(f'url: {link}')
-                        print(e)
+                        self.logs_detail_error(link, "continue")
                     except AttributeError as e:
                         # e.g. https://data.beijing.gov.cn/zyml/ajg/sswj1/598f4a53ae9d4cbe88074777572b38d5.htm
-                        print(f'except AttributeError: {link} ')
-                        print(e)
+                        self.logs_detail_error(link, "break")
                         break
 
     def crawl_tianjin_tianjin(self):
@@ -74,16 +83,13 @@ class Crawler:
                     metadata = self.detail.get_detail(curl)
                     metadata['url'] = data['link']
                     metadata['format'] = data['format']
-                    # print(metadata)
                     self.metadata_list.append(metadata)
                 except requests.exceptions.ProxyError as e:
                     metadata = None
-                    print(f"url: {data['link']}")
-                    print(e)
+                    self.logs_detail_error(data['link'], "continue")
 
     def crawl_hebei_hebei(self):
         for page in range(1, 128):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = str(page)
             metadata_ids = self.result_list.get_result_list(curl)
@@ -95,12 +101,10 @@ class Crawler:
                 metadata['所属主题'] = metadata_id['THEME_NAME']
                 metadata['发布时间'] = metadata_id['CREAT_DATE']
                 metadata['更新日期'] = metadata_id['UPDATE_DATE']
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shanxi_datong(self):
         for page in range(1, 61):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['pageNumber'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -109,12 +113,10 @@ class Crawler:
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = curl['url']
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shanxi_changzhi(self):
         for page in range(1, 17):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['start'] = str((page - 1) * int(curl['data']['pageLength']))
             ids = self.result_list.get_result_list(curl)
@@ -122,12 +124,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['queries']['cata_id'] = id
                 metadata = self.detail.get_detail(curl)
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shanxi_jincheng(self):
         for page in range(1, 57):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['curPage'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -135,12 +135,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] = curl['url'].format(id)
                 metadata = self.detail.get_detail(curl)
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shanxi_yuncheng(self):
         for page in range(1, 5):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['pageIndex'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -148,12 +146,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_neimenggu_neimenggu(self):
         for page in range(1, 8):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -161,12 +157,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['data']['id'] = id
                 metadata = self.detail.get_detail(curl)
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_neimenggu_xinganmeng(self):
         for page in range(1, 24):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNum'] = page
             ids = self.result_list.get_result_list(curl)
@@ -175,12 +169,10 @@ class Crawler:
                 curl['url'] = curl['url'].format(id)
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = curl['detail_url'].format(id)
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_liaoning_liaoning(self):
         for page in range(1, 26):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -188,12 +180,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_liaoning_shenyang(self):
         for page in range(1, 202):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -201,12 +191,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_heilongjiang_harbin(self):
         for page in range(1, 295):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -214,12 +202,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     # def crawl_jilin_jilin(self):
         for page in range(1, 25):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -227,12 +213,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shanghai_shanghai(self):
         for page in range(1, 451):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data'] = curl['data'].replace('\"pageNum\":1', f'\"pageNum\":{page}').encode()
             dataset_ids = self.result_list.get_result_list(curl)
@@ -242,13 +226,11 @@ class Crawler:
                     dataset_id['datasetId'], urllib.parse.quote(dataset_id['datasetName']))
                 curl['url'] = curl['url'].format(dataset_id['datasetId'])
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_jiangsu(self):
         for city, max_page in zip(['', 'all'], [54, 11]):
             for page in range(0, max_page):
-                print(page)
                 curl = self.result_list_curl.copy()
                 curl['data'] = curl['data'].format(page, city)
                 rowGuid_tag_list = self.result_list.get_result_list(curl)
@@ -259,7 +241,6 @@ class Crawler:
                     metadata = self.detail.get_detail(curl)
                     metadata["数据格式"] = tags
                     metadata["详情页网址"] = curl['headers']['Referer'].format(rowGuid)
-                    print(metadata)
                     self.metadata_list.append(metadata)
 
     # def crawl_jiangsu_nanjing(self):
@@ -268,7 +249,6 @@ class Crawler:
 
     def crawl_jiangsu_wuxi(self):
         for page in range(1, 295):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page'] = str(page)
             cata_ids = self.result_list.get_result_list(curl)
@@ -276,12 +256,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['cata_id'] = cata_id
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_xuzhou(self):
         for page in range(1, 43):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['json_data']['pageNo'] = page
             mlbhs = self.result_list.get_result_list(curl)
@@ -289,12 +267,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['mlbh'] = mlbh
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_suzhou(self):
         for page in range(1, 162):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['current'] = str(page)
             curl['json_data']['current'] = str(page)
@@ -303,12 +279,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['id'] = id
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_nantong(self):
         for page in range(120):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -316,12 +290,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['id'] = id
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_lianyungang(self):
         for page in range(1, 111):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['pageNum1'] = str(page)
             dmids = self.result_list.get_result_list(curl)
@@ -330,12 +302,10 @@ class Crawler:
                 curl['params']['dmid'] = dmid
                 valid, metadata = self.detail.get_detail(curl)
                 if valid:
-                    print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_jiangsu_huaian(self):
         for page in range(1, 130):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['pageNum'] = str(page)
             catalogIds = self.result_list.get_result_list(curl)
@@ -343,12 +313,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['catalogId'] = catalogId
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_yancheng(self):
         for page in range(1, 99):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['pageNumber'] = str(page)
             catalogPks = self.result_list.get_result_list(curl)
@@ -356,12 +324,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['catalogId'] = catalogPk
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_zhenjiang(self):
         for page in range(215):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -369,12 +335,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['id'] = id
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_taizhou(self):
         for page in range(1, 541):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -382,12 +346,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] = curl['url'].format(id)
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangsu_suqian(self):
         for page in range(1, 268):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
             id_infos = self.result_list.get_result_list(curl)
@@ -396,12 +358,10 @@ class Crawler:
                 curl['url'] = curl['url'].format(id)
                 metadata = self.detail.get_detail(curl)
                 metadata["更新时间"] = update_time
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_zhejiang(self):
         for page in range(1, 132):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -409,12 +369,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['queries'] = iid
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_hangzhou(self):
         for page in range(1, 660):
-            print(page)
             curl = self.result_list_curl.copy()
             post_data_json = json.loads(curl['data']['postData'])
             post_data_json['pageSplit']['pageNumber'] = page
@@ -432,12 +390,10 @@ class Crawler:
                 if metadata is None:
                     continue
                 metadata["数据格式"] = mformat
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_ningbo(self):
         for page in range(1, 177):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['json_data']['pageNo'] = str(page)
             uuids = self.result_list.get_result_list(curl)
@@ -445,12 +401,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['json_data']['uuid'] = uuid
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_wenzhou(self):
         for page in range(1, 51):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -458,12 +412,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['iid'] = iid['iid']
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_jiaxing(self):
         for page in range(1, 20):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -471,14 +423,12 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['iid'] = iid['iid']
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_shaoxing(self):
         for page in range(1, 75):
             if page == 3:
                 continue
-            print(page)
             curl = self.result_list_curl.copy()
             curl['json_data']['pageNum'] = page
             iids = self.result_list.get_result_list(curl)
@@ -486,12 +436,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['dataId'] = iid
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_jinhua(self):
         for page in range(1, 39):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -499,12 +447,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['iid'] = iid['iid']
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_quzhou(self):
         for page in range(1, 51):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -512,12 +458,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['iid'] = iid['iid']
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_zhoushan(self):
         for page in range(1, 12):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['json_data']['pageNo'] = page
             ids = self.result_list.get_result_list(curl)
@@ -525,12 +469,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['id'] = id
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_taizhou(self):
         for page in range(1, 108):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['json_data']['pageNum'] = page
             iids = self.result_list.get_result_list(curl)
@@ -538,12 +480,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['params']['dataId'] = iid
                 metadata = self.detail.get_detail(curl)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_zhejiang_lishui(self):
         for page in range(1, 44):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNumber'] = str(page)
             iids = self.result_list.get_result_list(curl)
@@ -552,12 +492,10 @@ class Crawler:
                 curl['params']['iid'] = iid['iid']
                 metadata = self.detail.get_detail(curl)
                 if metadata is not None:
-                    print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_anhui_anhui(self):
         for page in range(1, 100000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNum'] = str(page)
             rids = self.result_list.get_result_list(curl)
@@ -569,12 +507,10 @@ class Crawler:
                 curl['data']['rid'] = rid
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = 'http://data.ahzwfw.gov.cn:8000/dataopen-web/api-data-details.html?rid=' + rid
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_hefei(self):
         for page in tqdm(range(1, 34)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['currentPageNo'] = str(page)
             # curl['queries']['_'] = str(int(round(time.time() * 1000)))
@@ -593,7 +529,6 @@ class Crawler:
 
     def crawl_anhui_wuhu(self):
         for page in range(1, 37):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = str(page)
             metadata_list = self.result_list.get_result_list(curl)
@@ -604,7 +539,6 @@ class Crawler:
     def crawl_anhui_bengbu(self):
         # dataset
         for page in range(0, 8):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['pageIndex'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -613,16 +547,13 @@ class Crawler:
             for iid in ids:
                 curl = self.detail_list_curl.copy()
                 curl['queries']['resourceId'] = re.search(r"(?<=resourceId=)\d+", iid).group(0)
-                # print(curl['queries']['resourceId'])
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = 'https://www.bengbu.gov.cn' + iid
                 if metadata['下载格式'][0] == '':
                     metadata['下载格式'] = ['file']
-                # print(metadata)
                 self.metadata_list.append(metadata)
         # api
         for page in range(0, 2):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['pageIndex'] = str(page)
             curl['queries']['resourceType'] = 'api'
@@ -636,12 +567,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = 'https://www.bengbu.gov.cn' + iid
                 metadata['下载格式'] = ['api']
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_huainan(self):
         for page in range(1, 5):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             data_ids = self.result_list.get_result_list(curl)
@@ -653,12 +582,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = 'https://sjzyj.huainan.gov.cn/odssite/view/page/govDataFile?pageIndex=' + metadata[
                     '数据类型'] + '&dataId=' + str(data_id)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_huaibei(self):
         for page in range(1, 39):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['curPageNumber'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -667,16 +594,13 @@ class Crawler:
             for iid in ids:
                 curl = self.detail_list_curl.copy()
                 curl['queries']['id'] = iid
-                print(curl['queries']['resourceId'])
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = 'http://open.huaibeidata.cn:1123/#/data_public/detail/' + iid
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_huangshan(self):
         # dataset
         for page in range(1, 26):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['pageIndex'] = str(page)
             time.sleep(1)
@@ -693,12 +617,10 @@ class Crawler:
                 metadata['数据领域'] = cata
                 metadata['资源格式'] = format_list
                 metadata['开放条件'] = '无条件开放'
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_chuzhou(self):
         for page in range(0, 86):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             time.sleep(1)
@@ -710,12 +632,10 @@ class Crawler:
                 curl['queries']['name'] = meta['标题']
                 time.sleep(1)
                 remains = self.detail.get_detail(curl)
-                # print(metadata)
                 self.metadata_list.append(meta | remains)
 
     def crawl_anhui_suzhou(self):
         for page in range(1, 54):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -727,12 +647,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['数据格式'] = link['data_formats']
                 metadata['url'] = curl['url']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_luan(self):
         for page in range(1, 56):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -744,24 +662,20 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['数据格式'] = link['data_formats']
                 metadata['url'] = curl['url']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_chizhou(self):
         for page in range(1, 276):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             metadatas = self.result_list.get_result_list(curl)
             if len(metadatas) == 0:
                 break
             for metadata in metadatas:
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_fujian(self):
         for page in tqdm(range(1, 737)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -770,13 +684,11 @@ class Crawler:
                 curl['url'] += link
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = curl['url']
-                # print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_fuzhou(self):
         # for page in tqdm(range(1, 116)):
         for page in range(1, 116):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = str(page)
             res_ids = self.result_list.get_result_list(curl)
@@ -785,13 +697,11 @@ class Crawler:
                 curl['data']['resId'] = res_id
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = 'http://data.fuzhou.gov.cn/data/catalog/toDataCatalog'
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_xiamen(self):
         # for page in tqdm(range(1, 116)):
         for page in range(1, 102):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page']['currentPage'] = str(page)
             catalog_ids = self.result_list.get_result_list(curl)
@@ -800,12 +710,10 @@ class Crawler:
                 curl['queries']['catalogId'] = catalog_id
                 metadata = self.detail.get_detail(curl)
                 metadata['url'] = curl['url'] + '?' + catalog_id
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_jiangxi_jiangxi(self):
         for page in range(1, 29):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['current'] = page
             data_ids = self.result_list.get_result_list(curl)
@@ -818,12 +726,10 @@ class Crawler:
                     continue
                 metadata['数据格式'] = '[' + data_id['filesType'] + ']' if data_id['filesType'] is not None else ''
                 metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     # def crawl_jiangxi_ganzhou(self):
         for page in range(1, 24):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['url'] = curl['url'].format(page)
             ids = self.result_list.get_result_list(curl)
@@ -834,7 +740,6 @@ class Crawler:
                 if metadata == {}:
                     continue
                 metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shandong_common(self, use_cache=True, page_size=10):
@@ -852,7 +757,6 @@ class Crawler:
 
         # for page in range(637, 638):
         while (True):
-            print(f"第 {page} 页...")
             # TODO:加文件类型
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
@@ -860,10 +764,8 @@ class Crawler:
             links = self.result_list.get_result_list(curl)
             if not len(links):
                 if retry_time >= max_retry:
-                    print("已爬完")
                     return
                 else:
-                    print("无数据，重试中...")
                     retry_time += 1
                     continue
             retry_time = 0  # 重置
@@ -1327,7 +1229,6 @@ class Crawler:
 
     def crawl_guangxi_guangxi(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1339,12 +1240,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_nanning(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1356,12 +1255,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_liuzhou(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1373,12 +1270,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_guilin(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1390,12 +1285,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_wuzhou(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1407,12 +1300,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_beihai(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1424,12 +1315,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_fangchenggang(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1441,12 +1330,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_qinzhou(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1458,12 +1345,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_guigang(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1475,12 +1360,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_yulin(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1492,12 +1375,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_baise(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1509,12 +1390,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_hezhou(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1526,12 +1405,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_hechi(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1543,12 +1420,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_laibin(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1560,12 +1435,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guangxi_chongzuo(self):
         for page in range(1, 2000000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1577,12 +1450,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_hainan_hainan(self):
         for page in range(0, 100000):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['curPage'] = page
             ids = self.result_list.get_result_list(curl)
@@ -1593,7 +1464,6 @@ class Crawler:
                 curl['url'] = curl['url'].format(id)
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_chongqing_chongqing(self):
@@ -1604,12 +1474,10 @@ class Crawler:
         # if len(metadatas) == 0:
         #     break
         for metadata in metadatas:
-            print(metadata)
             self.metadata_list.append(metadata)
 
     def crawl_sichuan_sichuan(self):
         for page in tqdm(range(1, 1249)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1622,13 +1490,11 @@ class Crawler:
                 if bool(metadata):
                     metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
                     metadata['详情页网址'] = curl['url']
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_chengdu(self):
         for page in tqdm(range(1, 704)):
             # for page in range(1, 704):
-            #     print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             time.sleep(5)
@@ -1642,12 +1508,10 @@ class Crawler:
                 if bool(metadata):
                     metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
                     metadata['详情页网址'] = curl['url']
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_zigong(self):
         for page in tqdm(range(1, 870)):
-            # print(page)
             curl = self.result_list_curl.copy()
             time.sleep(5)
             curl['queries']['offset'] = str((page - 1) * 10)
@@ -1666,7 +1530,7 @@ class Crawler:
                                             headers=turl['headers'],
                                             timeout=REQUEST_TIME_OUT)
                     if response.status_code != requests.codes.ok:
-                        print("error " + str(response.status_code) + ": " + turl['url'])
+                        self.logs_detail_error(turl['url'], f'break with response code {response.status_code}')
                         type_json = dict()
                     else:
                         type_json = json.loads(response.text)['data']
@@ -1676,12 +1540,10 @@ class Crawler:
                     for name, type_info in type_json.items():
                         type_list.append(type_info['type'])
                     metadata['数据格式'] = str(type_list) if bool(type_list) else "['file']"
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_panzhihua(self):
         for page in tqdm(range(1, 700)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1694,13 +1556,11 @@ class Crawler:
                 if bool(metadata):
                     metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
                     metadata['详情页网址'] = curl['url']
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_luzhou(self):
         for page in tqdm(range(1, 701)):
             # for page in range(1, 701):
-            # print(page)
             curl = self.result_list_curl.copy()
             time.sleep(5)
             curl['data']['page'] = str(page)
@@ -1716,12 +1576,10 @@ class Crawler:
                     metadata['发布时间'] = publisht
                     metadata['更新时间'] = updatet
                     metadata['数据格式'] = "['api']"
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_deyang(self):
         for page in tqdm(range(1, 99)):
-            # print(page)
             curl = self.result_list_curl.copy()
             time.sleep(5)
             curl['data']['pageNo'] = page
@@ -1732,12 +1590,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 if bool(metadata):
                     metadata['详情页网址'] = "https://www.dysdsj.cn/#/DataSet/" + id.replace("/", "%2F")
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_mianyang(self):
         for page in tqdm(range(1, 1297)):
-            # print(page)
             curl = self.result_list_curl.copy()
             # time.sleep(5)
             curl['queries']['startNum'] = str((page - 1) * 8)
@@ -1749,16 +1605,13 @@ class Crawler:
                 if bool(metadata):
                     metadata['详情页网址'] = "https://data.mianyang.cn/zwztzlm/index.jhtml?caseid=" + id
                     metadata['数据格式'] = "['api']"  # 只有数据库和接口类型，实际全是接口
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_sichuan_guangyuan(self):
         for page in tqdm(range(1, 1874)):
-            # print(page)
             curl = self.result_list_curl.copy()
             # time.sleep(3)
             curl['data']['currentPage'] = page
@@ -1771,16 +1624,13 @@ class Crawler:
                     metadata['详情页网址'] = "http://data.cngy.gov.cn/open/index.html?id=user&messid=" + str(id)
                     metadata['领域名称'] = "生活服务"
                     metadata['行业名称'] = "公共管理、社会保障和社会组织"
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_sichuan_suining(self):
         for page in tqdm(range(1, 910)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = page
             ids = self.result_list.get_result_list(curl)
@@ -1795,16 +1645,13 @@ class Crawler:
                     for label in typeList:
                         type_list.append(type_mapping[label])
                     metadata['资源格式'] = str(type_list)
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_sichuan_neijiang(self):
         for page in tqdm(range(0, 317)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page'] = page
             curl['queries']['page'] = str(page)
@@ -1815,16 +1662,13 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 if bool(metadata):
                     metadata['详情页网址'] = "https://www.neijiang.gov.cn/neiJiangPublicData/resourceCatalog/detail?id=" + id
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_sichuan_leshan(self):
         for page in tqdm(range(1, 1575)):
-            # print(page)
             curl = self.result_list_curl.copy()
             # time.sleep(3)
             curl['queries']['pageIndex'] = str(page)
@@ -1835,16 +1679,13 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 if bool(metadata):
                     metadata['详情页网址'] = "https://www.leshan.gov.cn/data/#/source_catalog_detail/" + id + "/0"
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_sichuan_nanchong(self):
         for page in tqdm(range(1, 1655)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -1854,16 +1695,13 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 if bool(metadata):
                     metadata['详情页网址'] = "https://www.nanchong.gov.cn/data/catalog/details.html?id=" + id
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             # 响应太慢了，每次都写入吧
             self.save_matadata_as_json(METADATA_SAVE_PATH)
             self.metadata_list.clear()
-            print('write to file')
 
     def crawl_sichuan_meishan(self):
         for page in range(1, 617):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1877,14 +1715,12 @@ class Crawler:
                 # metadata["发布时间"]=link['publishTime']
                 # metadata["行业名称"]=link['industryName']
 
-                print(metadata)
 
                 self.metadata_list.append(metadata)
             time.sleep(5)
 
     def crawl_sichuan_yibin(self):
         for page in range(1, 444):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1896,13 +1732,11 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
             time.sleep(5)
 
     def crawl_sichuan_dazhou(self):
         for page in range(1, 565):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1914,13 +1748,11 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
             time.sleep(5)
 
     def crawl_sichuan_yaan(self):
         for page in range(1, 840):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1932,13 +1764,11 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 metadata['数据格式'] = link['data_formats']
-                print(metadata)
                 self.metadata_list.append(metadata)
             time.sleep(5)
 
     def crawl_sichuan_bazhong(self):
         for page in range(1, 1809):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1949,12 +1779,10 @@ class Crawler:
                 curl['queries']['dataCatalogId'] = link
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "https://www.bzgongxiang.com/#/dataCatalog/catalogDetail/" + link
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_sichuan_aba(self):
         for page in range(1, 739):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1965,12 +1793,10 @@ class Crawler:
                 curl['queries']['tableId'] = str(link)
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://abadata.cn/ABaPrefectureGateway/open/api/getTableDetail?tableId" + str(link)
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_sichuan_ganzi(self):
         for page in range(1, 1192):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = page
             links = self.result_list.get_result_list(curl)
@@ -1979,12 +1805,10 @@ class Crawler:
                 curl['queries']['mlbh'] = link
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://182.132.59.11:11180/dexchange/open/#/DataSet/" + link.replace('/', "%2F")
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_guizhou(self):
         for page in range(1, 1368):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -1994,12 +1818,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_guiyang(self):
         for page in range(1, 207):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2009,12 +1831,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_liupanshui(self):
         for page in range(1, 84):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2024,12 +1844,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_zunyi(self):
         for page in range(1, 122):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2039,12 +1857,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_anshun(self):
         for page in range(1, 108):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2054,12 +1870,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_bijie(self):
         for page in range(1, 123):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2069,12 +1883,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_tongren(self):
         for page in range(1, 86):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2084,12 +1896,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_qianxinan(self):
         for page in range(1, 54):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2099,12 +1909,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_qiandongnan(self):
         for page in range(1, 132):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2114,12 +1922,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_guizhou_qiannan(self):
         for page in range(1, 131):
-            print(page)
             curl = self.result_list_curl.copy()
             curl['data']['pageIndex'] = page
             ids = self.result_list.get_result_list(curl)
@@ -2129,12 +1935,10 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = "http://data.guizhou.gov.cn/open-data/" + id['id']
                 metadata['数据格式'] = id['resourceFormats']
-                print(metadata)
                 self.metadata_list.append(metadata)
 
     def crawl_shaanxi_shaanxi(self):
         for page in tqdm(range(1, 16)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page.pageNo'] = str(page)
             metas = self.result_list.get_result_list(curl)
@@ -2142,11 +1946,9 @@ class Crawler:
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_ningxia_ningxia(self):
         for page in tqdm(range(1, 202)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -2159,16 +1961,13 @@ class Crawler:
                 if bool(metadata):
                     metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
                     metadata['详情页网址'] = curl['url']
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_ningxia_yinchuan(self):
         for page in tqdm(range(1, 169)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['data']['start'] = str((page - 1) * 6)
             ids = self.result_list.get_result_list(curl)
@@ -2186,12 +1985,10 @@ class Crawler:
                     else:
                         type_list = [formate_mapping[s.strip()] for s in formate.split(',')[:-1]]
                         metadata['数据格式'] = str(type_list)
-                    # print(metadata)
                     self.metadata_list.append(metadata)
 
     def crawl_xinjiang_wulumuqi(self):
         for page in tqdm(range(1, 18)):
-            # print(page)
             curl = self.result_list_curl.copy()
             curl['data']['start'] = str((page - 1) * 6)
             ids = self.result_list.get_result_list(curl)
@@ -2209,15 +2006,13 @@ class Crawler:
                     else:
                         type_list = [formate_mapping[s.strip()] for s in formate.split(',')[:-1]]
                         metadata['数据格式'] = str(type_list)
-                    # print(metadata)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_matadata_as_json(METADATA_SAVE_PATH)
                 self.metadata_list.clear()
-                print('write to file')
 
     def crawl_other(self):
-        print("暂无该省")
+        log_error("crawl: 暂无该省")
 
     def save_metadata_as_json(self, save_dir):
         filename = save_dir + self.province + '_' + self.city + '.json'

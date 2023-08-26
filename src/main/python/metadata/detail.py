@@ -1,5 +1,4 @@
 import copy
-import hashlib
 import json
 import re
 import time
@@ -12,34 +11,15 @@ from bs4 import BeautifulSoup
 from requests.utils import add_dict_to_cookiejar
 from constants import REQUEST_TIME_OUT
 
-
-def getCookie(data):
-    """
-    通过加密对比得到正确cookie参数
-    :param data: 参数
-    :return: 返回正确cookie参数
-    """
-    chars = len(data['chars'])
-    for i in range(chars):
-        for j in range(chars):
-            clearance = data['bts'][0] + data['chars'][i] + data['chars'][j] + data['bts'][1]
-            encrypt = None
-            if data['ha'] == 'md5':
-                encrypt = hashlib.md5()
-            elif data['ha'] == 'sha1':
-                encrypt = hashlib.sha1()
-            elif data['ha'] == 'sha256':
-                encrypt = hashlib.sha256()
-            encrypt.update(clearance.encode())
-            result = encrypt.hexdigest()
-            if result == data['ct']:
-                return clearance
-
+from util import log_error, getCookie
 
 class Detail:
     def __init__(self, province, city) -> None:
         self.province = province
         self.city = city
+    
+    def log_request_error(self, status_code, link):
+        log_error("%s_%s detail: status code: %d with link %s", self.province, self.city, status_code, link)
 
     def get_detail(self, curl):
         func_name = f"detail_{str(self.province)}_{str(self.city)}"
@@ -96,7 +76,6 @@ class Detail:
                     dataset_matadata[th.get_text().strip()] = td.get_text().strip()
         except AttributeError as e:
             print(curl['url'])
-            print(e)
         return dataset_matadata
 
     def detail_hebei_hebei(self, curl):
@@ -1193,7 +1172,7 @@ class Detail:
         response = session.post(curl['url'], headers=curl['headers'], data=curl['data'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1224,7 +1203,7 @@ class Detail:
         list_fields = ["数据提供方", "数据主题", "发布时间", "更新时间", "公开属性", "更新频率", "摘要", "下载格式", "关键字", "数据条数"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -1293,7 +1272,7 @@ class Detail:
 
         response = requests.post(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1333,7 +1312,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1358,7 +1337,7 @@ class Detail:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         detail_json = json.loads(response.text)['data']
 
@@ -2736,7 +2715,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2764,7 +2743,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2792,7 +2771,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2832,7 +2811,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2851,7 +2830,7 @@ class Detail:
         table_fields = ["更新周期", "关键字", "资源摘要"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2895,7 +2874,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2929,7 +2908,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2967,7 +2946,7 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3008,7 +2987,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3043,7 +3022,7 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3071,7 +3050,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3109,7 +3088,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3836,7 +3815,7 @@ class Detail:
         table_fields = ["所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3864,7 +3843,7 @@ class Detail:
         list_fields = ["来源部门", "所属主题", "发布时间", "最后更新", "开放状态", "所属行业", "更新频率", "标签", "描述"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3896,7 +3875,7 @@ class Detail:
         list_fields = ["来源部门", "所属主题", "发布时间", "最后更新", "开放状态", "所属行业", "更新频率", "标签", "描述"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3924,4 +3903,4 @@ class Detail:
         return dataset_metadata
 
     def detail_other(self, curl):
-        print("暂无该省")
+        log_error("detail: 暂无该省")
