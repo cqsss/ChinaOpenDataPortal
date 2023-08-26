@@ -2034,6 +2034,8 @@ if __name__ == '__main__':
     for province in curls:
         for city in curls[province]:
             pool.submit(crawl_then_save, province, city)
+    
+    pool.shutdown()
             
 
     # crawler = Crawler("chongqing", "chongqing")
