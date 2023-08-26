@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import json
 import re
 import time
@@ -2227,11 +2228,18 @@ class Crawler:
 if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
+
+    pool = ThreadPoolExecutor(max_workers=20)
+    
+    def crawl_then_save(province, city):
+        crawler = Crawler(province, city)
+        crawler.crawl()
+        crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+
     for province in curls:
         for city in curls[province]:
-            crawler = Crawler(province, city)
-            crawler.crawl()
-            crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+            pool.submit(crawl_then_save, province, city)
+            
 
     # crawler = Crawler("chongqing", "chongqing")
     # crawler.crawl()
