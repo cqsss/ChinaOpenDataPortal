@@ -45,7 +45,7 @@ public class DBIndexer {
         int totalCount = datasetIdList.size();
         logger.info("Start generating document, total: " + totalCount);
 
-        queryList = jdbcTemplate.queryForList("SELECT * FROM metadata ORDER BY dataset_id");
+        queryList = jdbcTemplate.queryForList("SELECT * FROM metadata ORDER BY dataset_id LIMIT 10000");
 
         for (Map<String, Object> di : queryList) {
             Document document = new Document();

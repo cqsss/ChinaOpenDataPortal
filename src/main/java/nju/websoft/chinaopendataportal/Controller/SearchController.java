@@ -154,7 +154,7 @@ public class SearchController {
         Pair<Long, List<Pair<Integer, Double>>> rankingResult = relevanceRanking.LuceneRanking(query, new BM25Similarity(), GlobalVariances.BoostWeights, filterMap, GlobalVariances.index_Dir);
         long totalHits = rankingResult.getKey();
         List<Pair<Integer, Double>> scoreList = rankingResult.getValue();
-        scoreList = mmrTest.reRankList(scoreList, 30);
+        // scoreList = mmrTest.reRankList(scoreList, 30);
         for (int i = (page - 1) * GlobalVariances.numOfDatasetsPerPage; i < Math.min(totalHits, (long) page * GlobalVariances.numOfDatasetsPerPage); i++) {
             Map<String,String> snippet = new HashMap<>();
             Integer ds_id = scoreList.get(i).getKey();
