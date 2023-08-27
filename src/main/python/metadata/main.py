@@ -2021,6 +2021,8 @@ class Crawler:
 
 
 if __name__ == '__main__':
+    requests.packages.urllib3.disable_warnings()
+
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 

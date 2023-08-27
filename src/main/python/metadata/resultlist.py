@@ -773,7 +773,7 @@ class ResultList:
     def result_list_hubei_ezhou(self, curl):
 
         response = requests.get(curl['url'], headers=curl['headers'], verify=False, timeout=REQUEST_TIME_OUT)
-        soup = bs4.BeautifulSoup(response.text)
+        soup = bs4.BeautifulSoup(response.text, "html.parser")
         ul = soup.find('ul', class_='sjj_right_list')
         links = []
         if not ul:
