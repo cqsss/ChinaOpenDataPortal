@@ -17,7 +17,7 @@ class Detail:
     def __init__(self, province, city) -> None:
         self.province = province
         self.city = city
-    
+
     def log_request_error(self, status_code, link):
         log_error("%s_%s detail: status code: %d with link %s", self.province, self.city, status_code, link)
 

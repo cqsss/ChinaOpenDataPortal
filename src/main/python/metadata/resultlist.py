@@ -1398,7 +1398,7 @@ class ResultList:
         resultList = json.loads(response.text)['data']
         ids = [str(x['ID']) for x in resultList]
         return ids
-    
+
     def result_list_sichuan_meishan(self, curl):
         response = requests.post(curl['url'],
                                  data=curl['data'],

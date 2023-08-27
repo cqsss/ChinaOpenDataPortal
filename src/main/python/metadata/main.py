@@ -31,10 +31,10 @@ class Crawler:
         func_name = f"crawl_{str(self.province)}_{str(self.city)}"
         func = getattr(self, func_name, self.crawl_other)
         func()
-    
+
     def log_result_list_error(self):
         log_error("%s_%s crawl: get result list error, retrying", self.province, self.city)
-    
+
     def logs_detail_error(self, link, action):
         log_error("%s_%s crawl: get detail error with %s -> %s", self.province, self.city, link, action)
 
@@ -2025,7 +2025,7 @@ if __name__ == '__main__':
         curls = json.load(curlFile)
 
     pool = ThreadPoolExecutor(max_workers=20)
-    
+
     def crawl_then_save(province, city):
         crawler = Crawler(province, city)
         crawler.crawl()
@@ -2034,9 +2034,9 @@ if __name__ == '__main__':
     for province in curls:
         for city in curls[province]:
             pool.submit(crawl_then_save, province, city)
-    
+
     pool.shutdown()
-            
+
 
     # crawler = Crawler("chongqing", "chongqing")
     # crawler.crawl()
