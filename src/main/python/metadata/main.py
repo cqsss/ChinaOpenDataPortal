@@ -10,7 +10,6 @@ import requests
 from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, REQUEST_TIME_OUT)
 from detail import Detail
 from resultlist import ResultList
-from tqdm import tqdm
 
 from util import log_error
 
@@ -510,7 +509,7 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_hefei(self):
-        for page in tqdm(range(1, 34)):
+        for page in range(1, 34):
             curl = self.result_list_curl.copy()
             curl['queries']['currentPageNo'] = str(page)
             # curl['queries']['_'] = str(int(round(time.time() * 1000)))
@@ -675,7 +674,7 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_fujian(self):
-        for page in tqdm(range(1, 737)):
+        for page in range(1, 737):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -687,7 +686,6 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_fuzhou(self):
-        # for page in tqdm(range(1, 116)):
         for page in range(1, 116):
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = str(page)
@@ -700,7 +698,6 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_fujian_xiamen(self):
-        # for page in tqdm(range(1, 116)):
         for page in range(1, 102):
             curl = self.result_list_curl.copy()
             curl['data']['page']['currentPage'] = str(page)
@@ -1477,7 +1474,7 @@ class Crawler:
             self.metadata_list.append(metadata)
 
     def crawl_sichuan_sichuan(self):
-        for page in tqdm(range(1, 1249)):
+        for page in range(1, 1249):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1493,7 +1490,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_chengdu(self):
-        for page in tqdm(range(1, 704)):
+        for page in range(1, 704):
             # for page in range(1, 704):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
@@ -1511,7 +1508,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_zigong(self):
-        for page in tqdm(range(1, 870)):
+        for page in range(1, 870):
             curl = self.result_list_curl.copy()
             time.sleep(5)
             curl['queries']['offset'] = str((page - 1) * 10)
@@ -1543,7 +1540,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_panzhihua(self):
-        for page in tqdm(range(1, 700)):
+        for page in range(1, 700):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1559,7 +1556,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_luzhou(self):
-        for page in tqdm(range(1, 701)):
+        for page in range(1, 701):
             # for page in range(1, 701):
             curl = self.result_list_curl.copy()
             time.sleep(5)
@@ -1579,7 +1576,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_deyang(self):
-        for page in tqdm(range(1, 99)):
+        for page in range(1, 99):
             curl = self.result_list_curl.copy()
             time.sleep(5)
             curl['data']['pageNo'] = page
@@ -1593,7 +1590,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_sichuan_mianyang(self):
-        for page in tqdm(range(1, 1297)):
+        for page in range(1, 1297):
             curl = self.result_list_curl.copy()
             # time.sleep(5)
             curl['queries']['startNum'] = str((page - 1) * 8)
@@ -1611,7 +1608,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_sichuan_guangyuan(self):
-        for page in tqdm(range(1, 1874)):
+        for page in range(1, 1874):
             curl = self.result_list_curl.copy()
             # time.sleep(3)
             curl['data']['currentPage'] = page
@@ -1630,7 +1627,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_sichuan_suining(self):
-        for page in tqdm(range(1, 910)):
+        for page in range(1, 910):
             curl = self.result_list_curl.copy()
             curl['data']['pageNo'] = page
             ids = self.result_list.get_result_list(curl)
@@ -1651,7 +1648,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_sichuan_neijiang(self):
-        for page in tqdm(range(0, 317)):
+        for page in range(0, 317):
             curl = self.result_list_curl.copy()
             curl['data']['page'] = page
             curl['queries']['page'] = str(page)
@@ -1668,7 +1665,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_sichuan_leshan(self):
-        for page in tqdm(range(1, 1575)):
+        for page in range(1, 1575):
             curl = self.result_list_curl.copy()
             # time.sleep(3)
             curl['queries']['pageIndex'] = str(page)
@@ -1685,7 +1682,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_sichuan_nanchong(self):
-        for page in tqdm(range(1, 1655)):
+        for page in range(1, 1655):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             ids = self.result_list.get_result_list(curl)
@@ -1938,7 +1935,7 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     def crawl_shaanxi_shaanxi(self):
-        for page in tqdm(range(1, 16)):
+        for page in range(1, 16):
             curl = self.result_list_curl.copy()
             curl['queries']['page.pageNo'] = str(page)
             metas = self.result_list.get_result_list(curl)
@@ -1948,7 +1945,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_ningxia_ningxia(self):
-        for page in tqdm(range(1, 202)):
+        for page in range(1, 202):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
             links = self.result_list.get_result_list(curl)
@@ -1967,7 +1964,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_ningxia_yinchuan(self):
-        for page in tqdm(range(1, 169)):
+        for page in range(1, 169):
             curl = self.result_list_curl.copy()
             curl['data']['start'] = str((page - 1) * 6)
             ids = self.result_list.get_result_list(curl)
@@ -1988,7 +1985,7 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     def crawl_xinjiang_wulumuqi(self):
-        for page in tqdm(range(1, 18)):
+        for page in range(1, 18):
             curl = self.result_list_curl.copy()
             curl['data']['start'] = str((page - 1) * 6)
             ids = self.result_list.get_result_list(curl)
