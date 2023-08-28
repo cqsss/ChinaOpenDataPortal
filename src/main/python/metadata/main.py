@@ -31,8 +31,8 @@ class Crawler:
         func = getattr(self, func_name, self.crawl_other)
         func()
 
-    def log_result_list_error(self):
-        log_error("%s_%s crawl: get result list error, retrying", self.province, self.city)
+    def log_result_list_error(self, stat):
+        log_error("%s_%s crawl: get result list error, %s", self.province, self.city, stat)
 
     def logs_detail_error(self, link, action):
         log_error("%s_%s crawl: get detail error with %s -> %s", self.province, self.city, link, action)
@@ -48,7 +48,7 @@ class Crawler:
                 except (requests.exceptions.ProxyError, requests.exceptions.SSLError) as e:
                     links = None
                     time.sleep(5)
-                    self.log_result_list_error()
+                    self.log_result_list_error(f"retrying at page {page}...")
             for link in links:
                 curl = self.detail_list_curl.copy()
                 curl['url'] = link
@@ -516,14 +516,14 @@ class Crawler:
             # curl['headers']['Referer'] = curl['headers']['Referer'].format(str(page))
             ids = self.result_list.get_result_list(curl)
             if len(ids) == 0:
+                self.log_result_list_error(f"break at page {page}.")
                 break
             for iid, zyId in ids:
                 curl = self.detail_list_curl.copy()
                 curl['data']['id'] = iid
                 curl['data']['zyId'] = zyId
                 metadata = self.detail.get_detail(curl)
-                metadata[
-                    "详情页网址"] = 'https://www.hefei.gov.cn/open-data-web/data/detail-hfs.do?&id=' + iid + '&zyId=' + zyId
+                metadata["详情页网址"] = f'https://www.hefei.gov.cn/open-data-web/data/detail-hfs.do?&id={iid}&zyId={zyId}'
                 self.metadata_list.append(metadata)
 
     def crawl_anhui_wuhu(self):

@@ -446,7 +446,11 @@ class ResultList:
         jsl_clearance_s = getCookie(data)
         # 修改cookie
         add_dict_to_cookiejar(session.cookies, {'__jsl_clearance_s': jsl_clearance_s})
-        response = session.get(curl['url'], headers=curl['headers'], params=curl['queries'])
+        try:
+            response = session.get(curl['url'], headers=curl['headers'], params=curl['queries'])
+        except:
+            self.log_request_error(-1, curl['url'])
+            return dict()
 
         if response.status_code != requests.codes.ok:
             self.log_request_error(response.status_code, curl['url'])
