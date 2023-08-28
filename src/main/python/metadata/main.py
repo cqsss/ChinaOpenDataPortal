@@ -204,15 +204,15 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     # def crawl_jilin_jilin(self):
-        for page in range(1, 25):
-            curl = self.result_list_curl.copy()
-            curl['data']['page'] = str(page)
-            links = self.result_list.get_result_list(curl)
-            for link in links:
-                curl = self.detail_list_curl.copy()
-                curl['url'] += link
-                metadata = self.detail.get_detail(curl)
-                self.metadata_list.append(metadata)
+    #     for page in range(1, 25):
+    #         curl = self.result_list_curl.copy()
+    #         curl['data']['page'] = str(page)
+    #         links = self.result_list.get_result_list(curl)
+    #         for link in links:
+    #             curl = self.detail_list_curl.copy()
+    #             curl['url'] += link
+    #             metadata = self.detail.get_detail(curl)
+    #             self.metadata_list.append(metadata)
 
     def crawl_shanghai_shanghai(self):
         for page in range(1, 451):
@@ -243,8 +243,8 @@ class Crawler:
                     self.metadata_list.append(metadata)
 
     # def crawl_jiangsu_nanjing(self):
-        curl = self.result_list_curl.copy()
-        links = self.result_list.get_result_list(curl)
+    #     curl = self.result_list_curl.copy()
+    #     links = self.result_list.get_result_list(curl)
 
     def crawl_jiangsu_wuxi(self):
         for page in range(1, 295):
@@ -726,18 +726,18 @@ class Crawler:
                 self.metadata_list.append(metadata)
 
     # def crawl_jiangxi_ganzhou(self):
-        for page in range(1, 24):
-            curl = self.result_list_curl.copy()
-            curl['url'] = curl['url'].format(page)
-            ids = self.result_list.get_result_list(curl)
-            for id in ids:
-                curl = self.detail_list_curl.copy()
-                curl['url'] = curl['url'].format(id)
-                metadata = self.detail.get_detail(curl)
-                if metadata == {}:
-                    continue
-                metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
-                self.metadata_list.append(metadata)
+    #     for page in range(1, 24):
+    #         curl = self.result_list_curl.copy()
+    #         curl['url'] = curl['url'].format(page)
+    #         ids = self.result_list.get_result_list(curl)
+    #         for id in ids:
+    #             curl = self.detail_list_curl.copy()
+    #             curl['url'] = curl['url'].format(id)
+    #             metadata = self.detail.get_detail(curl)
+    #             if metadata == {}:
+    #                 continue
+    #             metadata['url'] = 'https://data.jiangxi.gov.cn/open-data/detail?id=' + data_id['dataId']
+    #             self.metadata_list.append(metadata)
 
     def crawl_shandong_common(self, use_cache=True, page_size=10):
         # TODO:debug
