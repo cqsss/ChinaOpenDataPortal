@@ -1236,9 +1236,10 @@ class Crawler:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link['link']
                 metadata = self.detail.get_detail(curl)
-                metadata['详情页网址'] = curl['url']
-                metadata['数据格式'] = link['data_formats']
-                self.metadata_list.append(metadata)
+                if len(metadata):
+                    metadata['详情页网址'] = curl['url']
+                    metadata['数据格式'] = link['data_formats']
+                    self.metadata_list.append(metadata)
 
     def crawl_guangxi_nanning(self):
         for page in range(1, 2000000):

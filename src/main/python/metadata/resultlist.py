@@ -907,6 +907,10 @@ class ResultList:
     def result_list_guangxi_guangxi(self, curl):
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        if response.status_code != requests.codes.ok:
+            self.log_request_error(response.status_code, curl['url'])
+            return []
+        
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         links = []

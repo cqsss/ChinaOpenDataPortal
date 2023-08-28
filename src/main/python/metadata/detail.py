@@ -2308,10 +2308,12 @@ class Detail:
         return metadata
 
     def detail_guangxi_guangxi(self, curl):
-
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
-        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        try:
+            response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        except requests.exceptions.ConnectTimeout:
+            return {}
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         dataset_matadata = {}
