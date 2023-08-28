@@ -631,7 +631,8 @@ class Crawler:
                 curl['queries']['name'] = meta['标题']
                 time.sleep(1)
                 remains = self.detail.get_detail(curl)
-                self.metadata_list.append(meta | remains)
+                remains.update(meta)
+                self.metadata_list.append(remains)
 
     def crawl_anhui_suzhou(self):
         for page in range(1, 54):
