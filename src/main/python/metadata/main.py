@@ -42,7 +42,11 @@ class Crawler:
             curl = self.result_list_curl.copy()
             curl['data']['curPage'] = str(page)
             links = None
+            try_cnt = 0
             while not links:
+                try_cnt += 1
+                if try_cnt >= 3:
+                    break
                 try:
                     links = self.result_list.get_result_list(curl)
                 except (requests.exceptions.ProxyError, requests.exceptions.SSLError) as e:
