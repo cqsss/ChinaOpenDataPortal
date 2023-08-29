@@ -910,7 +910,7 @@ class ResultList:
         if response.status_code != requests.codes.ok:
             self.log_request_error(response.status_code, curl['url'])
             return []
-        
+
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         links = []
@@ -1788,4 +1788,5 @@ class ResultList:
         return ids
 
     def result_list_other(self):
-        log_error("result list: 暂无该省")
+        log_error("result list: 暂无该地 - %s - %s", self.province, self.city)
+

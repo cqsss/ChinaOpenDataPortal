@@ -2015,7 +2015,7 @@ class Crawler:
                 self.metadata_list.clear()
 
     def crawl_other(self):
-        log_error("crawl: 暂无该省")
+        log_error("crawl: 暂无该地 - %s - %s", self.province, self.city)
 
     def save_metadata_as_json(self, save_dir):
         filename = save_dir + self.province + '_' + self.city + '.json'
@@ -2029,7 +2029,7 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    pool = ThreadPoolExecutor(max_workers=20)
+    pool = ThreadPoolExecutor(max_workers=60)
 
     def crawl_then_save(province, city):
         crawler = Crawler(province, city)

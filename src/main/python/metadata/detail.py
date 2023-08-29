@@ -3905,4 +3905,4 @@ class Detail:
         return dataset_metadata
 
     def detail_other(self, curl):
-        log_error("detail: 暂无该省")
+        log_error("detail: 暂无该地 - %s - %s", self.province, self.city)
