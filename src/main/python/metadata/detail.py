@@ -1540,8 +1540,8 @@ class Detail:
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
                 break
-            except Exception as e:
-                print("重试次数", i + 1)
+            except:
+                self.log_request_error(-1, curl['url']);
                 time.sleep(5)
 
         html = response.content

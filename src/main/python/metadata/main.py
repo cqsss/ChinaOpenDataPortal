@@ -747,7 +747,7 @@ class Crawler:
 
     def crawl_shandong_common(self, use_cache=True, page_size=10):
         # TODO:debug
-        # use_cache = False
+        use_cache = False
         max_retry = 3
         page = 1
         retry_time = 0
