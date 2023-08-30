@@ -6,6 +6,7 @@ import copy
 import urllib
 import bs4
 import requests
+import argparse
 
 from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, REQUEST_TIME_OUT)
 from detail import Detail
@@ -2029,20 +2030,25 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
-    pool = ThreadPoolExecutor(max_workers=60)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--all", action="store_true")
+    parser.add_argument("--province", type=str)
+    parser.add_argument("--city", type=str)
 
-    def crawl_then_save(province, city):
-        crawler = Crawler(province, city)
+    args = parser.parse_args()
+
+    if args.all:
+        def crawl_then_save(province, city):
+            crawler = Crawler(province, city)
+            crawler.crawl()
+            crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+
+        pool = ThreadPoolExecutor(max_workers=60)
+        for province in curls:
+            for city in curls[province]:
+                pool.submit(crawl_then_save, province, city)
+        pool.shutdown()
+    elif args.province and args.city:
+        crawler = Crawler(args.province, args.city)
         crawler.crawl()
         crawler.save_metadata_as_json(METADATA_SAVE_PATH)
-
-    for province in curls:
-        for city in curls[province]:
-            pool.submit(crawl_then_save, province, city)
-
-    pool.shutdown()
-
-
-    # crawler = Crawler("chongqing", "chongqing")
-    # crawler.crawl()
-    # crawler.save_metadata_as_json(METADATA_SAVE_PATH)
