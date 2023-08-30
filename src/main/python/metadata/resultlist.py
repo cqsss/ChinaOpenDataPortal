@@ -7,7 +7,7 @@ import bs4
 import requests
 from requests.utils import add_dict_to_cookiejar
 from bs4 import BeautifulSoup
-from constants import REQUEST_TIME_OUT
+from constants import REQUEST_MAX_TIME, REQUEST_TIME_OUT
 
 import execjs
 
@@ -1434,7 +1434,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_yibin(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1460,7 +1464,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_dazhou(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1486,7 +1494,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_yaan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1512,7 +1524,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_bazhong(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          params=curl['queries'],
@@ -1528,7 +1544,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_aba(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1543,7 +1563,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_ganzi(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1558,7 +1582,11 @@ class ResultList:
         return links
 
     def result_list_guizhou_guizhou(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1573,7 +1601,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_guiyang(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1588,7 +1620,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_liupanshui(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1603,7 +1639,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_zunyi(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1618,7 +1658,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_anshun(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1633,7 +1677,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_bijie(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1648,7 +1696,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_tongren(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1663,7 +1715,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_qianxinan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1678,7 +1734,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_qiandongnan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1693,7 +1753,11 @@ class ResultList:
         return ids
 
     def result_list_guizhou_qiannan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],

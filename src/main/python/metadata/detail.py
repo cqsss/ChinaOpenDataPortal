@@ -9,7 +9,7 @@ import unicodedata as ucd
 import requests
 from bs4 import BeautifulSoup
 from requests.utils import add_dict_to_cookiejar
-from constants import REQUEST_TIME_OUT
+from constants import REQUEST_MAX_TIME, REQUEST_TIME_OUT
 
 from util import log_error, getCookie
 
@@ -3197,7 +3197,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3243,7 +3247,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3289,7 +3297,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3335,7 +3347,11 @@ class Detail:
         #     "city": "所属城市",
         #     "url": "详情页网址"
         # }
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3376,7 +3392,11 @@ class Detail:
         #     "url": "详情页网址"
         # }
 
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3417,7 +3437,11 @@ class Detail:
 
         frequency_mapping = {'05': "年", '04': "季度", '03': "每月", '02': "每周", '01': "每日"}
         open_mapping = {'01': "有条件开放", '02': "无条件开放"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3456,7 +3480,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3493,7 +3521,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3530,7 +3562,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3567,7 +3603,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3604,7 +3644,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3641,7 +3685,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3678,7 +3726,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3715,7 +3767,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3752,7 +3808,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3789,7 +3849,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],

@@ -8,7 +8,7 @@ import bs4
 import requests
 import argparse
 
-from constants import (METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, REQUEST_TIME_OUT)
+from constants import METADATA_SAVE_PATH, PROVINCE_CURL_JSON_PATH, REQUEST_TIME_OUT, REQUEST_MAX_TIME
 from detail import Detail
 from resultlist import ResultList
 
@@ -46,7 +46,7 @@ class Crawler:
             try_cnt = 0
             while not links:
                 try_cnt += 1
-                if try_cnt >= 3:
+                if try_cnt >= REQUEST_MAX_TIME:
                     break
                 try:
                     links = self.result_list.get_result_list(curl)
@@ -61,7 +61,7 @@ class Crawler:
                 try_cnt = 0
                 while not metadata:
                     try_cnt += 1
-                    if try_cnt >= 3:
+                    if try_cnt >= REQUEST_MAX_TIME:
                         break
                     try:
                         metadata = self.detail.get_detail(curl)
