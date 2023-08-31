@@ -18,7 +18,7 @@ curls = {}
 
 
 class Crawler:
-    def __init__(self, province, city):
+    def __init__(self, province, city, output):
         self.province = province
         self.city = city
         self.result_list = ResultList(self.province, self.city)
@@ -26,6 +26,7 @@ class Crawler:
         self.result_list_curl = curls[province][city]['resultList']
         self.detail_list_curl = curls[province][city]['detail']
         self.metadata_list = []
+        self.output = output
 
     def crawl(self):
         func_name = f"crawl_{str(self.province)}_{str(self.city)}"
@@ -1611,7 +1612,7 @@ class Crawler:
                     metadata['数据格式'] = "['api']"  # 只有数据库和接口类型，实际全是接口
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_sichuan_guangyuan(self):
@@ -1630,7 +1631,7 @@ class Crawler:
                     metadata['行业名称'] = "公共管理、社会保障和社会组织"
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_sichuan_suining(self):
@@ -1651,7 +1652,7 @@ class Crawler:
                     metadata['资源格式'] = str(type_list)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_sichuan_neijiang(self):
@@ -1668,7 +1669,7 @@ class Crawler:
                     metadata['详情页网址'] = "https://www.neijiang.gov.cn/neiJiangPublicData/resourceCatalog/detail?id=" + id
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_sichuan_leshan(self):
@@ -1685,7 +1686,7 @@ class Crawler:
                     metadata['详情页网址'] = "https://www.leshan.gov.cn/data/#/source_catalog_detail/" + id + "/0"
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_sichuan_nanchong(self):
@@ -1701,7 +1702,7 @@ class Crawler:
                     metadata['详情页网址'] = "https://www.nanchong.gov.cn/data/catalog/details.html?id=" + id
                     self.metadata_list.append(metadata)
             # 响应太慢了，每次都写入吧
-            self.save_matadata_as_json(METADATA_SAVE_PATH)
+            self.save_matadata_as_json(self.output)
             self.metadata_list.clear()
 
     def crawl_sichuan_meishan(self):
@@ -1948,7 +1949,7 @@ class Crawler:
             metas = self.result_list.get_result_list(curl)
             self.metadata_list.extend(metas)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_ningxia_ningxia(self):
@@ -1967,7 +1968,7 @@ class Crawler:
                     metadata['详情页网址'] = curl['url']
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_ningxia_yinchuan(self):
@@ -2012,7 +2013,7 @@ class Crawler:
                         metadata['数据格式'] = str(type_list)
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
-                self.save_matadata_as_json(METADATA_SAVE_PATH)
+                self.save_matadata_as_json(self.output)
                 self.metadata_list.clear()
 
     def crawl_other(self):
@@ -2025,25 +2026,28 @@ class Crawler:
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings()
-
-    with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
-        curls = json.load(curlFile)
-
-    def crawl_then_save(province, city):
-        crawler = Crawler(province, city)
-        try:
-            crawler.crawl()
-        except:
-            log_error("global: error at %s - %s", province, city)
-        crawler.save_metadata_as_json(METADATA_SAVE_PATH)
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--province", type=str)
     parser.add_argument("--city", type=str)
 
+    parser.add_argument("--resource", type=str, default=PROVINCE_CURL_JSON_PATH)
+    parser.add_argument("--metadata-output", type=str, default=METADATA_SAVE_PATH)
+
     args = parser.parse_args()
+
+    requests.packages.urllib3.disable_warnings()
+
+    with open(args.resource, 'r', encoding='utf-8') as curlFile:
+        curls = json.load(curlFile)
+
+    def crawl_then_save(province, city):
+        crawler = Crawler(province, city, args.metadata_output)
+        try:
+            crawler.crawl()
+        except:
+            log_error("global: error at %s - %s", province, city)
+        crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
         pool = ThreadPoolExecutor(max_workers=60)
