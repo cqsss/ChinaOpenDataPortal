@@ -2030,6 +2030,14 @@ if __name__ == '__main__':
     with open(PROVINCE_CURL_JSON_PATH, 'r', encoding='utf-8') as curlFile:
         curls = json.load(curlFile)
 
+    def crawl_then_save(province, city):
+        crawler = Crawler(province, city)
+        try:
+            crawler.crawl()
+        except:
+            log_error("global: error at %s - %s", province, city)
+        crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--province", type=str)
@@ -2038,17 +2046,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.all:
-        def crawl_then_save(province, city):
-            crawler = Crawler(province, city)
-            crawler.crawl()
-            crawler.save_metadata_as_json(METADATA_SAVE_PATH)
-
         pool = ThreadPoolExecutor(max_workers=60)
         for province in curls:
             for city in curls[province]:
                 pool.submit(crawl_then_save, province, city)
         pool.shutdown()
     elif args.province and args.city:
-        crawler = Crawler(args.province, args.city)
-        crawler.crawl()
-        crawler.save_metadata_as_json(METADATA_SAVE_PATH)
+        crawl_then_save(args.province, args.city)
