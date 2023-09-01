@@ -1,18 +1,43 @@
+import argparse
 import json
 import os
 
 import pymysql
 from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH, NAME_MAPPING_JSON_PATH
 
-db = pymysql.connect(host='172.28.96.1',
-                     port=8906,
-                     user='root',
-                     password='',
-                     database='china_open_data_portal_2023',
+parser = argparse.ArgumentParser()
+parser.add_argument("--db-host", type=str)
+parser.add_argument("--db-port", type=int)
+parser.add_argument("--db-user", type=str)
+parser.add_argument("--db-pswd", type=str)
+parser.add_argument("--database", type=str)
+parser.add_argument("--table", type=str)
+
+parser.add_argument("--mapping-path", type=str, default=MAPPING_SAVE_PATH)
+parser.add_argument("--metadata-path", type=str, default=METADATA_SAVE_PATH)
+parser.add_argument("--name-map-path", type=str, default=NAME_MAPPING_JSON_PATH)
+
+args = parser.parse_args()
+
+DB_HOST = args.db_host
+DB_PORT = args.db_port
+DB_USER = args.db_user
+DB_PSWD = args.db_pswd
+DATABASE_NAME = args.database
+TABLE_NAME = args.table
+
+mapping_path = args.mapping_path
+metadata_path = args.metadata_path
+name_map_path = args.name_map_path
+
+db = pymysql.connect(host=DB_HOST,
+                     port=DB_PORT,
+                     user=DB_USER,
+                     password=DB_PSWD,
+                     database=DATABASE_NAME,
                      charset='utf8')
 
 c = db.cursor()
-TABLE_NAME = 'metadata_test_bshan'
 
 def write_metadata():
     field_names = [
@@ -20,13 +45,13 @@ def write_metadata():
         'data_volume', 'industry', 'update_frequency', 'telephone', 'email', 'data_formats', 'url'
     ]
 
-    with open(NAME_MAPPING_JSON_PATH, "r", encoding="utf-8") as f:
+    with open(name_map_path, "r", encoding="utf-8") as f:
         name_mapping = json.load(f)
     cnt = 0
 
     province_city = {}
-    path = METADATA_SAVE_PATH
-    file_list = os.listdir(METADATA_SAVE_PATH)
+    path = metadata_path
+    file_list = os.listdir(metadata_path)
 
     sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
 
@@ -49,7 +74,7 @@ def write_metadata():
         print(province, city)
         metadata_file_path = os.path.join(path, file)
         assert os.path.isfile(metadata_file_path)
-        mapping_file_path = MAPPING_SAVE_PATH + file
+        mapping_file_path = os.path.join(mapping_path, file)
         with open(mapping_file_path, 'r', encoding='utf-8') as json_file:
             mapping_dict = json.load(json_file)
         with open(metadata_file_path, 'r', encoding='utf-8') as json_file:
