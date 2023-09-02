@@ -63,7 +63,7 @@ def write_metadata():
     c.execute(sql)
     finished_list = c.fetchall()
     finished_list = [x[0] + '_' + x[1] for x in finished_list]
-    print(finished_list)
+    # print(finished_list)
 
     sql = f"INSERT INTO {TABLE_NAME} VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     for file in file_list:
@@ -76,7 +76,7 @@ def write_metadata():
         if province not in province_city:
             province_city[province] = []
         province_city[province].append(city)
-        print(province, city)
+        # print(province, city)
         metadata_file_path = os.path.join(path, file)
         assert os.path.isfile(metadata_file_path)
         mapping_file_path = os.path.join(mapping_path, file)
@@ -100,12 +100,12 @@ def write_metadata():
             di.append(city)
             di.append(None)
             dataset_list.append(di)
-        print(len(dataset_list[0]))
-        print(dataset_list[0])
+        # print(len(dataset_list[0]))
+        # print(dataset_list[0])
         c.executemany(sql, dataset_list)
         db.commit()
         finished_list.append(file_name)
-        print(cnt)
+        # print(cnt)
 
 
 def stastic():
