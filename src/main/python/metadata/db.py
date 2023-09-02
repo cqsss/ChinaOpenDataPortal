@@ -69,6 +69,10 @@ def write_metadata():
     for file in file_list:
         file_name = file.split('.')[0]
         province, city = file_name.split('_')
+        if not name_mapping.get(province):
+            continue
+        if not name_mapping[province].get(city):
+            continue
         city = name_mapping[province][city]
         province = name_mapping[province][province]
         if province + '_' + city in finished_list:
