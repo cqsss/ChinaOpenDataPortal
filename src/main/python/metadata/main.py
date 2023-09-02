@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 import json
+import os
 import re
 import time
 import copy
@@ -2020,7 +2021,7 @@ class Crawler:
         log_error("crawl: 暂无该地 - %s - %s", self.province, self.city)
 
     def save_metadata_as_json(self, save_dir):
-        filename = save_dir + self.province + '_' + self.city + '.json'
+        filename = os.path.join(save_dir, f"{self.province}_{self.city}.json")
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.metadata_list, f, ensure_ascii=False)
 
