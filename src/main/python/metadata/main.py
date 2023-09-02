@@ -749,18 +749,9 @@ class Crawler:
 
     def crawl_shandong_common(self, use_cache=True, page_size=10):
         # TODO:debug
-        use_cache = False
-        max_retry = 3
         page = 1
-        retry_time = 0
-        cache_dir = "./results/cache/"
-        index_cache_dir = cache_dir + f"{self.province}_{self.city}_index_cache.txt"
-        data_cache_dir = cache_dir + f"{self.province}_{self.city}_data_cache.json"
-        if use_cache:
-            cache_page = self.prepare_cache(cache_dir, index_cache_dir, data_cache_dir, page_size)
-            page += cache_page
+        try_cnt = 0
 
-        # for page in range(637, 638):
         while (True):
             # TODO:加文件类型
             curl = self.result_list_curl.copy()
@@ -768,12 +759,10 @@ class Crawler:
             page += 1
             links = self.result_list.get_result_list(curl)
             if not len(links):
-                if retry_time >= max_retry:
+                if try_cnt >= REQUEST_MAX_TIME:
                     return
-                else:
-                    retry_time += 1
-                    continue
-            retry_time = 0  # 重置
+                try_cnt += 1
+                continue
             for link in links:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link['link']
@@ -781,12 +770,7 @@ class Crawler:
                 metadata["数据格式"] = link['data_formats']  # TODO：扔到detail方法里面
                 metadata["详情页网址"] = curl['url']
                 self.metadata_list.append(metadata)
-            if use_cache:
-                with open(index_cache_dir, 'w', encoding='utf-8') as page_writer:
-                    page_writer.write(str(page))
-                # TODO:append来提高效率
-                with open(data_cache_dir, 'w', encoding='utf-8') as data_writer:
-                    json.dump(self.metadata_list, data_writer, ensure_ascii=False)
+            break
 
     def crawl_shandong_shandong(self, use_cache=True, page_size=10):
         self.crawl_shandong_common(use_cache, page_size)

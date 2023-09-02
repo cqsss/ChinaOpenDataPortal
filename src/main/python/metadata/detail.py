@@ -1535,8 +1535,7 @@ class Detail:
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放类型"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         item_fields = ["英文信息项名", "中文信息项名", "数据类型", "中文描述"]
-        max_retry = 5
-        for i in range(max_retry):
+        for _ in range(REQUEST_MAX_TIME):
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
                 break
