@@ -12,6 +12,7 @@ parser.add_argument("--db-user", type=str)
 parser.add_argument("--db-pswd", type=str)
 parser.add_argument("--database", type=str)
 parser.add_argument("--table", type=str)
+parser.add_argument("--ref-table", type=str, default="metadata")
 
 parser.add_argument("--mapping-path", type=str, default=MAPPING_SAVE_PATH)
 parser.add_argument("--metadata-path", type=str, default=METADATA_SAVE_PATH)
@@ -25,6 +26,7 @@ DB_USER = args.db_user
 DB_PSWD = args.db_pswd
 DATABASE_NAME = args.database
 TABLE_NAME = args.table
+REF_TABLE_NAME = args.ref_table
 
 mapping_path = args.mapping_path
 metadata_path = args.metadata_path
@@ -52,6 +54,9 @@ def write_metadata():
     province_city = {}
     path = metadata_path
     file_list = os.listdir(metadata_path)
+
+    sql = f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} LIKE {REF_TABLE_NAME}"
+    c.execute(sql)
 
     sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
 
