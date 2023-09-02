@@ -750,9 +750,10 @@ class Crawler:
     def crawl_shandong_common(self, use_cache=True, page_size=10):
         # TODO:debug
         page = 1
-        try_cnt = 0
+        try_cnt = 0 # 每一页的重试次数
 
-        while (True):
+        # 遍历每一页直到拿不到result_list
+        while True:
             # TODO:加文件类型
             curl = self.result_list_curl.copy()
             curl['params']['page'] = str(page)
@@ -760,9 +761,10 @@ class Crawler:
             links = self.result_list.get_result_list(curl)
             if not len(links):
                 if try_cnt >= REQUEST_MAX_TIME:
-                    return
+                    break
                 try_cnt += 1
                 continue
+            try_cnt = 0 # 重置重试次数
             for link in links:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link['link']
@@ -770,7 +772,6 @@ class Crawler:
                 metadata["数据格式"] = link['data_formats']  # TODO：扔到detail方法里面
                 metadata["详情页网址"] = curl['url']
                 self.metadata_list.append(metadata)
-            break
 
     def crawl_shandong_shandong(self, use_cache=True, page_size=10):
         self.crawl_shandong_common(use_cache, page_size)
