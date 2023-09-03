@@ -1452,7 +1452,7 @@ class Crawler:
             curl = self.result_list_curl.copy()
             curl['data']['curPage'] = page
             ids = self.result_list.get_result_list(curl)
-            if len(ids) == 0:
+            if not (ids and len(ids)):
                 break
             for id in ids:
                 curl = self.detail_list_curl.copy()
@@ -1460,6 +1460,12 @@ class Crawler:
                 metadata = self.detail.get_detail(curl)
                 metadata['详情页网址'] = curl['url']
                 self.metadata_list.append(metadata)
+
+    def crawl_hainan_hainansjj(self):
+        self.crawl_hainan_hainan()
+    
+    def crawl_hainan_hainansjjk(self):
+        self.crawl_hainan_hainan()
 
     def crawl_chongqing_chongqing(self):
 

@@ -58,11 +58,10 @@ def write_metadata():
     sql = f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} LIKE {REF_TABLE_NAME}"
     c.execute(sql)
 
-    sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
-
-    c.execute(sql)
-    finished_list = c.fetchall()
-    finished_list = [x[0] + '_' + x[1] for x in finished_list]
+    # sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
+    # c.execute(sql)
+    # finished_list = c.fetchall()
+    # finished_list = [x[0] + '_' + x[1] for x in finished_list]
     # print(finished_list)
 
     sql = f"INSERT INTO {TABLE_NAME} VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -75,8 +74,8 @@ def write_metadata():
             continue
         city = name_mapping[province][city]
         province = name_mapping[province][province]
-        if province + '_' + city in finished_list:
-            continue
+        # if province + '_' + city in finished_list:
+        #     continue
         if province not in province_city:
             province_city[province] = []
         province_city[province].append(city)
@@ -108,7 +107,7 @@ def write_metadata():
         # print(dataset_list[0])
         c.executemany(sql, dataset_list)
         db.commit()
-        finished_list.append(file_name)
+        # finished_list.append(file_name)
         # print(cnt)
 
 

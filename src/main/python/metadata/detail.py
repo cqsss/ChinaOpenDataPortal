@@ -2737,6 +2737,12 @@ class Detail:
         dataset_matadata['数据格式'] = ls1
 
         return dataset_matadata
+    
+    def detail_hainan_hainansjj(self, curl):
+        return self.detail_hainan_hainan(curl)
+    
+    def detail_hainan_hainansjjk(self, curl):
+        return self.detail_hainan_hainan(curl)
 
     def detail_sichuan_sichuan(self, curl):
 

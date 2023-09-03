@@ -1213,6 +1213,12 @@ class ResultList:
         resultList = json.loads(response.text)['data']['content']
         res_ids = [x['id'] for x in resultList]
         return res_ids
+    
+    def result_list_hainan_hainansjj(self, curl):
+        return self.result_list_hainan_hainan(curl)
+    
+    def result_list_hainan_hainansjjk(self, curl):
+        return self.result_list_hainan_hainan(curl)
 
     def result_list_chongqing_chongqing(self, curl):
 
