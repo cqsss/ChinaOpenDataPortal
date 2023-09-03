@@ -1649,7 +1649,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -1678,7 +1682,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -1863,7 +1871,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2005,7 +2017,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2134,7 +2150,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2184,7 +2204,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2246,7 +2270,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:

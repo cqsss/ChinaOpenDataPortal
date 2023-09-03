@@ -84,7 +84,11 @@ class Crawler:
             curl = self.detail_list_curl.copy()
             curl['url'] = data['link']
             metadata = None
+            try_cnt = 0
             while not metadata:
+                try_cnt += 1
+                if try_cnt >= REQUEST_MAX_TIME:
+                    break
                 try:
                     metadata = self.detail.get_detail(curl)
                     metadata['url'] = data['link']
