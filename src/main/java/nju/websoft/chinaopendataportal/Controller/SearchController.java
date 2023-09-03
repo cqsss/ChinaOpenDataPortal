@@ -66,15 +66,19 @@ public class SearchController {
         }
     }
 
-    @RequestMapping("/search")
+    @RequestMapping("/")
     public String starter() {
         return "search.html";
     }
 
     @RequestMapping(value = "/dosearch", method = RequestMethod.POST)
     public String dosearch(@RequestParam("query") String query) {
-        if (query.equals(""))
-            query = current_query;
+        if (query.equals("")) {
+            if (current_query.isEmpty())
+                query = GlobalVariances.defaultQuery;
+            else
+                query = current_query;
+        }
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         query = query.replaceAll("\\+", "%20");
         return "redirect:/result?q=" + query + "&province=&city=&industry=&isopen=&page=1";
@@ -154,7 +158,7 @@ public class SearchController {
         Pair<Long, List<Pair<Integer, Double>>> rankingResult = relevanceRanking.LuceneRanking(query, new BM25Similarity(), GlobalVariances.BoostWeights, filterMap, GlobalVariances.index_Dir);
         long totalHits = rankingResult.getKey();
         List<Pair<Integer, Double>> scoreList = rankingResult.getValue();
-        // scoreList = mmrTest.reRankList(scoreList, 30);
+        scoreList = mmrTest.reRankList(scoreList, GlobalVariances.reRankSize);
         for (int i = (page - 1) * GlobalVariances.numOfDatasetsPerPage; i < Math.min(totalHits, (long) page * GlobalVariances.numOfDatasetsPerPage); i++) {
             Map<String,String> snippet = new HashMap<>();
             Integer ds_id = scoreList.get(i).getKey();
@@ -191,10 +195,13 @@ public class SearchController {
                 }
                 relScoreMap.put(ds_id.toString(), (int) score);
             }
+            if (snippet.get("province").equals(snippet.get("city"))) {
+                snippet.put("city", "");
+            }
             snippetList.add(snippet);
         }
-//        int numResults = Math.min(30, (int) totalHits);
-        int numResults = (int) totalHits;
+        int numResults = Math.min(GlobalVariances.reRankSize, (int) totalHits);
+//        int numResults = (int) totalHits;
         int totalPages = numResults / GlobalVariances.numOfDatasetsPerPage;
         if (numResults % GlobalVariances.numOfDatasetsPerPage != 0)
             totalPages++;
@@ -233,7 +240,7 @@ public class SearchController {
         model.addAttribute("pages", pages);
         model.addAttribute("previousPage", previousPage);
         model.addAttribute("nextPage", nextPage);
-        model.addAttribute("totalHits", totalHits);
+        model.addAttribute("numResults", numResults);
         model.addAttribute("totalPages", totalPages);
         return "resultlist.html";
     }
@@ -253,6 +260,9 @@ public class SearchController {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+        }
+        if (dataset.getProvince().equals(dataset.getCity())) {
+            dataset.setCity("");
         }
         model.addAttribute("dataset", dataset);
         model.addAttribute("dataset_id", dataset_id);
