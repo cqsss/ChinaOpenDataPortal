@@ -1,0 +1,1 @@
+Python需要使用3.6及以下的版本, 参考[CSDN: SSL: SSLV3_ALERT_HANDSHAKE_FAILURE](https://blog.csdn.net/qq_37435462/article/details/121564961).

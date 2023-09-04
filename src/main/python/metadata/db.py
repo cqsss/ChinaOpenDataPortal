@@ -1,17 +1,45 @@
+import argparse
 import json
 import os
 
 import pymysql
 from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH, NAME_MAPPING_JSON_PATH
 
-db = pymysql.connect(host='114.212.189.98',
-                     user='qschen',
-                     password='chenqiaosheng123',
-                     database='china_open_data_portal_2023jun',
+parser = argparse.ArgumentParser()
+parser.add_argument("--db-host", type=str)
+parser.add_argument("--db-port", type=int)
+parser.add_argument("--db-user", type=str)
+parser.add_argument("--db-pswd", type=str)
+parser.add_argument("--database", type=str)
+parser.add_argument("--table", type=str)
+parser.add_argument("--ref-table", type=str, default="metadata")
+
+parser.add_argument("--mapping-path", type=str, default=MAPPING_SAVE_PATH)
+parser.add_argument("--metadata-path", type=str, default=METADATA_SAVE_PATH)
+parser.add_argument("--name-map-path", type=str, default=NAME_MAPPING_JSON_PATH)
+
+args = parser.parse_args()
+
+DB_HOST = args.db_host
+DB_PORT = args.db_port
+DB_USER = args.db_user
+DB_PSWD = args.db_pswd
+DATABASE_NAME = args.database
+TABLE_NAME = args.table
+REF_TABLE_NAME = args.ref_table
+
+mapping_path = args.mapping_path
+metadata_path = args.metadata_path
+name_map_path = args.name_map_path
+
+db = pymysql.connect(host=DB_HOST,
+                     port=DB_PORT,
+                     user=DB_USER,
+                     password=DB_PSWD,
+                     database=DATABASE_NAME,
                      charset='utf8')
 
 c = db.cursor()
-
 
 def write_metadata():
     field_names = [
@@ -19,36 +47,42 @@ def write_metadata():
         'data_volume', 'industry', 'update_frequency', 'telephone', 'email', 'data_formats', 'url'
     ]
 
-    with open(NAME_MAPPING_JSON_PATH, "r", encoding="utf-8") as f:
+    with open(name_map_path, "r", encoding="utf-8") as f:
         name_mapping = json.load(f)
     cnt = 0
 
     province_city = {}
-    path = METADATA_SAVE_PATH
-    file_list = os.listdir(METADATA_SAVE_PATH)
+    path = metadata_path
+    file_list = os.listdir(metadata_path)
 
-    sql = "SELECT DISTINCT province, city FROM metadata"
-
+    sql = f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} LIKE {REF_TABLE_NAME}"
     c.execute(sql)
-    finished_list = c.fetchall()
-    finished_list = [x[0] + '_' + x[1] for x in finished_list]
-    print(finished_list)
 
-    sql = "INSERT INTO metadata VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    # sql = f"SELECT DISTINCT province, city FROM {TABLE_NAME}"
+    # c.execute(sql)
+    # finished_list = c.fetchall()
+    # finished_list = [x[0] + '_' + x[1] for x in finished_list]
+    # print(finished_list)
+
+    sql = f"INSERT INTO {TABLE_NAME} VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     for file in file_list:
         file_name = file.split('.')[0]
         province, city = file_name.split('_')
+        if not name_mapping.get(province):
+            continue
+        if not name_mapping[province].get(city):
+            continue
         city = name_mapping[province][city]
         province = name_mapping[province][province]
-        if province + '_' + city in finished_list:
-            continue
+        # if province + '_' + city in finished_list:
+        #     continue
         if province not in province_city:
             province_city[province] = []
         province_city[province].append(city)
-        print(province, city)
+        # print(province, city)
         metadata_file_path = os.path.join(path, file)
         assert os.path.isfile(metadata_file_path)
-        mapping_file_path = MAPPING_SAVE_PATH + file
+        mapping_file_path = os.path.join(mapping_path, file)
         with open(mapping_file_path, 'r', encoding='utf-8') as json_file:
             mapping_dict = json.load(json_file)
         with open(metadata_file_path, 'r', encoding='utf-8') as json_file:
@@ -69,17 +103,17 @@ def write_metadata():
             di.append(city)
             di.append(None)
             dataset_list.append(di)
-        print(len(dataset_list[0]))
-        print(dataset_list[0])
+        # print(len(dataset_list[0]))
+        # print(dataset_list[0])
         c.executemany(sql, dataset_list)
         db.commit()
-        finished_list.append(file_name)
-        print(cnt)
+        # finished_list.append(file_name)
+        # print(cnt)
 
 
 def stastic():
     format_cnt = {}
-    sql = "SELECT data_formats FROM metadata"
+    sql = f"SELECT data_formats FROM {TABLE_NAME}"
     c.execute(sql)
     formats = c.fetchall()
     for fi in formats:

@@ -1,14 +1,16 @@
-"""Constants"""
+import os
+
+
+"""Constants for Crawler"""
 DEFAULT_ENCODING = 'utf-8'
-REQUEST_TIME_OUT = 5
+REQUEST_TIME_OUT = 50
+REQUEST_MAX_TIME = 10
 
-PROVINCE_CURL_JSON_PATH = 'python/metadata/config/curl.json'
-NAME_MAPPING_JSON_PATH = 'python/metadata/json/name_mapping.json'
+PROVINCE_CURL_JSON_PATH = f"{os.path.dirname(__file__)}/config/curl.json"
 
-PROVINCE_LIST = ['shandong', 'jiangsu']
+"""Constants for Database Writer"""
+NAME_MAPPING_JSON_PATH = f"{os.path.dirname(__file__)}/json/name_mapping.json"
+MAPPING_SAVE_PATH = f"{os.path.dirname(__file__)}/data/mapping/"
 
-# METADATA_SAVE_PATH = 'src\\main\\python\\metadata\\json\\data\\'
-METADATA_SAVE_PATH = '/home/qschen/Data/ChinaOpenData/metadata/'
-
-# MAPPING_SAVE_PATH = 'src\\main\\python\\metadata\\json\\mapping\\'
-MAPPING_SAVE_PATH = '/home/qschen/Data/ChinaOpenData/mapping/'
+"""Constants for Both"""
+METADATA_SAVE_PATH = f"{os.path.dirname(__file__)}/data/metadata/"

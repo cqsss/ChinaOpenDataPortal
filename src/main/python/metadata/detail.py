@@ -1,42 +1,25 @@
+import copy
 import json
 import re
 import time
+import bs4
 import execjs
 import unicodedata as ucd
 
 import requests
 from bs4 import BeautifulSoup
 from requests.utils import add_dict_to_cookiejar
-from constants import REQUEST_TIME_OUT
+from constants import REQUEST_MAX_TIME, REQUEST_TIME_OUT
 
-
-def getCookie(data):
-    """
-    通过加密对比得到正确cookie参数
-    :param data: 参数
-    :return: 返回正确cookie参数
-    """
-    chars = len(data['chars'])
-    for i in range(chars):
-        for j in range(chars):
-            clearance = data['bts'][0] + data['chars'][i] + data['chars'][j] + data['bts'][1]
-            encrypt = None
-            if data['ha'] == 'md5':
-                encrypt = hashlib.md5()
-            elif data['ha'] == 'sha1':
-                encrypt = hashlib.sha1()
-            elif data['ha'] == 'sha256':
-                encrypt = hashlib.sha256()
-            encrypt.update(clearance.encode())
-            result = encrypt.hexdigest()
-            if result == data['ct']:
-                return clearance
-
+from util import log_error, getCookie
 
 class Detail:
     def __init__(self, province, city) -> None:
         self.province = province
         self.city = city
+
+    def log_request_error(self, status_code, link):
+        log_error("%s_%s detail: status code: %d with link %s", self.province, self.city, status_code, link)
 
     def get_detail(self, curl):
         func_name = f"detail_{str(self.province)}_{str(self.city)}"
@@ -93,7 +76,6 @@ class Detail:
                     dataset_matadata[th.get_text().strip()] = td.get_text().strip()
         except AttributeError as e:
             print(curl['url'])
-            print(e)
         return dataset_matadata
 
     def detail_hebei_hebei(self, curl):
@@ -1190,7 +1172,7 @@ class Detail:
         response = session.post(curl['url'], headers=curl['headers'], data=curl['data'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1221,7 +1203,7 @@ class Detail:
         list_fields = ["数据提供方", "数据主题", "发布时间", "更新时间", "公开属性", "更新频率", "摘要", "下载格式", "关键字", "数据条数"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -1290,7 +1272,7 @@ class Detail:
 
         response = requests.post(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1330,7 +1312,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -1355,7 +1337,7 @@ class Detail:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         detail_json = json.loads(response.text)['data']
 
@@ -1553,13 +1535,12 @@ class Detail:
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放类型"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         item_fields = ["英文信息项名", "中文信息项名", "数据类型", "中文描述"]
-        max_retry = 5
-        for i in range(max_retry):
+        for _ in range(REQUEST_MAX_TIME):
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
                 break
-            except Exception as e:
-                print("重试次数", i + 1)
+            except:
+                self.log_request_error(-1, curl['url']);
                 time.sleep(5)
 
         html = response.content
@@ -1668,7 +1649,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -1697,7 +1682,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -1882,7 +1871,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2024,7 +2017,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2153,7 +2150,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2203,7 +2204,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2265,7 +2270,11 @@ class Detail:
             if not data:
                 return '', key
             all_data = copy.deepcopy(data)
+            try_cnt = 0
             while not isinstance(key, str):
+                try_cnt += 1
+                if try_cnt > REQUEST_MAX_TIME:
+                    break
                 now_key = list(key.keys())[0]
                 key = key[now_key]
                 if now_key in all_data:
@@ -2326,10 +2335,12 @@ class Detail:
         return metadata
 
     def detail_guangxi_guangxi(self, curl):
-
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
-        response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        try:
+            response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        except requests.exceptions.ConnectTimeout:
+            return {}
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         dataset_matadata = {}
@@ -2726,6 +2737,12 @@ class Detail:
         dataset_matadata['数据格式'] = ls1
 
         return dataset_matadata
+    
+    def detail_hainan_hainansjj(self, curl):
+        return self.detail_hainan_hainan(curl)
+    
+    def detail_hainan_hainansjjk(self, curl):
+        return self.detail_hainan_hainan(curl)
 
     def detail_sichuan_sichuan(self, curl):
 
@@ -2733,7 +2750,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2761,7 +2778,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2789,7 +2806,7 @@ class Detail:
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2829,7 +2846,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2848,7 +2865,7 @@ class Detail:
         table_fields = ["更新周期", "关键字", "资源摘要"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -2892,7 +2909,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2926,7 +2943,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -2964,7 +2981,7 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3005,7 +3022,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3040,7 +3057,7 @@ class Detail:
 
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3068,7 +3085,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3106,7 +3123,7 @@ class Detail:
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
 
         dataset_matadata = {}
@@ -3213,7 +3230,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3259,7 +3280,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3305,7 +3330,11 @@ class Detail:
         }
         list_fields = ["来源部门", "重点领域", "发布时间", "更新时间", "开放条件"]
         table_fields = ["数据量", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
                 break
@@ -3351,7 +3380,11 @@ class Detail:
         #     "city": "所属城市",
         #     "url": "详情页网址"
         # }
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3392,7 +3425,11 @@ class Detail:
         #     "url": "详情页网址"
         # }
 
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3433,7 +3470,11 @@ class Detail:
 
         frequency_mapping = {'05': "年", '04': "季度", '03': "每月", '02': "每周", '01': "每日"}
         open_mapping = {'01': "有条件开放", '02': "无条件开放"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -3472,7 +3513,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3509,7 +3554,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3546,7 +3595,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3583,7 +3636,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3620,7 +3677,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3657,7 +3718,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3694,7 +3759,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3731,7 +3800,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3768,7 +3841,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3805,7 +3882,11 @@ class Detail:
         }
 
         frequency_mapping = {0: "每年", 1: "每季度", 2: "每月", 3: "每周", 4: "每天", 5: "实时", 6: "每半年", None: "实时"}
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return {}
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -3833,7 +3914,7 @@ class Detail:
         table_fields = ["所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT, verify=False)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3861,7 +3942,7 @@ class Detail:
         list_fields = ["来源部门", "所属主题", "发布时间", "最后更新", "开放状态", "所属行业", "更新频率", "标签", "描述"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3893,7 +3974,7 @@ class Detail:
         list_fields = ["来源部门", "所属主题", "发布时间", "最后更新", "开放状态", "所属行业", "更新频率", "标签", "描述"]
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         html = response.content.decode('utf-8')
         soup = BeautifulSoup(html, "html.parser")
@@ -3921,4 +4002,4 @@ class Detail:
         return dataset_metadata
 
     def detail_other(self, curl):
-        print("暂无该省")
+        log_error("detail: 暂无该地 - %s - %s", self.province, self.city)

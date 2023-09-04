@@ -1,7 +1,9 @@
 package nju.websoft.chinaopendataportal.Ranking;
 
-import javafx.util.Pair;
-import nju.websoft.chinaopendataportal.GlobalVariances;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -11,8 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
-import java.util.*;
+import nju.websoft.chinaopendataportal.GlobalVariances;
 
 @Repository
 public class DBIndexer {
@@ -44,7 +45,7 @@ public class DBIndexer {
         int totalCount = datasetIdList.size();
         logger.info("Start generating document, total: " + totalCount);
 
-        queryList = jdbcTemplate.queryForList("SELECT * FROM metadata ORDER BY dataset_id");
+        queryList = jdbcTemplate.queryForList("SELECT * FROM metadata ORDER BY dataset_id LIMIT 10000");
 
         for (Map<String, Object> di : queryList) {
             Document document = new Document();

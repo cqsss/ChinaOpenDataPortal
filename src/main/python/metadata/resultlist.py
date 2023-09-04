@@ -1,44 +1,25 @@
-import hashlib
 import json
 import re
 import time
 import urllib
+import bs4
 
 import requests
 from requests.utils import add_dict_to_cookiejar
 from bs4 import BeautifulSoup
-from constants import REQUEST_TIME_OUT
+from constants import REQUEST_MAX_TIME, REQUEST_TIME_OUT
 
 import execjs
 
-
-def getCookie(data):
-    """
-    通过加密对比得到正确cookie参数
-    :param data: 参数
-    :return: 返回正确cookie参数
-    """
-    chars = len(data['chars'])
-    for i in range(chars):
-        for j in range(chars):
-            clearance = data['bts'][0] + data['chars'][i] + data['chars'][j] + data['bts'][1]
-            encrypt = None
-            if data['ha'] == 'md5':
-                encrypt = hashlib.md5()
-            elif data['ha'] == 'sha1':
-                encrypt = hashlib.sha1()
-            elif data['ha'] == 'sha256':
-                encrypt = hashlib.sha256()
-            encrypt.update(clearance.encode())
-            result = encrypt.hexdigest()
-            if result == data['ct']:
-                return clearance
-
+from util import log_error, getCookie
 
 class ResultList:
     def __init__(self, province, city) -> None:
         self.province = province
         self.city = city
+
+    def log_request_error(self, status_code, link):
+        log_error("%s_%s result list: status code: %d with link %s", self.province, self.city, status_code, link)
 
     def get_result_list(self, curl):
         func_name = f"result_list_{str(self.province)}_{str(self.city)}"
@@ -48,7 +29,6 @@ class ResultList:
     def result_list_beijing_beijing(self, curl):
         response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
         resultList = json.loads(response.text)['object']['docs']
-        # print(resultList)
         links = [x['url'] for x in resultList]
         return links
 
@@ -466,13 +446,15 @@ class ResultList:
         jsl_clearance_s = getCookie(data)
         # 修改cookie
         add_dict_to_cookiejar(session.cookies, {'__jsl_clearance_s': jsl_clearance_s})
-        response = session.get(curl['url'], headers=curl['headers'], params=curl['queries'])
+        try:
+            response = session.get(curl['url'], headers=curl['headers'], params=curl['queries'])
+        except:
+            self.log_request_error(-1, curl['url'])
+            return dict()
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
-            print(response.text)
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']['result']
 
         ids = [(str(x['id']), x['zyId']) for x in resultList]
@@ -482,7 +464,7 @@ class ResultList:
         response = requests.post(curl['url'], data=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         resultList = json.loads(response.text.replace('\\"', '"')[1:-1])['smcDataSetList']
         # 目前所有数据集中只出现了每日和每年
@@ -537,9 +519,8 @@ class ResultList:
         response = requests.post(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['result']['data']
         ids = [x['id'] for x in resultList]
         return ids
@@ -582,7 +563,7 @@ class ResultList:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
         resultList = json.loads(response.text)['content']
         dataset_metadata = []
@@ -796,7 +777,7 @@ class ResultList:
     def result_list_hubei_ezhou(self, curl):
 
         response = requests.get(curl['url'], headers=curl['headers'], verify=False, timeout=REQUEST_TIME_OUT)
-        soup = bs4.BeautifulSoup(response.text)
+        soup = bs4.BeautifulSoup(response.text, "html.parser")
         ul = soup.find('ul', class_='sjj_right_list')
         links = []
         if not ul:
@@ -926,6 +907,10 @@ class ResultList:
     def result_list_guangxi_guangxi(self, curl):
 
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        if response.status_code != requests.codes.ok:
+            self.log_request_error(response.status_code, curl['url'])
+            return []
+
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         links = []
@@ -1228,6 +1213,12 @@ class ResultList:
         resultList = json.loads(response.text)['data']['content']
         res_ids = [x['id'] for x in resultList]
         return res_ids
+    
+    def result_list_hainan_hainansjj(self, curl):
+        return self.result_list_hainan_hainan(curl)
+    
+    def result_list_hainan_hainansjjk(self, curl):
+        return self.result_list_hainan_hainan(curl)
 
     def result_list_chongqing_chongqing(self, curl):
 
@@ -1258,9 +1249,7 @@ class ResultList:
                                  json=curl['data'],
                                  headers=curl['headers'],
                                  timeout=REQUEST_TIME_OUT * 1000)
-        print(response)
         result_list_json = json.loads(response.text)['data']['result']['data']
-        print(len(result_list_json))
         for detail_json in result_list_json:
             dataset_metadata = {}
             for key, value in key_map.items():
@@ -1276,7 +1265,6 @@ class ResultList:
                 if key in ['updateDate'] and detail_json[key] is not None:
                     detail_json[key] = detail_json[key][:10]
                 dataset_metadata[value] = detail_json[key]
-            print(detail_json['tags'])
             dataset_metadata['行业分类'] = detail_json['tags']['INDUSTRY'] if 'INDUSTRY' in detail_json['tags'] else None
             dataset_metadata['主题分类'] = detail_json['tags']['TOPIC'] if 'TOPIC' in detail_json['tags'] else None
             dataset_metadata['url'] = 'https://data.cq.gov.cn/rop/assets/detail?resId=' + detail_json['id']
@@ -1346,7 +1334,6 @@ class ResultList:
     def result_list_sichuan_zigong(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        # print(response)
         resultList = json.loads(response.text)['data']['rows']
         ids = [x['id'] for x in resultList]
         return ids
@@ -1354,7 +1341,6 @@ class ResultList:
     def result_list_sichuan_luzhou(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        # print(response)
         resultList = json.loads(response.text)['result']['rows']
         ids = [(x['id'], x['openType'], x['publishTime'], x['updateTime']) for x in resultList]
         return ids
@@ -1362,7 +1348,6 @@ class ResultList:
     def result_list_sichuan_deyang(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        # print(response)
         resultList = json.loads(response.text)['data']['rows']
         ids = [x['mlbh'] for x in resultList]
         return ids
@@ -1370,7 +1355,6 @@ class ResultList:
     def result_list_sichuan_mianyang(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        # print(response)
         resultList = json.loads(response.text)['elementthing']['listPage']['list']
         ids = [x['id'] for x in resultList]
         return ids
@@ -1379,9 +1363,8 @@ class ResultList:
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']['rows']
         ids = [x['ID'] for x in resultList]
         return ids
@@ -1390,9 +1373,8 @@ class ResultList:
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']['rows']
         ids = [(x['mlbh'], x['wjlx']) for x in resultList]
         return ids
@@ -1405,9 +1387,8 @@ class ResultList:
                                  timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']['content']
         ids = [str(x['id']) for x in resultList]
         return ids
@@ -1416,9 +1397,8 @@ class ResultList:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']['rows']
         ids = [str(x['resourceId']) for x in resultList]
         return ids
@@ -1427,16 +1407,13 @@ class ResultList:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']
         ids = [str(x['ID']) for x in resultList]
         return ids
-    
+
     def result_list_sichuan_meishan(self, curl):
-        #print(curl['queries'])
-        #print(curl['headers'])
         response = requests.post(curl['url'],
                                  data=curl['data'],
                                  headers=curl['headers'],
@@ -1460,11 +1437,14 @@ class ResultList:
         #             data_format_text = 'api'
         #         data_formats.append(data_format_text.lower())
         #     links.append({'link': link['href'], 'data_formats': str(data_formats)})
-        # print(links)
         return links
 
     def result_list_sichuan_yibin(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1490,7 +1470,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_dazhou(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1516,7 +1500,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_yaan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1542,7 +1530,11 @@ class ResultList:
         return links
 
     def result_list_sichuan_bazhong(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          params=curl['queries'],
@@ -1554,12 +1546,15 @@ class ResultList:
             except:
                 time.sleep(5)
         resultList = json.loads(response.text)['data']['data']
-        #print(json.loads(response.text))
         links = [link['catalogInfo']['id'] for link in resultList]
         return links
 
     def result_list_sichuan_aba(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.get(curl['url'],
                                         params=curl['queries'],
@@ -1570,12 +1565,15 @@ class ResultList:
             except:
                 time.sleep(5)
         resultList = json.loads(response.text)['data']['resultMap']['abaTableList']
-        #print(json.loads(response.text))
         links = [link['tableId'] for link in resultList]
         return links
 
     def result_list_sichuan_ganzi(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1586,12 +1584,15 @@ class ResultList:
             except:
                 time.sleep(5)
         resultList = json.loads(response.text)['data']['rows']
-        #print(json.loads(response.text))
         links = [link['mlbh'] for link in resultList]
         return links
 
     def result_list_guizhou_guizhou(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1601,13 +1602,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_guiyang(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1617,13 +1621,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_liupanshui(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1633,13 +1640,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_zunyi(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1649,13 +1659,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_anshun(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1665,13 +1678,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_bijie(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1681,13 +1697,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_tongren(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1697,13 +1716,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_qianxinan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1713,13 +1735,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_qiandongnan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1729,13 +1754,16 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
 
     def result_list_guizhou_qiannan(self, curl):
+        try_cnt = 0
         while True:
+            try_cnt += 1
+            if try_cnt >= REQUEST_MAX_TIME:
+                return []
             try:
                 response = requests.post(curl['url'],
                                          json=curl['data'],
@@ -1745,7 +1773,6 @@ class ResultList:
                 break
             except:
                 time.sleep(5)
-        #print(response)
         resultList = json.loads(response.text)['data']
         ids = [{'id': x['id'], 'resourceFormats': x['resourceFormats']} for x in resultList]
         return ids
@@ -1754,9 +1781,8 @@ class ResultList:
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)[0]['result']
 
         metadata_list = []
@@ -1811,9 +1837,8 @@ class ResultList:
                                  timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']
         ids = [(str(x['cata_id']), x['conf_catalog_format']) for x in resultList]
         return ids
@@ -1826,12 +1851,12 @@ class ResultList:
                                  timeout=REQUEST_TIME_OUT)
 
         if response.status_code != requests.codes.ok:
-            print("error " + str(response.status_code) + ": " + curl['url'])
+            self.log_request_error(response.status_code, curl['url'])
             return dict()
-        # print(response)
         resultList = json.loads(response.text)['data']
         ids = [(str(x['cata_id']), x['conf_catalog_format']) for x in resultList]
         return ids
 
     def result_list_other(self):
-        print("暂无该省")
+        log_error("result list: 暂无该地 - %s - %s", self.province, self.city)
+

@@ -154,7 +154,9 @@
         "xinjiang": "新疆维吾尔自治区"
     },
     "hainan": {
-        "hainan": "海南省"
+        "hainan": "海南省",
+        "hainansjj": "海南省",
+        "hainansjjk": "海南省"
     },
     "shanxi": {
         "changzhi": "长治市",
