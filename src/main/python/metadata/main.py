@@ -1463,7 +1463,7 @@ class Crawler:
 
     def crawl_hainan_hainansjj(self):
         self.crawl_hainan_hainan()
-    
+
     def crawl_hainan_hainansjjk(self):
         self.crawl_hainan_hainan()
 
@@ -2030,7 +2030,10 @@ if __name__ == '__main__':
     parser.add_argument("--resource", type=str, default=PROVINCE_CURL_JSON_PATH)
     parser.add_argument("--metadata-output", type=str, default=METADATA_SAVE_PATH)
 
+    parser.add_argument("--debug", action="store_true")
+
     args = parser.parse_args()
+    DEBUG = args.debug
 
     requests.packages.urllib3.disable_warnings()
 
@@ -2041,8 +2044,10 @@ if __name__ == '__main__':
         crawler = Crawler(province, city, args.metadata_output)
         try:
             crawler.crawl()
-        except:
+        except Exception as e:
             log_error("global: error at %s - %s", province, city)
+            if DEBUG:
+                log_error("%s", str(e.with_traceback()))
         crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
