@@ -29,7 +29,16 @@ public class MetadataService {
         return metadataMapper.getProvinces();
     }
 
+    public int getProvinceCount() {
+        return metadataMapper.getProvinceCount();
+    }
+
     public List<String> getCitiesByProvince(String province) {
         return metadataMapper.getCitiesByProvince(province);
     }
+
+    public int getCityCount() {
+        return metadataMapper.getCityCount();
+    }
+
 }
