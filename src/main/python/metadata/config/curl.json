@@ -375,19 +375,18 @@
       "resultList": {
         "method": "post",
         "cookies": {
-          "XSRF-TOKEN": "05465f77-f86d-4db0-8f08-56d31577f283",
-          "SECKEY_ABVK": "FD/GgZRwwQtwzK4Lp2+c4fLpNNG1CSDZ4uDXozl6o4U%3D",
-          "BMAP_SECKEY": "CVPR9bCSPXHCYgBewzrTy4j5KcxqGHBC7wF1BOWIUiQCNIJxAfZWNKYUQ9ZR-GKcq6l_VXSq7JvxpnZzsJwccKkLt2MbWITPowHTtKLIGAJYrW0COV_-Hg3TtogvA71BPFzYBX8eH4lsenomUIhPCeTRBHY1gtaC5wswicKJAd0iSy6gVCKEwNOR6Ct9ym-V"
+          "XSRF-TOKEN": "d5185719-68d6-408a-bab7-a44318f19165"
         },
         "headers": {
           "Accept": "application/json, text/plain, */*",
           "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
           "Content-Type": "application/json",
+          "Cookie": "XSRF-TOKEN=d5185719-68d6-408a-bab7-a44318f19165",
           "Origin": "http://36.137.79.239:8091",
           "Proxy-Connection": "keep-alive",
           "Referer": "http://36.137.79.239:8091/",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50",
-          "X-XSRF-TOKEN": "05465f77-f86d-4db0-8f08-56d31577f283"
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62",
+          "X-XSRF-TOKEN": "d5185719-68d6-408a-bab7-a44318f19165"
         },
         "data": {
           "name": "",
@@ -405,13 +404,14 @@
         "headers": {
           "Accept": "application/json, text/plain, */*",
           "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Cookie": "XSRF-TOKEN=d5185719-68d6-408a-bab7-a44318f19165",
           "Proxy-Connection": "keep-alive",
           "Referer": "http://36.137.79.239:8091/",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50",
-          "X-XSRF-TOKEN": "05465f77-f86d-4db0-8f08-56d31577f283"
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62",
+          "X-XSRF-TOKEN": "d5185719-68d6-408a-bab7-a44318f19165"
         },
         "queries": {
-          "_t": "1687149542346"
+          "_t": "1693839309403"
         },
         "url": "http://36.137.79.239:8091/api/v1/manager/resource/public/dataResource/{}",
         "detail_url": "http://36.137.79.239:8091/#/dataDirectory/detail?id={}"

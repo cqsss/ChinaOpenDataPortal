@@ -123,10 +123,10 @@ class ResultList:
     def result_list_neimenggu_xinganmeng(self, curl):
         response = requests.post(curl['url'],
                                  headers=curl['headers'],
-                                 data=curl['data'],
+                                 json=curl['data'],
                                  timeout=REQUEST_TIME_OUT,
                                  verify=False)
-        resultList = json.loads(response.text)['data']
+        resultList = json.loads(response.text)['data']['data']
         ids = [x['id'] for x in resultList]
         return ids
 

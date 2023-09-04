@@ -221,24 +221,20 @@ class Detail:
     def detail_neimenggu_xinganmeng(self, curl):
 
         key_map = {
-            'title': "目录名称",
-            'openType': "开放状态",
-            'remark': "简介",
+            'name': "目录名称",
+            'description': "简介",
             'subjectName': "所属主题",
-            'dataUpdatePeriod': "更新频率",
-            'orgName': "提供单位",
-            'publishDate': "发布日期",
-            'updateDate': "更新日期",
+            'deptName': "提供单位",
+            'releaseTime': "发布日期",
+            'updateTime': "更新日期",
         }
 
-        response = requests.post(curl['url'],
+        response = requests.get(curl['url'],
                                  headers=curl['headers'],
-                                 data=curl['data'],
                                  timeout=REQUEST_TIME_OUT,
                                  verify=False)
-
         dataset_metadata = {}
-        detail_json = json.loads(response.text)['record']
+        detail_json = json.loads(response.text)['data']
         for key, value in key_map.items():
             dataset_metadata[value] = detail_json[key]
         return dataset_metadata
