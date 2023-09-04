@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
 
 @Controller
@@ -67,7 +68,13 @@ public class SearchController {
     }
 
     @RequestMapping("/")
-    public String starter() {
+    public String starter(Model model) {
+        int totalCount = metadataService.getMetadataCount();
+        int provinceCount = metadataService.getProvinceCount();
+        int cityCount = metadataService.getCityCount();
+        model.addAttribute("totalCount", DecimalFormat.getNumberInstance().format(totalCount));
+        model.addAttribute("provinceCount", DecimalFormat.getNumberInstance().format(provinceCount));
+        model.addAttribute("cityCount", DecimalFormat.getNumberInstance().format(cityCount));
         return "search.html";
     }
 

@@ -20,6 +20,12 @@ public interface MetadataMapper {
     @Select("SELECT DISTINCT(province) FROM metadata")
     List<String> getProvinces();
 
+    @Select("SELECT COUNT(DISTINCT(province)) FROM metadata")
+    int getProvinceCount();
+
     @Select("SELECT DISTINCT(city) FROM metadata WHERE province=#{province}")
     List<String> getCitiesByProvince(@Param("province") String province);
+
+    @Select("SELECT COUNT(DISTINCT(city)) FROM metadata")
+    int getCityCount();
 }
