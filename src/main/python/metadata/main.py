@@ -2047,7 +2047,7 @@ if __name__ == '__main__':
         except Exception as e:
             log_error("global: error at %s - %s", province, city)
             if DEBUG:
-                log_error("%s", str(e.with_traceback()))
+                log_error("%s", str(e.args))
         crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
