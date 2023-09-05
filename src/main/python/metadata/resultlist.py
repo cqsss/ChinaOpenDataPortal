@@ -190,7 +190,7 @@ class ResultList:
     def result_list_jiangsu_xuzhou(self, curl):
         response = requests.post(curl['url'],
                                  headers=curl['headers'],
-                                 json=curl['json_data'],
+                                 json=curl['jsonData'],
                                  timeout=REQUEST_TIME_OUT,
                                  verify=False)
         resultList = json.loads(response.text)['data']['rows']

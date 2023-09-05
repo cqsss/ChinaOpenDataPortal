@@ -776,16 +776,16 @@
         "method": "post",
         "headers": {
           "Accept": "application/json, text/plain, */*",
-          "Accept-Language": "zh-CN,zh;q=0.9",
-          "Connection": "keep-alive",
-          "Content-Type": "application/json;charset=UTF-8",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Cookie": "_gscu_1870995672=93910612m5qsc678; _gscbrs_1870995672=1; _appId=7353912abaa5b1927f543a051bcc671a; _gscs_1870995672=93910612duggzw78|pv:3",
           "Origin": "http://data.gxj.xz.gov.cn",
+          "Proxy-Connection": "keep-alive",
           "Referer": "http://data.gxj.xz.gov.cn/",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-          "appCode": "a3e80fa942b3d7611c9324af99a3fb27",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62",
+          "appCode": "7353912abaa5b1927f543a051bcc671a",
           "token": "undefined"
         },
-        "json_data": {
+        "jsonData": {
           "pageNo": 1,
           "pageSize": 50,
           "zylx": [
@@ -801,7 +801,7 @@
           "llslPx": "",
           "sqslPx": "",
           "ssztlmId": [
-            "00"
+            "02022051818090591100000101001743"
           ],
           "ssjclmId": [
             "00"
@@ -819,15 +819,16 @@
         "method": "get",
         "headers": {
           "Accept": "application/json, text/plain, */*",
-          "Accept-Language": "zh-CN,zh;q=0.9",
-          "Connection": "keep-alive",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Cookie": "_gscu_1870995672=93910612m5qsc678; _gscbrs_1870995672=1; _appId=7353912abaa5b1927f543a051bcc671a; _gscs_1870995672=93910612duggzw78^|pv:5",
+          "Proxy-Connection": "keep-alive",
           "Referer": "http://data.gxj.xz.gov.cn/",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62",
           "token": "undefined"
         },
         "params": {
           "mlbh": "04/021882",
-          "appCode": "a3e80fa942b3d7611c9324af99a3fb27"
+          "appCode": "7353912abaa5b1927f543a051bcc671a"
         },
         "url": "http://data.gxj.xz.gov.cn/exchangeopengateway/v1.0/mlxx/getSjmlxq"
       }

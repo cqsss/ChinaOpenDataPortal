@@ -271,7 +271,7 @@ class Crawler:
     def crawl_jiangsu_xuzhou(self):
         for page in range(1, 43):
             curl = self.result_list_curl.copy()
-            curl['json_data']['pageNo'] = page
+            curl['jsonData']['pageNo'] = page
             mlbhs = self.result_list.get_result_list(curl)
             for mlbh in mlbhs:
                 curl = self.detail_list_curl.copy()
