@@ -2042,12 +2042,16 @@ if __name__ == '__main__':
 
     def crawl_then_save(province, city):
         crawler = Crawler(province, city, args.metadata_output)
-        try:
-            crawler.crawl()
-        except Exception as e:
-            log_error("global: error at %s - %s", province, city)
-            if DEBUG:
-                log_error("%s", str(e.args))
+        for _ in range(REQUEST_MAX_TIME):
+            try:
+                crawler.crawl()
+                break
+            except Exception as e:
+                log_error("global: error at %s - %s", province, city)
+                if DEBUG:
+                    log_error("%s", str(e.args))
+                    break
+                time.sleep(50)
         crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
