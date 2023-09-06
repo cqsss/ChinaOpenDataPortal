@@ -1190,6 +1190,7 @@ class Crawler:
                 curl['data']['resId'] = id
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
+                time.sleep(1)
         for page in range(1, 548):
             curl = copy.deepcopy(self.result_list_curl)
             curl['api']['data']['pageNo'] = page
@@ -1204,6 +1205,7 @@ class Crawler:
                 curl['data']['resId'] = id
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
+                time.sleep(1)
 
     def crawl_guangdong_zhongshan(self):
         all_ids = []
