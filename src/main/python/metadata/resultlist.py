@@ -399,7 +399,10 @@ class ResultList:
         return ids
 
     def result_list_zhejiang_taizhou(self, curl):
-        response = requests.post(curl['url'], headers=curl['headers'], json=curl['json_data'], timeout=REQUEST_TIME_OUT)
+        response = requests.post(curl['url'],
+                                 headers=curl['headers'],
+                                 json=curl['jsonData'],
+                                 timeout=REQUEST_TIME_OUT)
         result_list = json.loads(response.text)['data']['rows']
         iids = [x['iid'] for x in result_list]
         return iids
@@ -1213,10 +1216,10 @@ class ResultList:
         resultList = json.loads(response.text)['data']['content']
         res_ids = [x['id'] for x in resultList]
         return res_ids
-    
+
     def result_list_hainan_hainansjj(self, curl):
         return self.result_list_hainan_hainan(curl)
-    
+
     def result_list_hainan_hainansjjk(self, curl):
         return self.result_list_hainan_hainan(curl)
 

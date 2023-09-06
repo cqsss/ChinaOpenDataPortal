@@ -1702,7 +1702,7 @@
           "sec-ch-ua-mobile": "?0",
           "sec-ch-ua-platform": "\"Windows\""
         },
-        "json_data": {
+        "jsonData": {
           "pageNum": 1,
           "pageSize": 10,
           "deptId": "",
