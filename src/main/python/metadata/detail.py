@@ -380,7 +380,10 @@ class Detail:
 
         table_fields = ["来源部门", "数据量", "联系电话", "邮箱地址", "所属主题", "更新频率", "目录发布/更新时间", "资源发布/更新时间", "条件开放", "标签", "简介"]
 
-        response = requests.get(curl['url'], params=curl['params'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+        response = requests.get(curl['url'],
+                                params=curl['params'],
+                                headers=curl['headers'],
+                                timeout=REQUEST_TIME_OUT)
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
         dataset_metadata = {}

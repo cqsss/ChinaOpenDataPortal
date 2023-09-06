@@ -3,7 +3,7 @@ import os
 
 """Constants for Crawler"""
 DEFAULT_ENCODING = 'utf-8'
-REQUEST_TIME_OUT = 50
+REQUEST_TIME_OUT = 500
 REQUEST_MAX_TIME = 10
 
 PROVINCE_CURL_JSON_PATH = f"{os.path.dirname(__file__)}/config/curl.json"
