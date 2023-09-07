@@ -1611,7 +1611,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_sichuan_guangyuan(self):
         for page in range(1, 1874):
@@ -1630,7 +1629,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_sichuan_suining(self):
         for page in range(1, 910):
@@ -1651,7 +1649,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_sichuan_neijiang(self):
         for page in range(0, 317):
@@ -1668,7 +1665,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_sichuan_leshan(self):
         for page in range(1, 1575):
@@ -1685,7 +1681,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_sichuan_nanchong(self):
         for page in range(1, 1655):
@@ -1701,7 +1696,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             # 响应太慢了，每次都写入吧
             self.save_metadata_as_json(self.output)
-            self.metadata_list.clear()
 
     def crawl_sichuan_meishan(self):
         for page in range(1, 617):
@@ -1948,7 +1942,6 @@ class Crawler:
             self.metadata_list.extend(metas)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_ningxia_ningxia(self):
         for page in range(1, 202):
@@ -1967,7 +1960,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_ningxia_yinchuan(self):
         for page in range(1, 169):
@@ -2012,7 +2004,6 @@ class Crawler:
                     self.metadata_list.append(metadata)
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
-                self.metadata_list.clear()
 
     def crawl_other(self):
         log_error("crawl: 暂无该地 - %s - %s", self.province, self.city)
