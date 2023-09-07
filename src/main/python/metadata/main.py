@@ -1222,6 +1222,7 @@ class Crawler:
                 curl['queries']['id'] = id
                 metadata = self.detail.get_detail(curl)
                 self.metadata_list.append(metadata)
+                time.sleep(1)
 
     def crawl_guangxi_guangxi(self):
         for page in range(1, 2000000):
