@@ -5560,6 +5560,7 @@
           "Accept": "application/json, text/plain, */*",
           "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
           "Connection": "keep-alive",
+          "Cookie": "_yfx_firsttime_10000001=1694091515225; _yfx_lasttime_10000001=1694091515225; _yfx_visitcount_10000001=1694091515225; _yfx_cookie_10000001=20230907205835228566718057415363",
           "Content-Type": "application/json",
           "Origin": "https://www.neijiang.gov.cn",
           "Referer": "https://www.neijiang.gov.cn/neiJiangPublicData/resourceCatalog/detail?hasDownload=true&id=4202793577906176",
