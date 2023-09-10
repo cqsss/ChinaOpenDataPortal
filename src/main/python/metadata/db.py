@@ -4,6 +4,7 @@ import os
 
 import pymysql
 from constants import MAPPING_SAVE_PATH, METADATA_SAVE_PATH, NAME_MAPPING_JSON_PATH
+from util import log_error
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--db-host", type=str)
@@ -83,8 +84,14 @@ def write_metadata():
         metadata_file_path = os.path.join(path, file)
         assert os.path.isfile(metadata_file_path)
         mapping_file_path = os.path.join(mapping_path, file)
+        if not os.path.exists(mapping_file_path):
+            log_error("database-writer: file '%s' does not exist.", mapping_file_path)
+            continue
         with open(mapping_file_path, 'r', encoding='utf-8') as json_file:
             mapping_dict = json.load(json_file)
+        if not os.path.exists(metadata_file_path):
+            log_error("database-writer: file '%s' does not exist.", metadata_file_path)
+            continue
         with open(metadata_file_path, 'r', encoding='utf-8') as json_file:
             metadata_list = json.load(json_file)
         dataset_list = []
