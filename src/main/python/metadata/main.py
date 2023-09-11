@@ -2049,10 +2049,13 @@ if __name__ == '__main__':
         crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
-        pool = ThreadPoolExecutor(max_workers=60)
+        # pool = ThreadPoolExecutor(max_workers=60)
+        # for province in curls:
+        #     for city in curls[province]:
+        #         pool.submit(crawl_then_save, province, city)
+        # pool.shutdown()
         for province in curls:
             for city in curls[province]:
-                pool.submit(crawl_then_save, province, city)
-        pool.shutdown()
+                crawl_then_save(province, city)
     elif args.province and args.city:
         crawl_then_save(args.province, args.city)
