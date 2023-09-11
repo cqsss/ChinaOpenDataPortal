@@ -2021,6 +2021,8 @@ if __name__ == '__main__':
     parser.add_argument("--province", type=str)
     parser.add_argument("--city", type=str)
 
+    parser.add_argument("--workers", type=int, default=0)
+
     parser.add_argument("--resource", type=str, default=PROVINCE_CURL_JSON_PATH)
     parser.add_argument("--metadata-output", type=str, default=METADATA_SAVE_PATH)
 
@@ -2049,13 +2051,16 @@ if __name__ == '__main__':
         crawler.save_metadata_as_json(args.metadata_output)
 
     if args.all:
-        # pool = ThreadPoolExecutor(max_workers=60)
-        # for province in curls:
-        #     for city in curls[province]:
-        #         pool.submit(crawl_then_save, province, city)
-        # pool.shutdown()
-        for province in curls:
-            for city in curls[province]:
-                crawl_then_save(province, city)
+        workers = args.workers
+        if workers > 0:
+            pool = ThreadPoolExecutor(max_workers=workers)
+            for province in curls:
+                for city in curls[province]:
+                    pool.submit(crawl_then_save, province, city)
+            pool.shutdown()
+        else:
+            for province in curls:
+                for city in curls[province]:
+                    crawl_then_save(province, city)
     elif args.province and args.city:
         crawl_then_save(args.province, args.city)
