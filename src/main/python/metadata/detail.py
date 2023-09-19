@@ -2338,7 +2338,8 @@ class Detail:
         table_fields = ["数据量", "文件数", "所属行业", "更新频率", "部门电话", "部门邮箱", "标签", "描述"]
         try:
             response = requests.get(curl['url'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        except requests.exceptions.ConnectTimeout:
+        except requests.exceptions.RequestException:
+            self.log_request_error(-1, curl['url'])
             return {}
         html = response.content
         soup = BeautifulSoup(html, "html.parser")
