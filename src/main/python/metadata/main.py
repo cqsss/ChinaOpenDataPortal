@@ -261,12 +261,19 @@ class Crawler:
         for page in range(1, 295):
             curl = self.result_list_curl.copy()
             curl['data']['page'] = str(page)
-            cata_ids = self.result_list.get_result_list(curl)
+            try:
+                cata_ids = self.result_list.get_result_list(curl)
+            except:
+                self.log_result_list_error(f"continue at page {page}")
+                continue
             for cata_id in cata_ids:
                 curl = self.detail_list_curl.copy()
                 curl['params']['cata_id'] = cata_id
-                metadata = self.detail.get_detail(curl)
-                self.metadata_list.append(metadata)
+                try:
+                    metadata = self.detail.get_detail(curl)
+                    self.metadata_list.append(metadata)
+                except:
+                    self.logs_detail_error(f"page {page} cata-id {cata_id}", "continue")
 
     def crawl_jiangsu_xuzhou(self):
         for page in range(1, 43):
