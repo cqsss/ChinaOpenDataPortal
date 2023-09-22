@@ -1567,17 +1567,24 @@ class Crawler:
         for page in range(1, 700):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
-            links = self.result_list.get_result_list(curl)
-            if len(links) == 0:
+            try:
+                links = self.result_list.get_result_list(curl)
+                if len(links) == 0:
+                    break
+            except:
+                self.log_result_list_error(f"break at page {page}")
                 break
             for link in links:
                 curl = self.detail_list_curl.copy()
                 curl['url'] += link['link']
-                metadata = self.detail.get_detail(curl)
-                if bool(metadata):
-                    metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
-                    metadata['详情页网址'] = curl['url']
-                    self.metadata_list.append(metadata)
+                try:
+                    metadata = self.detail.get_detail(curl)
+                    if bool(metadata):
+                        metadata['数据格式'] = link['data_formats'] if link['data_formats'] != '[]' else "['file']"
+                        metadata['详情页网址'] = curl['url']
+                        self.metadata_list.append(metadata)
+                except:
+                    self.logs_detail_error(curl['url'], "continue")
 
     def crawl_sichuan_luzhou(self):
         for page in range(1, 701):
