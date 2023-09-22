@@ -2941,9 +2941,13 @@ class Detail:
 
         frequency_mapping = {'0': "实时", '1': "每日", '2': "每周", '3': "每月", '4': "每季度", '5': "每半年", '6': "每年"}
 
-        response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
-        if response.status_code != requests.codes.ok:
-            self.log_request_error(response.status_code, curl['url'])
+        try:
+            response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
+            if response.status_code != requests.codes.ok:
+                self.log_request_error(response.status_code, curl['url'])
+                return dict()
+        except:
+            self.log_request_error(-1, curl['url'])
             return dict()
 
         dataset_matadata = {}

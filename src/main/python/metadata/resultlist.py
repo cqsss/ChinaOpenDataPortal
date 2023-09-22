@@ -1358,9 +1358,13 @@ class ResultList:
     def result_list_sichuan_mianyang(self, curl):
         response = requests.get(curl['url'], params=curl['queries'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
 
-        resultList = json.loads(response.text)['elementthing']['listPage']['list']
-        ids = [x['id'] for x in resultList]
-        return ids
+        try:
+            resultList = json.loads(response.text)['elementthing']['listPage']['list']
+            ids = [x['id'] for x in resultList]
+            return ids
+        except:
+            self.log_request_error(-1, curl['url'])
+            return []
 
     def result_list_sichuan_guangyuan(self, curl):
         response = requests.post(curl['url'], json=curl['data'], headers=curl['headers'], timeout=REQUEST_TIME_OUT)
