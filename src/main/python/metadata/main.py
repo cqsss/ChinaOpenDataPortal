@@ -1711,14 +1711,21 @@ class Crawler:
         for page in range(1, 1655):
             curl = self.result_list_curl.copy()
             curl['queries']['page'] = str(page)
-            ids = self.result_list.get_result_list(curl)
+            try:
+                ids = self.result_list.get_result_list(curl)
+            except:
+                self.log_result_list_error(f"continue at page {page}")
+                continue
             for id in ids:
                 curl = self.detail_list_curl.copy()
                 curl['queries']['id'] = id
-                metadata = self.detail.get_detail(curl)
-                if bool(metadata):
-                    metadata['详情页网址'] = "https://www.nanchong.gov.cn/data/catalog/details.html?id=" + id
-                    self.metadata_list.append(metadata)
+                try:
+                    metadata = self.detail.get_detail(curl)
+                    if bool(metadata):
+                        metadata['详情页网址'] = "https://www.nanchong.gov.cn/data/catalog/details.html?id=" + id
+                        self.metadata_list.append(metadata)
+                except:
+                    self.logs_detail_error(curl['url'], f"continue at page {page} id {id}")
             # 响应太慢了，每次都写入吧
             self.save_metadata_as_json(self.output)
 
