@@ -1696,14 +1696,23 @@ class Crawler:
             curl = self.result_list_curl.copy()
             # time.sleep(3)
             curl['queries']['pageIndex'] = str(page)
-            ids = self.result_list.get_result_list(curl)
+            try:
+                ids = self.result_list.get_result_list(curl)
+            except:
+                self.log_result_list_error(f"continue at page {page}")
+                continue
             for id in ids:
+                time.sleep(5)
                 curl = self.detail_list_curl.copy()
                 curl['queries']['resourceId'] = id
-                metadata = self.detail.get_detail(curl)
-                if bool(metadata):
-                    metadata['详情页网址'] = "https://www.leshan.gov.cn/data/#/source_catalog_detail/" + id + "/0"
-                    self.metadata_list.append(metadata)
+                try:
+                    metadata = self.detail.get_detail(curl)
+                    if bool(metadata):
+                        metadata['详情页网址'] = "https://www.leshan.gov.cn/data/#/source_catalog_detail/" + id + "/0"
+                        self.metadata_list.append(metadata)
+                except:
+                    self.logs_detail_error(curl['url'], f"continue at page {page} id {id}")
+                    continue
             if page % 100 == 0:
                 self.save_metadata_as_json(self.output)
 
