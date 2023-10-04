@@ -19,28 +19,24 @@ public class MetadataService {
         return metadataMapper.getMetadataCount();
     }
 
-    public List<Metadata> getAll() {
-        return metadataMapper.getAll();
+    public int getProvinceCount() {
+        return metadataMapper.getProvinceCount();
     }
 
-    public Metadata getMetadataByDatasetId(int datasetId) {
-        return metadataMapper.getMetadataByDatasetId(datasetId);
+    public int getCityCount() {
+        return metadataMapper.getCityCount();
     }
 
     public List<String> getProvinces() {
         return metadataMapper.getProvinces();
     }
 
-    public int getProvinceCount() {
-        return metadataMapper.getProvinceCount();
-    }
-
     public List<String> getCitiesByProvince(String province) {
         return metadataMapper.getCitiesByProvince(province);
     }
 
-    public int getCityCount() {
-        return metadataMapper.getCityCount();
+    public Metadata getMetadataByDatasetId(int datasetId) {
+        return metadataMapper.getMetadataByDatasetId(datasetId);
     }
 
 }

@@ -97,7 +97,7 @@ public class SearchController {
         }
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         query = query.replaceAll("\\+", "%20");
-        return "redirect:/result?q=" + query + "&province=&city=&industry=&isopen=&page=1";
+        return "redirect:/result?q=" + query;
     }
 
     public String getHighlighter(String query, String fieldValues)
@@ -125,11 +125,11 @@ public class SearchController {
 
     @GetMapping(value = "/result")
     public String searchResult(@RequestParam("q") String query,
-            @RequestParam("province") String province,
-            @RequestParam("city") String city,
-            @RequestParam("industry") String industry,
-            @RequestParam("isopen") String isOpen,
-            @RequestParam("page") int page,
+            @RequestParam(required = false, defaultValue = "") String province,
+            @RequestParam(required = false, defaultValue = "") String city,
+            @RequestParam(required = false, defaultValue = "") String industry,
+            @RequestParam(required = false, defaultValue = "") String isOpen,
+            @RequestParam(defaultValue = "1") int page,
             Model model) throws ParseException, IOException, InvalidTokenOffsetsException {
         init();
         String provinceView = province.equals("") ? "全部" : province;
