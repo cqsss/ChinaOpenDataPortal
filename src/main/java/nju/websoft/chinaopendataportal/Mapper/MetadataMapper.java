@@ -12,8 +12,10 @@ public interface MetadataMapper {
 
     @Select("SELECT COUNT(*) FROM metadata")
     int getMetadataCount();
+
     @Select("SELECT * FROM metadata ORDER BY dataset_id")
     List<Metadata> getAll();
+
     @Select("SELECT * FROM metadata WHERE dataset_id=#{datasetId}")
     Metadata getMetadataByDatasetId(@Param("datasetId") int datasetId);
 

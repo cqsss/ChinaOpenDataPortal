@@ -1,11 +1,11 @@
 package nju.websoft.chinaopendataportal.Service;
 
-import nju.websoft.chinaopendataportal.Bean.Metadata;
-import nju.websoft.chinaopendataportal.Mapper.MetadataMapper;
-import org.apache.ibatis.annotations.Param;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import nju.websoft.chinaopendataportal.Bean.Metadata;
+import nju.websoft.chinaopendataportal.Mapper.MetadataMapper;
 
 @Service
 public class MetadataService {
@@ -19,7 +19,9 @@ public class MetadataService {
         return metadataMapper.getMetadataCount();
     }
 
-    public List<Metadata> getAll() {return metadataMapper.getAll();}
+    public List<Metadata> getAll() {
+        return metadataMapper.getAll();
+    }
 
     public Metadata getMetadataByDatasetId(int datasetId) {
         return metadataMapper.getMetadataByDatasetId(datasetId);
