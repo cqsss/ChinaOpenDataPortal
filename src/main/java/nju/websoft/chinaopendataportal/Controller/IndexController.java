@@ -18,13 +18,13 @@ public class IndexController {
         this.similarityScore = similarityScore;
     }
 
-    @RequestMapping("/index")
+//    @RequestMapping("/index")
     public String DoIndex() throws IOException {
         dbIndexer.main();
         return "success";
     }
 
-    @RequestMapping("/simscore")
+//    @RequestMapping("/simscore")
     public String DoSimscore() throws IOException {
         similarityScore.getSimScoreMatrix();
         return "success";
