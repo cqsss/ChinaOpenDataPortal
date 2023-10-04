@@ -31,36 +31,45 @@ public class RankingTests {
             String query = qi.get("query_text").toString();
             String sql = "INSERT INTO results VALUES(?, ?, ?, ?, ?, ?)";
 
-            List<Pair<Integer, Double>> scoreList = relevanceRanking.LuceneRankingList(query, new BM25Similarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
+            List<Pair<Integer, Double>> scoreList = relevanceRanking.LuceneRankingList(query, new BM25Similarity(),
+                    GlobalVariances.BoostWeights);
             for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, scoreList.size()); i++) {
-                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1, "BM25", null);
+                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1, "BM25",
+                        null);
             }
             for (int k = 10; k <= 50; k += 10) {
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
                 for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, resultList.size()); i++) {
-                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1, "BM25+MMR"+k, null);
+                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1,
+                            "BM25+MMR" + k, null);
                 }
             }
 
-            scoreList = relevanceRanking.LuceneRankingList(query, new ClassicSimilarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
+            scoreList = relevanceRanking.LuceneRankingList(query, new ClassicSimilarity(),
+                    GlobalVariances.BoostWeights);
             for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, scoreList.size()); i++) {
-                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1, "TFIDF", null);
+                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1,
+                        "TFIDF", null);
             }
             for (int k = 10; k <= 50; k += 10) {
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
                 for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, resultList.size()); i++) {
-                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1, "TFIDF+MMR"+k, null);
+                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1,
+                            "TFIDF+MMR" + k, null);
                 }
             }
 
-            scoreList = relevanceRanking.LuceneRankingList(query, new LMDirichletSimilarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
+            scoreList = relevanceRanking.LuceneRankingList(query, new LMDirichletSimilarity(),
+                    GlobalVariances.BoostWeights);
             for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, scoreList.size()); i++) {
-                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1, "LMD", null);
+                jdbcTemplate.update(sql, queryId, scoreList.get(i).getKey(), scoreList.get(i).getValue(), i + 1, "LMD",
+                        null);
             }
             for (int k = 10; k <= 50; k += 10) {
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
                 for (int i = 0; i < Math.min(GlobalVariances.ExperimentSize, resultList.size()); i++) {
-                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1, "LMD+MMR"+k, null);
+                    jdbcTemplate.update(sql, queryId, resultList.get(i).getKey(), resultList.get(i).getValue(), i + 1,
+                            "LMD+MMR" + k, null);
                 }
             }
             System.out.println("query_id: " + queryId);
@@ -76,42 +85,45 @@ public class RankingTests {
             String query = qi.get("query_text").toString();
             String sql = "UPDATE results SET run_time=? WHERE query_id=? AND method=?";
             long startTime = System.currentTimeMillis();
-            List<Pair<Integer, Double>> scoreList = relevanceRanking.LuceneRankingList(query, new BM25Similarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
-            long endTime   = System.currentTimeMillis();
+            List<Pair<Integer, Double>> scoreList = relevanceRanking.LuceneRankingList(query, new BM25Similarity(),
+                    GlobalVariances.BoostWeights);
+            long endTime = System.currentTimeMillis();
             long totalTime = endTime - startTime;
             jdbcTemplate.update(sql, totalTime, queryId, "BM25");
             for (int k = 10; k <= 50; k += 10) {
                 startTime = System.currentTimeMillis();
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
-                endTime   = System.currentTimeMillis();
+                endTime = System.currentTimeMillis();
                 totalTime = endTime - startTime;
-                jdbcTemplate.update(sql, totalTime, queryId, "BM25+MMR"+k);
+                jdbcTemplate.update(sql, totalTime, queryId, "BM25+MMR" + k);
             }
 
             startTime = System.currentTimeMillis();
-            scoreList = relevanceRanking.LuceneRankingList(query, new ClassicSimilarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
-            endTime   = System.currentTimeMillis();
+            scoreList = relevanceRanking.LuceneRankingList(query, new ClassicSimilarity(),
+                    GlobalVariances.BoostWeights);
+            endTime = System.currentTimeMillis();
             totalTime = endTime - startTime;
             jdbcTemplate.update(sql, totalTime, queryId, "TFIDF");
             for (int k = 10; k <= 50; k += 10) {
                 startTime = System.currentTimeMillis();
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
-                endTime   = System.currentTimeMillis();
+                endTime = System.currentTimeMillis();
                 totalTime = endTime - startTime;
-                jdbcTemplate.update(sql, totalTime, queryId, "TFIDF+MMR"+k);
+                jdbcTemplate.update(sql, totalTime, queryId, "TFIDF+MMR" + k);
             }
 
             startTime = System.currentTimeMillis();
-            scoreList = relevanceRanking.LuceneRankingList(query, new LMDirichletSimilarity(), GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
-            endTime   = System.currentTimeMillis();
+            scoreList = relevanceRanking.LuceneRankingList(query, new LMDirichletSimilarity(),
+                    GlobalVariances.BoostWeights);
+            endTime = System.currentTimeMillis();
             totalTime = endTime - startTime;
             jdbcTemplate.update(sql, totalTime, queryId, "LMD");
             for (int k = 10; k <= 50; k += 10) {
                 startTime = System.currentTimeMillis();
                 List<Pair<Integer, Double>> resultList = mmrTest.reRankList(scoreList, k);
-                endTime   = System.currentTimeMillis();
+                endTime = System.currentTimeMillis();
                 totalTime = endTime - startTime;
-                jdbcTemplate.update(sql, totalTime, queryId, "LMD+MMR"+k);
+                jdbcTemplate.update(sql, totalTime, queryId, "LMD+MMR" + k);
             }
             System.out.println("query_id: " + queryId);
         }

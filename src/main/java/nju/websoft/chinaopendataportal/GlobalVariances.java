@@ -9,22 +9,18 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+@Configuration
 public class GlobalVariances {
 
-    public static String store_Dir;
-    public static String index_Dir;
-
-    @Value("${websoft.chinaopendataportal.indices.store}")
-    public void setStoreDir(String path) {
-        GlobalVariances.store_Dir = path;
-    }
-
     @Value("${websoft.chinaopendataportal.indices.load}")
-    public void setIndexDir(String path) {
-        GlobalVariances.index_Dir = path;
+    private String indexDir;
+
+    @Bean
+    public String indexDir() {
+        return indexDir;
     }
 
     public static Analyzer globalAnalyzer;

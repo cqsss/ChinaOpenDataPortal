@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +17,6 @@ import java.util.Set;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -33,8 +31,7 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.similarities.BM25Similarity;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,29 +51,21 @@ import nju.websoft.chinaopendataportal.Service.PortalService;
 @Controller
 public class SearchController {
 
-    private final RelevanceRanking relevanceRanking = new RelevanceRanking();
+    @Autowired
+    private RelevanceRanking relevanceRanking;
+
     private final MetadataService metadataService;
     private final PortalService portalService;
     private final MMRTest mmrTest = new MMRTest();
-    private Directory directory = null;
-    private IndexReader indexReader = null;
-    private IndexSearcher indexSearcher = null;
+
+    @Autowired
+    private IndexReader indexReader;
+    @Autowired
+    private IndexSearcher indexSearcher;
 
     public SearchController(MetadataService metadataService, PortalService portalService) {
         this.metadataService = metadataService;
         this.portalService = portalService;
-    }
-
-    private void init() {
-        try {
-            if (directory == null) {
-                directory = MMapDirectory.open(Paths.get(GlobalVariances.index_Dir));
-                indexReader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(indexReader);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @RequestMapping("/")
@@ -131,7 +120,6 @@ public class SearchController {
             @RequestParam(required = false, defaultValue = "") String isOpen,
             @RequestParam(defaultValue = "1") int page,
             Model model) throws ParseException, IOException, InvalidTokenOffsetsException {
-        init();
         String provinceView = province.equals("") ? "全部" : province;
         String cityView = city.equals("") ? "全部" : city;
         String industryView = industry.equals("") ? "全部" : industry;
@@ -157,7 +145,6 @@ public class SearchController {
         Map<String, Integer> relScoreMap = new HashMap<>();
         Analyzer analyzer = GlobalVariances.globalAnalyzer;
         QueryParser datasetIdParser = new QueryParser("dataset_id", analyzer);
-        relevanceRanking.init();
 
         String queryURL = URLEncoder.encode(query, StandardCharsets.UTF_8);
         queryURL = queryURL.replaceAll("\\+", "%20");
@@ -165,7 +152,7 @@ public class SearchController {
         // long totalHits = relevanceRanking.getTotalHits(query, new BM25Similarity(),
         // GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
         Pair<Long, List<Pair<Integer, Double>>> rankingResult = relevanceRanking.LuceneRanking(query,
-                new BM25Similarity(), GlobalVariances.BoostWeights, filterMap, GlobalVariances.index_Dir);
+                new BM25Similarity(), GlobalVariances.BoostWeights, filterMap);
         long totalHits = rankingResult.getKey();
         List<Pair<Integer, Double>> scoreList = rankingResult.getValue();
         scoreList = mmrTest.reRankList(scoreList, GlobalVariances.reRankSize);
@@ -251,7 +238,6 @@ public class SearchController {
     @GetMapping(value = "/detail")
     public String getDetail(@RequestParam("dsid") Integer dataset_id,
             Model model) {
-        init();
         Metadata dataset = metadataService.getMetadataByDatasetId(dataset_id);
         Field[] fields = dataset.getClass().getDeclaredFields();
         for (Field field : fields) {

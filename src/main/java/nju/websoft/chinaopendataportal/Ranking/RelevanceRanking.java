@@ -1,6 +1,5 @@
 package nju.websoft.chinaopendataportal.Ranking;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -23,44 +21,21 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.Similarity;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javafx.util.Pair;
 import nju.websoft.chinaopendataportal.GlobalVariances;
 
+@Component
 public class RelevanceRanking {
-    private static Directory directory = null;
-    private static IndexReader indexReader = null;
-    private static IndexSearcher indexSearcher = null;
+    @Autowired
+    private IndexReader indexReader;
+    @Autowired
+    private IndexSearcher indexSearcher;
 
-    public void init() {
-        try {
-            if (directory == null) {
-                directory = MMapDirectory.open(Paths.get(GlobalVariances.index_Dir));
-                indexReader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(indexReader);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void init(String index_dir) {
-        try {
-            if (directory == null) {
-                directory = MMapDirectory.open(Paths.get(index_dir));
-                indexReader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(indexReader);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public long getTotalHits(String query, Similarity similarity, float[] weights, String index_dir) {
+    public long getTotalHits(String query, Similarity similarity, float[] weights) {
         long res = 0;
-        init(index_dir);
         String[] fields = GlobalVariances.queryFields;
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
@@ -87,11 +62,10 @@ public class RelevanceRanking {
      * @return
      */
     public Pair<Long, List<Pair<Integer, Double>>> LuceneRanking(String query, Similarity similarity, float[] weights,
-            Map<String, String> filterQuery, String index_dir) {
+            Map<String, String> filterQuery) {
         long res = 0;
-        init(index_dir);
         String[] fields = GlobalVariances.queryFields;
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -125,19 +99,17 @@ public class RelevanceRanking {
                 // + si.score);
                 // Explanation e = indexSearcher.explain(finalQuery, si.doc);
                 // System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Pair<>(res, LuceneRankingList);
+        return new Pair<>(res, luceneRankingList);
     }
 
-    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights,
-            String index_dir) {
-        init(index_dir);
+    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights) {
         String[] fields = GlobalVariances.queryFields;
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -160,12 +132,12 @@ public class RelevanceRanking {
                 // + si.score);
                 // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
                 // System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return LuceneRankingList;
+        return luceneRankingList;
     }
 
     /**
@@ -175,9 +147,8 @@ public class RelevanceRanking {
      * @return
      */
     public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights,
-            String index_dir, String[] fields) {
-        init(index_dir);
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+            String[] fields) {
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -200,18 +171,18 @@ public class RelevanceRanking {
                 // + si.score);
                 // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
                 // System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
-            // if (LuceneRankingList.size() > 0) {
-            // double base = LuceneRankingList.get(0).getValue();
-            // for (int i = 0; i < LuceneRankingList.size(); i++) {
-            // LuceneRankingList.set(i, new Pair<>(LuceneRankingList.get(i).getKey(),
-            // LuceneRankingList.get(i).getValue() / base));
+            // if (luceneRankingList.size() > 0) {
+            // double base = luceneRankingList.get(0).getValue();
+            // for (int i = 0; i < luceneRankingList.size(); i++) {
+            // luceneRankingList.set(i, new Pair<>(luceneRankingList.get(i).getKey(),
+            // luceneRankingList.get(i).getValue() / base));
             // }
             // }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return LuceneRankingList;
+        return luceneRankingList;
     }
 }
