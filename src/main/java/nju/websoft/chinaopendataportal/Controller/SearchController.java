@@ -87,7 +87,7 @@ public class SearchController {
         model.addAttribute("totalCount", DecimalFormat.getNumberInstance().format(totalCount));
         model.addAttribute("provinceCount", DecimalFormat.getNumberInstance().format(provinceCount));
         model.addAttribute("cityCount", DecimalFormat.getNumberInstance().format(cityCount));
-        return "index.html";
+        return "search.html";
     }
 
     @RequestMapping(value = "/dosearch", method = RequestMethod.POST)
