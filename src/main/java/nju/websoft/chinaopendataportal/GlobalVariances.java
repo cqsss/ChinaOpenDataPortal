@@ -38,7 +38,7 @@ public class GlobalVariances {
             "居民服务、修理和其他服务业", "教育", "卫生和社会工作", "文化、体育和娱乐业", "公共管理、社会保障和社会组织", "国际组织" };
     public static String[] isOpenFields = { "全部", "无条件开放", "有条件开放" };
     public static float[] BoostWeights = { 1.0f, 0.6f, 0.5f, 0.8f, 0.8f, 0.2f, 0.2f };
-    public static String defaultQuery = "厦门市小区房价";
+    public static String defaultQuery = "山东省教师资格认定";
     public static Integer HitSize = 100;
     public static Integer ExperimentSize = 10;
 

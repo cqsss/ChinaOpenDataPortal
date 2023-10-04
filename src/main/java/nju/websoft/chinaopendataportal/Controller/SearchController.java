@@ -45,23 +45,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javafx.util.Pair;
 import nju.websoft.chinaopendataportal.GlobalVariances;
 import nju.websoft.chinaopendataportal.Bean.Metadata;
+import nju.websoft.chinaopendataportal.Bean.Portal;
 import nju.websoft.chinaopendataportal.Ranking.MMRTest;
 import nju.websoft.chinaopendataportal.Ranking.RelevanceRanking;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
+import nju.websoft.chinaopendataportal.Service.PortalService;
 
 @Controller
 public class SearchController {
 
     private final RelevanceRanking relevanceRanking = new RelevanceRanking();
     private final MetadataService metadataService;
+    private final PortalService portalService;
     private final MMRTest mmrTest = new MMRTest();
     private Directory directory = null;
     private IndexReader indexReader = null;
     private IndexSearcher indexSearcher = null;
-    private String current_query = "";
 
-    public SearchController(MetadataService metadataService) {
+    public SearchController(MetadataService metadataService, PortalService portalService) {
         this.metadataService = metadataService;
+        this.portalService = portalService;
     }
 
     private void init() {
@@ -84,16 +87,13 @@ public class SearchController {
         model.addAttribute("totalCount", DecimalFormat.getNumberInstance().format(totalCount));
         model.addAttribute("provinceCount", DecimalFormat.getNumberInstance().format(provinceCount));
         model.addAttribute("cityCount", DecimalFormat.getNumberInstance().format(cityCount));
-        return "search.html";
+        return "index.html";
     }
 
     @RequestMapping(value = "/dosearch", method = RequestMethod.POST)
     public String dosearch(@RequestParam("query") String query) {
         if (query.equals("")) {
-            if (current_query.isEmpty())
-                query = GlobalVariances.defaultQuery;
-            else
-                query = current_query;
+            query = GlobalVariances.defaultQuery;
         }
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         query = query.replaceAll("\\+", "%20");
@@ -159,9 +159,6 @@ public class SearchController {
         QueryParser datasetIdParser = new QueryParser("dataset_id", analyzer);
         relevanceRanking.init();
 
-        if (current_query.isEmpty() || !current_query.equals(query)) {
-            current_query = query;
-        }
         String queryURL = URLEncoder.encode(query, StandardCharsets.UTF_8);
         queryURL = queryURL.replaceAll("\\+", "%20");
 
@@ -248,7 +245,7 @@ public class SearchController {
         model.addAttribute("nextPage", nextPage);
         model.addAttribute("numResults", numResults);
         model.addAttribute("totalPages", totalPages);
-        return "resultlist.html";
+        return "results.html";
     }
 
     @GetMapping(value = "/detail")
@@ -267,10 +264,15 @@ public class SearchController {
                 e.printStackTrace();
             }
         }
+        Portal portal = portalService.getPortalByProvinceAndCity(dataset.getProvince(), dataset.getCity());
         if (dataset.getProvince().equals(dataset.getCity())) {
             dataset.setCity("");
         }
+        if (dataset.getUrl().equals("")) {
+            dataset.setUrl(portal.getPortal_url());
+        }
         model.addAttribute("dataset", dataset);
+        model.addAttribute("portal", portal);
         model.addAttribute("dataset_id", dataset_id);
         return "detaildashboard.html";
     }
