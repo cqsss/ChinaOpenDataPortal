@@ -1,11 +1,11 @@
 package nju.websoft.chinaopendataportal.Util;
 
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +15,14 @@ import org.springframework.context.annotation.Configuration;
 public class LuceneHelper {
     private IndexReader indexReader = null;
     private IndexSearcher indexSearcher = null;
+    private Map<String, String> indexMetadata = null;
 
     @Autowired
     public LuceneHelper(String indexDir) {
         try {
-            Directory directory = MMapDirectory.open(Paths.get(indexDir));
-            indexReader = DirectoryReader.open(directory);
+            DirectoryReader dirReader = DirectoryReader.open(MMapDirectory.open(Paths.get(indexDir)));
+            indexReader = dirReader;
+            indexMetadata = dirReader.getIndexCommit().getUserData();
             indexSearcher = new IndexSearcher(indexReader);
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,4 +39,8 @@ public class LuceneHelper {
         return indexSearcher;
     }
 
+    @Bean
+    public Map<String, String> indexMetadata() {
+        return indexMetadata;
+    }
 }

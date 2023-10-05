@@ -54,7 +54,9 @@ public class SearchController {
     @Autowired
     private RelevanceRanking relevanceRanking;
 
+    @Autowired
     private final MetadataService metadataService;
+
     private final PortalService portalService;
     private final MMRTest mmrTest = new MMRTest();
 
@@ -168,6 +170,7 @@ public class SearchController {
             Document doc = indexReader.storedFields().document(docID);
             String title = getHighlighter(query, doc.get("title"));
             snippet.put("title", title);
+            snippet.put("docId", String.valueOf(docID));
 
             String description = getHighlighter(query, doc.get("description"));
             snippet.put("description", description);
@@ -236,31 +239,34 @@ public class SearchController {
     }
 
     @GetMapping(value = "/detail")
-    public String getDetail(@RequestParam("dsid") Integer dataset_id,
-            Model model) {
-        Metadata dataset = metadataService.getMetadataByDatasetId(dataset_id);
-        Field[] fields = dataset.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                if (field.get(dataset) == null) {
-                    field.set(dataset, "");
+    public String getDetail(@RequestParam("docid") Integer docId, Model model) {
+        try {
+            Metadata dataset = metadataService.getMetadataByDocId(docId);
+            Field[] fields = dataset.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    if (field.get(dataset) == null) {
+                        field.set(dataset, "");
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
             }
+            Portal portal = portalService.getPortalByProvinceAndCity(dataset.province(), dataset.city());
+            if (dataset.province().equals(dataset.city())) {
+                dataset.city("");
+            }
+            if (dataset.url().equals("")) {
+                dataset.url(portal.getPortal_url());
+            }
+            model.addAttribute("dataset", dataset);
+            model.addAttribute("portal", portal);
+            model.addAttribute("docId", docId);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        Portal portal = portalService.getPortalByProvinceAndCity(dataset.getProvince(), dataset.getCity());
-        if (dataset.getProvince().equals(dataset.getCity())) {
-            dataset.setCity("");
-        }
-        if (dataset.getUrl().equals("")) {
-            dataset.setUrl(portal.getPortal_url());
-        }
-        model.addAttribute("dataset", dataset);
-        model.addAttribute("portal", portal);
-        model.addAttribute("dataset_id", dataset_id);
-        return "detaildashboard.html";
+        return "detail.html";
     }
 
 }

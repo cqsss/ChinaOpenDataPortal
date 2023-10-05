@@ -96,44 +96,49 @@ public class MMRTest {
         double metaSim = 0;
         // Metadata d1 = metadataList.get(dataset1 - 1);
         // Metadata d2 = metadataList.get(dataset2 - 1);
-        Metadata d1 = mmrTest.metadataService.getMetadataByDatasetId(dataset1);
-        Metadata d2 = mmrTest.metadataService.getMetadataByDatasetId(dataset2);
+        try {
+            Metadata d1 = mmrTest.metadataService.getMetadataByDocId(dataset1);
+            Metadata d2 = mmrTest.metadataService.getMetadataByDocId(dataset2);
 
-        /// title
-        String title1 = d1.getTitle() != null ? d1.getTitle().trim() : "";
-        String title2 = d2.getTitle() != null ? d2.getTitle().trim() : "";
-        if (title1.equals(title2)) {
-            metaSim += 0.2;
-        } else {
-            metaSim += 0.2 * (1 - ((double) distance.apply(title1, title2))
-                    / ((double) Math.max(title1.length(), title2.length())));
-        }
-        // desc
-        String desc1 = d1.getDescription() != null ? d1.getDescription().trim() : "";
-        String desc2 = d2.getDescription() != null ? d2.getDescription().trim() : "";
-        if (desc1.equals(desc2)) {
-            metaSim += 0.2;
-        } else {
-            metaSim += 0.2 * (1
-                    - ((double) distance.apply(desc1, desc2)) / ((double) Math.max(desc1.length(), desc2.length())));
-        }
-        // province_city_department
-        String province1 = d1.getProvince().trim();
-        String province2 = d2.getProvince().trim();
-        String city1 = d1.getCity().trim();
-        String city2 = d2.getCity().trim();
-        String department1 = d1.getDepartment() != null ? d1.getDepartment().trim() : "";
-        String department2 = d2.getDepartment() != null ? d2.getDepartment().trim() : "";
-        if (province1.equals(province2)) {
-            metaSim += 0.2;
-        }
-        if (city1.equals(city2)) {
-            metaSim += 0.2;
+            /// title
+            String title1 = d1.title() != null ? d1.title().trim() : "";
+            String title2 = d2.title() != null ? d2.title().trim() : "";
+            if (title1.equals(title2)) {
+                metaSim += 0.2;
+            } else {
+                metaSim += 0.2 * (1 - ((double) distance.apply(title1, title2))
+                        / ((double) Math.max(title1.length(), title2.length())));
+            }
+            // desc
+            String desc1 = d1.description() != null ? d1.description().trim() : "";
+            String desc2 = d2.description() != null ? d2.description().trim() : "";
+            if (desc1.equals(desc2)) {
+                metaSim += 0.2;
+            } else {
+                metaSim += 0.2 * (1 - ((double) distance.apply(desc1, desc2))
+                        / ((double) Math.max(desc1.length(), desc2.length())));
+            }
+            // province_city_department
+            String province1 = d1.province().trim();
+            String province2 = d2.province().trim();
+            String city1 = d1.city().trim();
+            String city2 = d2.city().trim();
+            String department1 = d1.department() != null ? d1.department().trim() : "";
+            String department2 = d2.department() != null ? d2.department().trim() : "";
+            if (province1.equals(province2)) {
+                metaSim += 0.2;
+            }
+            if (city1.equals(city2)) {
+                metaSim += 0.2;
 
+            }
+            if (department1.equals(department2)) {
+                metaSim += 0.2;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (department1.equals(department2)) {
-            metaSim += 0.2;
-        }
+
         // // url
         // String url1 = d1.getUrl() != null ? d1.getUrl().trim() : "" ;
         // String url2 = d2.getUrl() != null ? d2.getUrl().trim() : "" ;

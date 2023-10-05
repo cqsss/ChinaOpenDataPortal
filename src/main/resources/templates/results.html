@@ -93,7 +93,7 @@
                     <!-- Post preview-->
                     <div class="post-preview" th:each="snippet:${snippets}">
                         <h3>
-                            <a class="bs-link-hover-color" th:href='@{detail(dsid=${snippet.get("dataset_id")})}' th:utext='${snippet.get("title")}'></a>
+                            <a class="bs-link-hover-color" th:href='@{detail(docid=${snippet.get("docId")})}' th:utext='${snippet.get("title")}'></a>
                         </h3>
                         <span class="badge rounded-pill bg-primary" th:utext='${snippet.get("province")}'></span>
                         <span class="badge rounded-pill bg-success" th:utext='${snippet.get("city")}'></span>

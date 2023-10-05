@@ -2,11 +2,12 @@ package nju.websoft.chinaopendataportal.Bean;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(fluent = true)
 @Getter
 @Setter
 public class Metadata {
-    private long datasetId;
     private String title;
     private String description;
     private String tags;
