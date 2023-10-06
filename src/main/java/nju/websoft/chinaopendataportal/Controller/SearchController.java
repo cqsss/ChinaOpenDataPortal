@@ -258,7 +258,7 @@ public class SearchController {
                 dataset.city("");
             }
             if (dataset.url().equals("")) {
-                dataset.url(portal.getPortal_url());
+                dataset.url(portal.url());
             }
             model.addAttribute("dataset", dataset);
             model.addAttribute("portal", portal);
