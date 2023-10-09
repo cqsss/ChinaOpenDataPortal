@@ -46,6 +46,7 @@ import nju.websoft.chinaopendataportal.Bean.Portal;
 import nju.websoft.chinaopendataportal.Ranking.MMRTest;
 import nju.websoft.chinaopendataportal.Ranking.RelevanceRanking;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
+import nju.websoft.chinaopendataportal.Service.NewsService;
 import nju.websoft.chinaopendataportal.Service.PortalService;
 
 @Controller
@@ -56,8 +57,9 @@ public class SearchController {
 
     @Autowired
     private final MetadataService metadataService;
-
     private final PortalService portalService;
+    private final NewsService newsService;
+
     private final MMRTest mmrTest = new MMRTest();
 
     @Autowired
@@ -65,9 +67,13 @@ public class SearchController {
     @Autowired
     private IndexSearcher indexSearcher;
 
-    public SearchController(MetadataService metadataService, PortalService portalService) {
+    public SearchController(
+            MetadataService metadataService,
+            PortalService portalService,
+            NewsService newsService) {
         this.metadataService = metadataService;
         this.portalService = portalService;
+        this.newsService = newsService;
     }
 
     @RequestMapping("/")
@@ -78,6 +84,8 @@ public class SearchController {
         model.addAttribute("totalCount", DecimalFormat.getNumberInstance().format(totalCount));
         model.addAttribute("provinceCount", DecimalFormat.getNumberInstance().format(provinceCount));
         model.addAttribute("cityCount", DecimalFormat.getNumberInstance().format(cityCount));
+        model.addAttribute("newsList", newsService.getTop5News());
+
         return "search.html";
     }
 
