@@ -38,7 +38,7 @@ public class GlobalVariances {
     public static Integer HitSize = 100;
     public static Integer ExperimentSize = 10;
 
-    public static Integer maxCharOfDescription = 500;
+    public static Integer maxCharOfDescription = 70;
     public static Integer reRankSize = 50;
     public static int numOfDatasetsPerPage = 10;
 

@@ -1,7 +1,6 @@
 package nju.websoft.chinaopendataportal.Controller;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -24,12 +22,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.highlight.Fragmenter;
-import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
-import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.SimpleFragmenter;
-import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,6 +41,7 @@ import nju.websoft.chinaopendataportal.Ranking.RelevanceRanking;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
 import nju.websoft.chinaopendataportal.Service.NewsService;
 import nju.websoft.chinaopendataportal.Service.PortalService;
+import nju.websoft.chinaopendataportal.Util.HtmlHelper;
 
 @Controller
 public class SearchController {
@@ -97,29 +91,6 @@ public class SearchController {
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         query = query.replaceAll("\\+", "%20");
         return "redirect:/result?q=" + query;
-    }
-
-    public String getHighlighter(String query, String fieldValues)
-            throws ParseException, IOException, InvalidTokenOffsetsException {
-
-        Analyzer analyzer = GlobalVariances.globalAnalyzer;
-        QueryParser queryParser = new QueryParser("title", analyzer);
-        query = QueryParser.escape(query);
-        Query parsedQuery = queryParser.parse(query);
-        Fragmenter fragmenter = new SimpleFragmenter(GlobalVariances.maxCharOfDescription);
-        SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span style='color:red'>", "</span>");
-        Highlighter highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(parsedQuery));
-        highlighter.setTextFragmenter(fragmenter);
-        TokenStream tokenStream = analyzer.tokenStream("", new StringReader(fieldValues));
-        String res = highlighter.getBestFragment(tokenStream, fieldValues);
-        if (res == null) {
-            res = fieldValues;
-            if (res.length() > GlobalVariances.maxCharOfDescription) {
-                res = res.substring(0, GlobalVariances.maxCharOfDescription - 1);
-                res += "...";
-            }
-        }
-        return res;
     }
 
     @GetMapping(value = "/result")
@@ -176,11 +147,11 @@ public class SearchController {
             ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
             int docID = scoreDocs[0].doc;
             Document doc = indexReader.storedFields().document(docID);
-            String title = getHighlighter(query, doc.get("title"));
+            String title = HtmlHelper.getHighlighter(query, doc.get("title"));
             snippet.put("title", title);
             snippet.put("docId", String.valueOf(docID));
 
-            String description = getHighlighter(query, doc.get("description"));
+            String description = HtmlHelper.getHighlighter(query, doc.get("description"));
             snippet.put("description", description);
 
             for (String fi : GlobalVariances.snippetFields) {
@@ -193,7 +164,7 @@ public class SearchController {
                     if (fi.equals("province") || fi.equals("city")) {
                         text = fieldText;
                     } else {
-                        text = getHighlighter(query, fieldText);
+                        text = HtmlHelper.getHighlighter(query, fieldText);
                     }
                 }
                 snippet.put(fi, text);
