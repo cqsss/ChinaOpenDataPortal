@@ -56,7 +56,9 @@
                         <!--          <dd class="border-bottom" th:text="${dataset.getTitle()}"></dd>-->
 
                         <dt>描述</dt>
-                        <dd class="border-bottom" th:text="${dataset.description()}"></dd>
+                        <dd class="border-bottom">
+                            <small class="text-muted m-0" th:text="${dataset.description()}"></small>
+                        </dd>
 
                         <dt>部门</dt>
                         <dd class="border-bottom" th:text="${dataset.department()}"></dd>
