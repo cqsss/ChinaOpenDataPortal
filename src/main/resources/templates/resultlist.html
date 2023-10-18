@@ -112,7 +112,7 @@
             <div class="row border-bottom m-3 row-cols-3" th:each="snippet:${snippets}">
                 <div class="col-10 m-0">
                     <h4>
-                        <a th:href='@{detail(dsid=${snippet.get("dataset_id")})}'
+                        <a th:href='@{detail(docid=${snippet.get("docId")})}'
                            th:utext='${snippet.get("title")}'></a>
                         <span class="badge rounded-pill bg-primary" th:utext='${snippet.get("province")}'></span>
                         <span class="badge rounded-pill bg-success" th:utext='${snippet.get("city")}'></span>

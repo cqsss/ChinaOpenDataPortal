@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.80.0">
-    <title th:text="'全国公共数据一站式搜索：'+${dataset.getTitle()}"></title>
+    <title th:text="'全国公共数据一站式搜索：'+${dataset.title()}"></title>
     <link rel="icon" th:href="@{/static/img/websoft.ico}" type="image/x-icon">
     <link rel="shortcut icon" th:href="@{/static/img/websoft.ico}" type="image/x-icon">
 
@@ -57,11 +57,11 @@
 
         <main class="ms-sm-auto me-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2">
-                <h1 class="h3" th:text="${dataset.getTitle()}"></h1>
+                <h1 class="h3" th:text="${dataset.title()}"></h1>
             </div>
-            <span class="badge rounded-pill bg-primary" th:text="${dataset.getProvince()}"></span>
-            <span class="badge rounded-pill bg-success" th:text="${dataset.getCity()}"></span>
-            <span class="badge rounded-pill bg-warning" th:text="${dataset.getIs_open()}"></span>
+            <span class="badge rounded-pill bg-primary" th:text="${dataset.province()}"></span>
+            <span class="badge rounded-pill bg-success" th:text="${dataset.city()}"></span>
+            <span class="badge rounded-pill bg-warning" th:text="${dataset.is_open()}"></span>
             <div class="row">
                 <dl class="col-6 m-0" style="word-break:break-all">
                     <!--          <dt>Dataset_id</dt>-->
@@ -71,31 +71,31 @@
                     <!--          <dd class="border-bottom" th:text="${dataset.getTitle()}"></dd>-->
 
                     <dt>描述</dt>
-                    <dd class="border-bottom" th:text="${dataset.getDescription()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.description()}"></dd>
 
                     <dt>部门</dt>
-                    <dd class="border-bottom" th:text="${dataset.getDepartment()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.department()}"></dd>
 
                     <dt>标签</dt>
-                    <dd class="border-bottom" th:text="${dataset.getTags()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.tags()}"></dd>
 
                     <dt>主题</dt>
-                    <dd class="border-bottom" th:text="${dataset.getCategory()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.category()}"></dd>
                     <dt>行业</dt>
-                    <dd class="border-bottom" th:text="${dataset.getIndustry()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.industry()}"></dd>
 
                     <dt>发布时间</dt>
-                    <dd class="border-bottom" th:text="${dataset.getPublish_time()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.publish_time()}"></dd>
                     <dt>更新时间</dt>
-                    <dd class="border-bottom" th:text="${dataset.getUpdate_time()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.update_time()}"></dd>
                     <dt>更新频率</dt>
-                    <dd class="border-bottom" th:text="${dataset.getUpdate_frequency()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.update_frequency()}"></dd>
                     <dt>数据格式</dt>
-                    <dd class="border-bottom" th:text="${dataset.getData_formats()}"></dd>
+                    <dd class="border-bottom" th:text="${dataset.data_formats()}"></dd>
                     <dt>原始链接</dt>
                     <dd>
-                        <a class="btn btn-primary" th:href="@{${dataset.getUrl()}}"
-                           th:text="${portal.getPortal_name()}"></a>
+                        <a class="btn btn-primary" th:href="@{${dataset.url()}}"
+                           th:text="${portal.name()}"></a>
                     </dd>
                 </dl>
             </div>

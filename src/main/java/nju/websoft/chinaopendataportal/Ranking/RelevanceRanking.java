@@ -1,54 +1,41 @@
 package nju.websoft.chinaopendataportal.Ranking;
 
-import javafx.util.Pair;
-import nju.websoft.chinaopendataportal.GlobalVariances;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.Similarity;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javafx.util.Pair;
+import nju.websoft.chinaopendataportal.GlobalVariances;
 
-import java.nio.file.Paths;
-import java.util.*;
-
+@Component
 public class RelevanceRanking {
-    private static Directory directory = null;
-    private static IndexReader indexReader = null;
-    private static IndexSearcher indexSearcher = null;
-    public void init() {
-        try {
-            if (directory == null) {
-                directory = MMapDirectory.open(Paths.get(GlobalVariances.index_Dir));
-                indexReader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(indexReader);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    @Autowired
+    private IndexReader indexReader;
+    @Autowired
+    private IndexSearcher indexSearcher;
 
-    public void init(String index_dir) {
-        try {
-            if (directory == null) {
-                directory = MMapDirectory.open(Paths.get(index_dir));
-                indexReader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(indexReader);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public long getTotalHits(String query, Similarity similarity, float[] weights, String index_dir) {
+    public long getTotalHits(String query, Similarity similarity, float[] weights) {
         long res = 0;
-        init(index_dir);
         String[] fields = GlobalVariances.queryFields;
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
@@ -74,11 +61,11 @@ public class RelevanceRanking {
      * @param query
      * @return
      */
-    public Pair<Long, List<Pair<Integer, Double>>> LuceneRanking(String query, Similarity similarity, float[] weights, Map<String, String> filterQuery, String index_dir) {
+    public Pair<Long, List<Pair<Integer, Double>>> LuceneRanking(String query, Similarity similarity, float[] weights,
+            Map<String, String> filterQuery) {
         long res = 0;
-        init(index_dir);
         String[] fields = GlobalVariances.queryFields;
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -88,9 +75,11 @@ public class RelevanceRanking {
             QueryParser fieldQueryParser = new MultiFieldQueryParser(fields, analyzer, boosts);
             query = QueryParser.escape(query);
             Query filedQuery = fieldQueryParser.parse(query);
-            BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder().add(filedQuery, BooleanClause.Occur.MUST);
+            BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder().add(filedQuery,
+                    BooleanClause.Occur.MUST);
             for (String filter : GlobalVariances.filterFields) {
-                if (filterQuery.containsKey(filter) && filterQuery.get(filter).length() > 0 && !filterQuery.get(filter).equals("全部")) {
+                if (filterQuery.containsKey(filter) && filterQuery.get(filter).length() > 0
+                        && !filterQuery.get(filter).equals("全部")) {
                     Query parsedFilterQuery = new TermQuery(new Term(filter, filterQuery.get(filter)));
                     finalQueryBuilder.add(parsedFilterQuery, BooleanClause.Occur.FILTER);
                 }
@@ -106,22 +95,21 @@ public class RelevanceRanking {
                 fieldsToLoad.add("dataset_id");
                 Document document = indexReader.document(docID, fieldsToLoad);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-//                System.out.println("dataset_id: " + document.get("dataset_id") + ", score: " + si.score);
-//                Explanation e = indexSearcher.explain(finalQuery, si.doc);
-//                System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
+                // + si.score);
+                // Explanation e = indexSearcher.explain(finalQuery, si.doc);
+                // System.out.println("Explanation： \n" + e);
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Pair<>(res, LuceneRankingList);
+        return new Pair<>(res, luceneRankingList);
     }
 
-    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights, String index_dir) {
-        long res = 0;
-        init(index_dir);
+    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights) {
         String[] fields = GlobalVariances.queryFields;
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -140,15 +128,16 @@ public class RelevanceRanking {
                 fieldsToLoad.add("dataset_id");
                 Document document = indexReader.document(docID, fieldsToLoad);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-//                System.out.println("dataset_id: " + document.get("dataset_id") + ", score: " + si.score);
-//                Explanation e = indexSearcher.explain(parsedQuery, si.doc);
-//                System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
+                // + si.score);
+                // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
+                // System.out.println("Explanation： \n" + e);
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return LuceneRankingList;
+        return luceneRankingList;
     }
 
     /**
@@ -157,9 +146,9 @@ public class RelevanceRanking {
      * @param query
      * @return
      */
-    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights, String index_dir, String[] fields) {
-        init(index_dir);
-        List<Pair<Integer, Double>> LuceneRankingList = new ArrayList<>();
+    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights,
+            String[] fields) {
+        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;
             Map<String, Float> boosts = new HashMap<>();
@@ -178,20 +167,22 @@ public class RelevanceRanking {
                 fieldsToLoad.add("dataset_id");
                 Document document = indexReader.document(docID, fieldsToLoad);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-//                System.out.println("dataset_id: " + document.get("dataset_id") + ", score: " + si.score);
-//                Explanation e = indexSearcher.explain(parsedQuery, si.doc);
-//                System.out.println("Explanation： \n" + e);
-                LuceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
+                // + si.score);
+                // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
+                // System.out.println("Explanation： \n" + e);
+                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
-//            if (LuceneRankingList.size() > 0) {
-//                double base = LuceneRankingList.get(0).getValue();
-//                for (int i = 0; i < LuceneRankingList.size(); i++) {
-//                    LuceneRankingList.set(i, new Pair<>(LuceneRankingList.get(i).getKey(), LuceneRankingList.get(i).getValue() / base));
-//                }
-//            }
+            // if (luceneRankingList.size() > 0) {
+            // double base = luceneRankingList.get(0).getValue();
+            // for (int i = 0; i < luceneRankingList.size(); i++) {
+            // luceneRankingList.set(i, new Pair<>(luceneRankingList.get(i).getKey(),
+            // luceneRankingList.get(i).getValue() / base));
+            // }
+            // }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return LuceneRankingList;
+        return luceneRankingList;
     }
 }
