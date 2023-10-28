@@ -113,12 +113,7 @@ public class SearchController {
         filterMap.put("is_open", isOpen);
 
         List<String> provinceList = metadataService.getProvinces();
-        provinceList.add(0, "全部");
-        List<String> cityList = new ArrayList<>();
-        if (!province.equals("")) {
-            cityList = metadataService.getCitiesByProvince(province);
-            cityList.add(0, "全部");
-        }
+        List<String> cityList = metadataService.getCitiesByProvince(province);
         List<String> industryList = Arrays.asList(GlobalVariances.industryFields);
         List<String> isOpenList = Arrays.asList(GlobalVariances.isOpenFields);
 
@@ -130,8 +125,6 @@ public class SearchController {
         String queryURL = URLEncoder.encode(query, StandardCharsets.UTF_8);
         queryURL = queryURL.replaceAll("\\+", "%20");
 
-        // long totalHits = relevanceRanking.getTotalHits(query, new BM25Similarity(),
-        // GlobalVariances.BoostWeights, GlobalVariances.index_Dir);
         Pair<Long, List<Pair<Integer, Double>>> rankingResult = relevanceRanking.LuceneRanking(query,
                 new BM25Similarity(), GlobalVariances.BoostWeights, filterMap);
         long totalHits = rankingResult.getKey();

@@ -35,16 +35,19 @@ public class MetadataService {
 
     @PostConstruct
     private void init() {
+        String ALL = "全部";
+        provinces.add(ALL);
         indexMetadata.forEach((key, value) -> {
             if (key.equals("totalCount")) {
                 metadataCount = Integer.parseInt(value);
                 return;
             }
             List<String> citySet = new ArrayList<>();
+            citySet.add(ALL);
             String[] cities = value.split(";");
             for (int i = 0; i < cities.length; i++) {
                 String city = cities[i];
-                if (cities.length <= 0) {
+                if (city.length() <= 0) {
                     continue;
                 }
                 citySet.add(city);
