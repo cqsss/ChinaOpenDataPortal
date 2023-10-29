@@ -2,11 +2,9 @@ package nju.websoft.chinaopendataportal.Ranking;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -91,10 +89,7 @@ public class RelevanceRanking {
             ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
             res = docsSearch.totalHits.value;
             for (ScoreDoc si : scoreDocs) {
-                int docID = si.doc;
-                Set<String> fieldsToLoad = new HashSet<>();
-                fieldsToLoad.add("dataset_id");
-                Document document = indexReader.document(docID, fieldsToLoad);
+                Document document = indexReader.storedFields().document(si.doc);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
                 luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
@@ -126,10 +121,7 @@ public class RelevanceRanking {
             TopDocs docsSearch = indexSearcher.search(parsedQuery, GlobalVariances.HitSize);
             ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
             for (ScoreDoc si : scoreDocs) {
-                int docID = si.doc;
-                Set<String> fieldsToLoad = new HashSet<>();
-                fieldsToLoad.add("dataset_id");
-                Document document = indexReader.document(docID, fieldsToLoad);
+                Document document = indexReader.storedFields().document(si.doc);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
                 luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
