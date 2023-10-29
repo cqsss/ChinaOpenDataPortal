@@ -34,8 +34,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javafx.util.Pair;
 import nju.websoft.chinaopendataportal.GlobalVariances;
-import nju.websoft.chinaopendataportal.Bean.Metadata;
-import nju.websoft.chinaopendataportal.Bean.Portal;
+import nju.websoft.chinaopendataportal.Model.Metadata;
+import nju.websoft.chinaopendataportal.Model.Portal;
+import nju.websoft.chinaopendataportal.Model.Component.Filter;
 import nju.websoft.chinaopendataportal.Ranking.MMRTest;
 import nju.websoft.chinaopendataportal.Ranking.RelevanceRanking;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
@@ -95,27 +96,18 @@ public class SearchController {
 
     @GetMapping(value = "/result")
     public String searchResult(@RequestParam("q") String query,
-            @RequestParam(required = false, defaultValue = "") String province,
-            @RequestParam(required = false, defaultValue = "") String city,
-            @RequestParam(required = false, defaultValue = "") String industry,
-            @RequestParam(required = false, defaultValue = "") String isOpen,
+            @RequestParam(required = false, defaultValue = "全部") String province,
+            @RequestParam(required = false, defaultValue = "全部") String city,
+            @RequestParam(required = false, defaultValue = "全部") String industry,
+            @RequestParam(required = false, defaultValue = "全部") String isopen,
             @RequestParam(defaultValue = "1") int page,
             Model model) throws ParseException, IOException, InvalidTokenOffsetsException {
-        String provinceView = province.equals("") ? "全部" : province;
-        String cityView = city.equals("") ? "全部" : city;
-        String industryView = industry.equals("") ? "全部" : industry;
-        String isOpenView = isOpen.equals("") ? "全部" : isOpen;
 
         Map<String, String> filterMap = new HashMap<>();
         filterMap.put("province", province);
         filterMap.put("city", city);
         filterMap.put("industry", industry);
-        filterMap.put("is_open", isOpen);
-
-        List<String> provinceList = metadataService.getProvinces();
-        List<String> cityList = metadataService.getCitiesByProvince(province);
-        List<String> industryList = Arrays.asList(GlobalVariances.industryFields);
-        List<String> isOpenList = Arrays.asList(GlobalVariances.isOpenFields);
+        filterMap.put("is_open", isopen);
 
         List<Map<String, String>> snippetList = new ArrayList<>();
         Map<String, Integer> relScoreMap = new HashMap<>();
@@ -185,18 +177,17 @@ public class SearchController {
             }
         }
 
-        model.addAttribute("provinceView", provinceView);
-        model.addAttribute("cityView", cityView);
-        model.addAttribute("industryView", industryView);
-        model.addAttribute("isOpenView", isOpenView);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(new Filter("省份", province, "province", metadataService.getProvinces()));
+        filters.add(new Filter("城市", city, "city", metadataService.getCitiesByProvince(province)));
+        filters.add(new Filter("行业", industry, "industry", Arrays.asList(GlobalVariances.industryFields)));
+        filters.add(new Filter("开放类型", isopen, "isopen", Arrays.asList(GlobalVariances.isOpenFields)));
+
         model.addAttribute("province", province);
         model.addAttribute("city", city);
         model.addAttribute("industry", industry);
-        model.addAttribute("isOpen", isOpen);
-        model.addAttribute("provinceList", provinceList);
-        model.addAttribute("cityList", cityList);
-        model.addAttribute("industryList", industryList);
-        model.addAttribute("isOpenList", isOpenList);
+        model.addAttribute("isOpen", isopen);
+        model.addAttribute("filters", filters);
         model.addAttribute("snippets", snippetList);
         model.addAttribute("query", query);
         model.addAttribute("queryURL", queryURL);

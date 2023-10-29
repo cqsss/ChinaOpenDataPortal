@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -74,13 +75,13 @@ public class RelevanceRanking {
             }
             QueryParser fieldQueryParser = new MultiFieldQueryParser(fields, analyzer, boosts);
             query = QueryParser.escape(query);
-            Query filedQuery = fieldQueryParser.parse(query);
-            BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder().add(filedQuery,
+            Query fieldQuery = fieldQueryParser.parse(query);
+            BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder().add(fieldQuery,
                     BooleanClause.Occur.MUST);
-            for (String filter : GlobalVariances.filterFields) {
-                if (filterQuery.containsKey(filter) && filterQuery.get(filter).length() > 0
-                        && !filterQuery.get(filter).equals("全部")) {
-                    Query parsedFilterQuery = new TermQuery(new Term(filter, filterQuery.get(filter)));
+            for (Entry<String, String> entrySet : filterQuery.entrySet()) {
+                String filterName = entrySet.getKey(), filterValue = entrySet.getValue();
+                if (!filterValue.equals("全部")) {
+                    Query parsedFilterQuery = new TermQuery(new Term(filterName, filterValue));
                     finalQueryBuilder.add(parsedFilterQuery, BooleanClause.Occur.FILTER);
                 }
             }
@@ -95,49 +96,12 @@ public class RelevanceRanking {
                 fieldsToLoad.add("dataset_id");
                 Document document = indexReader.document(docID, fieldsToLoad);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
-                // + si.score);
-                // Explanation e = indexSearcher.explain(finalQuery, si.doc);
-                // System.out.println("Explanation： \n" + e);
                 luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Pair<>(res, luceneRankingList);
-    }
-
-    public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights) {
-        String[] fields = GlobalVariances.queryFields;
-        List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
-        try {
-            Analyzer analyzer = GlobalVariances.globalAnalyzer;
-            Map<String, Float> boosts = new HashMap<>();
-            for (int i = 0; i < fields.length; i++) {
-                boosts.put(fields[i], weights[i]);
-            }
-            QueryParser fieldQueryParser = new MultiFieldQueryParser(fields, analyzer, boosts);
-            query = QueryParser.escape(query);
-            Query filedQuery = fieldQueryParser.parse(query);
-            indexSearcher.setSimilarity(similarity);
-            TopDocs docsSearch = indexSearcher.search(filedQuery, GlobalVariances.HitSize);
-            ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
-            for (ScoreDoc si : scoreDocs) {
-                int docID = si.doc;
-                Set<String> fieldsToLoad = new HashSet<>();
-                fieldsToLoad.add("dataset_id");
-                Document document = indexReader.document(docID, fieldsToLoad);
-                Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
-                // + si.score);
-                // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
-                // System.out.println("Explanation： \n" + e);
-                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return luceneRankingList;
     }
 
     /**
@@ -167,19 +131,8 @@ public class RelevanceRanking {
                 fieldsToLoad.add("dataset_id");
                 Document document = indexReader.document(docID, fieldsToLoad);
                 Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-                // System.out.println("dataset_id: " + document.get("dataset_id") + ", score: "
-                // + si.score);
-                // Explanation e = indexSearcher.explain(parsedQuery, si.doc);
-                // System.out.println("Explanation： \n" + e);
                 luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
             }
-            // if (luceneRankingList.size() > 0) {
-            // double base = luceneRankingList.get(0).getValue();
-            // for (int i = 0; i < luceneRankingList.size(); i++) {
-            // luceneRankingList.set(i, new Pair<>(luceneRankingList.get(i).getKey(),
-            // luceneRankingList.get(i).getValue() / base));
-            // }
-            // }
         } catch (Exception e) {
             e.printStackTrace();
         }

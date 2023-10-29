@@ -15,7 +15,7 @@ import org.apache.lucene.index.IndexableField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import nju.websoft.chinaopendataportal.Bean.Metadata;
+import nju.websoft.chinaopendataportal.Model.Metadata;
 
 @Service
 public class MetadataService {

@@ -1,4 +1,4 @@
-package nju.websoft.chinaopendataportal.Bean;
+package nju.websoft.chinaopendataportal.Model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,8 +7,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @Setter
-public class News {
-    String title;
-    String detail;
-    String date;
+public class Portal {
+    String url;
+    String name;
 }

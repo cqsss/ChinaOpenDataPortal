@@ -42,58 +42,17 @@
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-9 col-xl-7">
 
-                <div class="btn-group me-3">
-                    <button type="button" class="btn btn-outline-primary">省份</button>
+                <div class="btn-group me-3" th:each="filter:${filters}">
+                    <button type="button" class="btn btn-outline-primary" th:text="${filter.filterName()}"></button>
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false" th:text="${provinceView}">
+                        aria-expanded="false" th:text="${filter.currentOption()}">
                     </button>
                     <ul class="dropdown-menu">
-                        <li th:each="pi:${provinceList}">
+                        <li th:each="op:${filter.optionList()}">
                             <a class="dropdown-item"
-                                th:href="@{'/result?q='+${query}+'&province='+${pi}+'&city=&industry='+${industry}+'&isopen='+${isOpen}+'&page=1'}"
-                                th:text="${pi}"></a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="btn-group me-3">
-                    <button type="button" class="btn btn-outline-success">城市</button>
-                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false" th:text="${cityView}">
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li th:each="ci:${cityList}">
-                            <a class="dropdown-item"
-                                th:href="@{'/result?q='+${query}+'&province='+${province}+'&city='+${ci}+'&industry='+${industry}+'&isopen='+${isOpen}+'&page=1'}"
-                                th:text="${ci}"></a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="btn-group me-3">
-                    <button type="button" class="btn btn-outline-secondary">行业</button>
-                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false" th:text="${industryView}">
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li th:each="ii:${industryList}">
-                            <a class="dropdown-item"
-                                th:href="@{'/result?q='+${query}+'&province='+${province}+'&city='+${city}+'&industry='+${ii}+'&isopen='+${isOpen}+'&page=1'}"
-                                th:text="${ii}"></a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="btn-group me-3">
-                    <button type="button" class="btn btn-outline-warning">开放类型</button>
-                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false" th:text="${isOpenView}">
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li th:each="oi:${isOpenList}">
-                            <a class="dropdown-item"
-                                th:href="@{'/result?q='+${query}+'&province='+${province}+'&city='+${city}+'&industry='+${industry}+'&isopen='+${oi}+'&page=1'}"
-                                th:text="${oi}"></a>
+                                th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder).fromCurrentRequest()}"
+                                th:href="${urlBuilder.replaceQueryParam(filter.paramName(), op).replaceQueryParam('page', '').build().toUriString()}"
+                                th:text="${op}"></a>
                         </li>
                     </ul>
                 </div>

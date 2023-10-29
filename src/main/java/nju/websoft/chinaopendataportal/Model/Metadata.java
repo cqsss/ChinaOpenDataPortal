@@ -1,4 +1,4 @@
-package nju.websoft.chinaopendataportal.Bean;
+package nju.websoft.chinaopendataportal.Model;
 
 import lombok.Getter;
 import lombok.Setter;
