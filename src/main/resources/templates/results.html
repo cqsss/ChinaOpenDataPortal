@@ -49,7 +49,7 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li th:each="op:${filter.optionList()}">
-                            <a class="dropdown-item"
+                            <a class="dropdown-item" th:classappend="${filter.filterName()}"
                                 th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder).fromCurrentRequest()}"
                                 th:href="${urlBuilder.replaceQueryParam(filter.paramName(), op).replaceQueryParam('page', '').build().toUriString()}"
                                 th:text="${op}"></a>
@@ -172,6 +172,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS-->
     <script th:src="@{/static/js/results-scripts.js}"></script>
+
+    <!-- Custom JS -->
+    <script th:src="@{/static/js/custom-scripts.js}"></script>
 </body>
 
 </html>
