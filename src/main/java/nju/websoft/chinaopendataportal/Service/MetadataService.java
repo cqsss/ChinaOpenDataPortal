@@ -52,6 +52,13 @@ public class MetadataService {
                 }
                 citySet.add(city);
             }
+            for (int i = 1; i < citySet.size(); i++) {
+                if (citySet.get(i).equals(key)) {
+                    String city_to_swap = citySet.get(1);
+                    citySet.set(1, key);
+                    citySet.set(i, city_to_swap);
+                }
+            }
             locations.put(key, citySet);
             provinces.add(key);
         });

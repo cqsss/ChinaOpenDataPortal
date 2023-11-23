@@ -44,8 +44,9 @@
 
                 <div class="btn-group me-3" th:each="filter:${filters}">
                     <button type="button" class="btn btn-outline-primary" th:text="${filter.filterName()}"></button>
-                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                        aria-expanded="false" th:text="${filter.currentOption()}">
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
+                        th:classappend="${filter.filterName()}" data-bs-toggle="dropdown" aria-expanded="false"
+                        th:text="${filter.currentOption()}">
                     </button>
                     <ul class="dropdown-menu">
                         <li th:each="op:${filter.optionList()}">
