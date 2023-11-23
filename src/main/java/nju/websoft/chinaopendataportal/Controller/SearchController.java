@@ -148,6 +148,9 @@ public class SearchController {
                     fieldText = fieldText.substring(1, fieldText.length() - 1);
                     if (fi.equals("province") || fi.equals("city")) {
                         text = fieldText;
+                    } else if (fi.equals("data_formats")) {
+                        // TODO: temporary process of `data_format` field
+                        text = fieldText.replaceAll("'|\\[|\\]", "");
                     } else {
                         text = HtmlHelper.getHighlighter(query, fieldText);
                     }

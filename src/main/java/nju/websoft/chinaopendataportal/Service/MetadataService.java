@@ -103,6 +103,12 @@ public class MetadataService {
                 e.printStackTrace();
             }
         });
+
+        // TODO: temporary process of `data_format` field
+        String data_formats = metadata.data_formats();
+        data_formats = data_formats.replaceAll("'|\\[|\\]", "");
+        metadata.data_formats(data_formats);
+
         return metadata;
     }
 
