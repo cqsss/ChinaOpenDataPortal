@@ -32,3 +32,10 @@ for (var i = 0; i < city_items.length; i++) {
     var item = city_items[i];
     check_province(item);
 }
+
+var all_items = document.querySelectorAll("a.dropdown-item");
+for (var i = 0; i < all_items.length; i++) {
+    var item = all_items[i];
+    var url = new URL(item.href);
+    item.href = `${url.pathname}${url.search}`;
+}
