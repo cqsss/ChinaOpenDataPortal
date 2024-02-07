@@ -13,15 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +53,6 @@ public class SearchController {
 
     @Autowired
     private IndexReader indexReader;
-    @Autowired
-    private IndexSearcher indexSearcher;
 
     public SearchController(
             MetadataService metadataService,
@@ -84,6 +76,7 @@ public class SearchController {
         return "search.html";
     }
 
+    @Deprecated
     @RequestMapping(value = "/dosearch", method = RequestMethod.POST)
     public String dosearch(@RequestParam("query") String query) {
         if (query.equals("")) {
@@ -111,8 +104,6 @@ public class SearchController {
 
         List<Map<String, String>> snippetList = new ArrayList<>();
         Map<String, Integer> relScoreMap = new HashMap<>();
-        Analyzer analyzer = GlobalVariances.globalAnalyzer;
-        QueryParser datasetIdParser = new QueryParser("dataset_id", analyzer);
 
         String queryURL = URLEncoder.encode(query, StandardCharsets.UTF_8);
         queryURL = queryURL.replaceAll("\\+", "%20");
@@ -125,16 +116,11 @@ public class SearchController {
         for (int i = (page - 1) * GlobalVariances.numOfDatasetsPerPage; i < Math.min(totalHits,
                 (long) page * GlobalVariances.numOfDatasetsPerPage); i++) {
             Map<String, String> snippet = new HashMap<>();
-            Integer ds_id = scoreList.get(i).getKey();
-            snippet.put("dataset_id", ds_id.toString());
-            Query dataset_id = datasetIdParser.parse(ds_id.toString());
-            TopDocs docsSearch = indexSearcher.search(dataset_id, 1);
-            ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
-            int docID = scoreDocs[0].doc;
-            Document doc = indexReader.storedFields().document(docID);
+            Integer doc_id = scoreList.get(i).getKey();
+            Document doc = indexReader.storedFields().document(doc_id);
             String title = HtmlHelper.getHighlighter(query, doc.get("title"));
             snippet.put("title", title);
-            snippet.put("docId", String.valueOf(docID));
+            snippet.put("docId", String.valueOf(doc_id));
 
             String description = HtmlHelper.getHighlighter(query, doc.get("description"));
             snippet.put("description", description);

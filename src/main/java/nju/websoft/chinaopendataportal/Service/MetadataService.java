@@ -76,6 +76,10 @@ public class MetadataService {
         return locations.values().stream().mapToInt(cities -> cities.size()).reduce(0, (a, b) -> a + b);
     }
 
+    public Map<String, List<String>> getLocations() {
+        return locations;
+    }
+
     public List<String> getProvinces() {
         return provinces;
     }
@@ -86,6 +90,7 @@ public class MetadataService {
 
     public Metadata getMetadataByDocId(int docId) throws IOException {
         Metadata metadata = new Metadata();
+        metadata.doc_id(docId);
         Document doc = indexReader.storedFields().document(docId);
         Map<String, String> obj = new HashMap<>();
         for (IndexableField field : doc.getFields()) {

@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -28,8 +26,6 @@ import nju.websoft.chinaopendataportal.GlobalVariances;
 
 @Component
 public class RelevanceRanking {
-    @Autowired
-    private IndexReader indexReader;
     @Autowired
     private IndexSearcher indexSearcher;
 
@@ -89,9 +85,7 @@ public class RelevanceRanking {
             ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
             res = docsSearch.totalHits.value;
             for (ScoreDoc si : scoreDocs) {
-                Document document = indexReader.storedFields().document(si.doc);
-                Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                luceneRankingList.add(new Pair<>(si.doc, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,9 +115,7 @@ public class RelevanceRanking {
             TopDocs docsSearch = indexSearcher.search(parsedQuery, GlobalVariances.HitSize);
             ScoreDoc[] scoreDocs = docsSearch.scoreDocs;
             for (ScoreDoc si : scoreDocs) {
-                Document document = indexReader.storedFields().document(si.doc);
-                Integer datasetID = Integer.parseInt(document.get("dataset_id"));
-                luceneRankingList.add(new Pair<>(datasetID, (double) si.score));
+                luceneRankingList.add(new Pair<>(si.doc, (double) si.score));
             }
         } catch (Exception e) {
             e.printStackTrace();
