@@ -21,6 +21,7 @@ import nju.websoft.chinaopendataportal.Model.DTO.FiltersDTO;
 import nju.websoft.chinaopendataportal.Model.DTO.ResultDTO;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
 import nju.websoft.chinaopendataportal.Service.PortalService;
+import nju.websoft.chinaopendataportal.Util.HtmlHelper;
 import nju.websoft.chinaopendataportal.Util.SearchHelper;
 
 @RestController
@@ -38,7 +39,8 @@ public class RestSearchController {
     @GetMapping(value = "/filters", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityModel<FiltersDTO>> filtersApi() {
         return ResponseEntity.ok(EntityModel
-                .of(new FiltersDTO(metadataService.getLocations(), Arrays.asList(GlobalVariances.industryFields))));
+                .of(new FiltersDTO(metadataService.getLocations(),
+                        Arrays.asList(GlobalVariances.industryFields))));
     }
 
     @CrossOrigin(origins = "*")
@@ -51,27 +53,42 @@ public class RestSearchController {
         try {
             List<Metadata> results = searchHelper.search(query, province, city, industry, isopen);
             return ResponseEntity.ok(StreamSupport.stream(results.spliterator(), false)
-                    .map(m -> EntityModel.of(new ResultDTO(
-                            m.doc_id(),
-                            m.province(),
-                            m.city(),
-                            m.url(),
-                            portalService.getPortalByProvinceAndCity(m.province(), m.city()).name(),
-                            m.title(),
-                            m.description(),
-                            m.is_open(),
-                            m.telephone(),
-                            m.email(),
-                            m.tags(),
-                            m.department(),
-                            m.industry(),
-                            m.category(),
-                            m.publish_time(),
-                            m.update_time(),
-                            m.update_frequency(),
-                            m.data_volume(),
-                            m.data_formats(),
-                            m.standard_industry())))
+                    .map(m -> {
+                        try {
+                            return EntityModel.of(new ResultDTO(
+                                    m.doc_id(),
+                                    m.province(),
+                                    m.city(),
+                                    m.url(),
+                                    portalService.getPortalByProvinceAndCity(
+                                            m.province(), m.city()).name(),
+                                    HtmlHelper.getHighlighter(query,
+                                            m.title(), false, "class='server-set-highlight-title'"),
+                                    HtmlHelper.getHighlighter(query,
+                                            m.description(), false, "class='server-set-highlight-description'"),
+                                    m.is_open(),
+                                    m.telephone(),
+                                    m.email(),
+                                    Arrays.stream(m.tags().split(" "))
+                                            .filter(s -> s.length() > 0)
+                                            .toArray(String[]::new),
+                                    Arrays.stream(m.data_formats().split(","))
+                                            .filter(s -> s.length() > 0)
+                                            .toArray(String[]::new),
+                                    m.department(),
+                                    m.industry(),
+                                    m.category(),
+                                    m.publish_time(),
+                                    m.update_time(),
+                                    m.update_frequency(),
+                                    m.data_volume(),
+                                    m.standard_industry()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    })
+                    .filter(m -> m != null)
                     .collect(Collectors.toList()));
         } catch (Exception e) {
             e.printStackTrace();

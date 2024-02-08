@@ -23,7 +23,8 @@ public class ResultDTO implements Serializable {
     String telephone;
     String email;
 
-    String tags;
+    String[] tags;
+    String[] data_formats;
     String department;
     String category;
     String industry;
@@ -31,6 +32,5 @@ public class ResultDTO implements Serializable {
     String update_time;
     String update_frequency;
     String data_volume;
-    String data_formats;
     String standard_industry;
 }

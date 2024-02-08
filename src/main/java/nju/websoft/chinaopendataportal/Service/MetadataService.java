@@ -36,6 +36,7 @@ public class MetadataService {
     @PostConstruct
     private void init() {
         String ALL = "全部";
+        locations.put(ALL, new ArrayList<>());
         provinces.add(ALL);
         indexMetadata.forEach((key, value) -> {
             if (key.equals("totalCount")) {
@@ -111,8 +112,14 @@ public class MetadataService {
 
         // TODO: temporary process of `data_format` field
         String data_formats = metadata.data_formats();
-        data_formats = data_formats.replaceAll("'|\\[|\\]", "");
+        data_formats = data_formats.replaceAll("'|\\[|\\]|\\s", "");
         metadata.data_formats(data_formats);
+
+        // TODO: temporary process of `data_format` field
+        String tags = metadata.tags();
+        tags = tags.replaceAll("'|\\[|\\]", "");
+        tags = tags.replaceAll("\\s+", " ");
+        metadata.tags(tags);
 
         return metadata;
     }
