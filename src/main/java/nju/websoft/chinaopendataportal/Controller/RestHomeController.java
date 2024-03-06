@@ -34,9 +34,9 @@ public class RestHomeController {
         int totalCount = metadataService.getMetadataCount();
         int provinceCount = metadataService.getProvinceCount();
         int cityCount = metadataService.getCityCount();
-        statistics.add(EntityModel.of(new StatisticsDTO("覆盖的省级行政区", totalCount)));
-        statistics.add(EntityModel.of(new StatisticsDTO("接入的公共数据开放平台", provinceCount)));
-        statistics.add(EntityModel.of(new StatisticsDTO("索引的数据集", cityCount)));
+        statistics.add(EntityModel.of(new StatisticsDTO("覆盖的省级行政区", provinceCount)));
+        statistics.add(EntityModel.of(new StatisticsDTO("接入的公共数据开放平台", cityCount)));
+        statistics.add(EntityModel.of(new StatisticsDTO("索引的数据集", totalCount)));
 
         return ResponseEntity.ok(statistics);
     }
