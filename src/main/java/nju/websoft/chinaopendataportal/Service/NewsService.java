@@ -25,7 +25,7 @@ public class NewsService {
     public NewsService() {
     }
 
-     @PostConstruct
+    @PostConstruct
     private void init() {
         try (JsonReader reader = new JsonReader(new FileReader(newsPath))) {
             Gson gson = new Gson();

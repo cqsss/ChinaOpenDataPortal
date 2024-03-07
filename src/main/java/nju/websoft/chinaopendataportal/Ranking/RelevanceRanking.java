@@ -23,13 +23,15 @@ import org.springframework.stereotype.Component;
 
 import javafx.util.Pair;
 import nju.websoft.chinaopendataportal.GlobalVariances;
+import nju.websoft.chinaopendataportal.Util.LuceneHelper;
 
 @Component
 public class RelevanceRanking {
     @Autowired
-    private IndexSearcher indexSearcher;
+    private LuceneHelper luceneHelper;
 
     public long getTotalHits(String query, Similarity similarity, float[] weights) {
+        IndexSearcher indexSearcher = luceneHelper.indexSearcher();
         long res = 0;
         String[] fields = GlobalVariances.queryFields;
         try {
@@ -58,6 +60,7 @@ public class RelevanceRanking {
      */
     public Pair<Long, List<Pair<Integer, Double>>> LuceneRanking(String query, Similarity similarity, float[] weights,
             Map<String, String> filterQuery) {
+        IndexSearcher indexSearcher = luceneHelper.indexSearcher();
         long res = 0;
         String[] fields = GlobalVariances.queryFields;
         List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
@@ -101,6 +104,7 @@ public class RelevanceRanking {
      */
     public List<Pair<Integer, Double>> LuceneRankingList(String query, Similarity similarity, float[] weights,
             String[] fields) {
+        IndexSearcher indexSearcher = luceneHelper.indexSearcher();
         List<Pair<Integer, Double>> luceneRankingList = new ArrayList<>();
         try {
             Analyzer analyzer = GlobalVariances.globalAnalyzer;

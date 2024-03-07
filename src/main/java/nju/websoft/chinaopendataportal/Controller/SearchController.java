@@ -37,6 +37,7 @@ import nju.websoft.chinaopendataportal.Service.MetadataService;
 import nju.websoft.chinaopendataportal.Service.NewsService;
 import nju.websoft.chinaopendataportal.Service.PortalService;
 import nju.websoft.chinaopendataportal.Util.HtmlHelper;
+import nju.websoft.chinaopendataportal.Util.LuceneHelper;
 
 @Controller
 public class SearchController {
@@ -45,14 +46,16 @@ public class SearchController {
     private RelevanceRanking relevanceRanking;
 
     @Autowired
-    private final MetadataService metadataService;
-    private final PortalService portalService;
-    private final NewsService newsService;
+    private MetadataService metadataService;
+    @Autowired
+    private PortalService portalService;
+    @Autowired
+    private NewsService newsService;
 
     private final MMRTest mmrTest = new MMRTest();
 
     @Autowired
-    private IndexReader indexReader;
+    private LuceneHelper luceneHelper;
 
     public SearchController(
             MetadataService metadataService,
@@ -95,6 +98,7 @@ public class SearchController {
             @RequestParam(required = false, defaultValue = "全部") String isopen,
             @RequestParam(defaultValue = "1") int page,
             Model model) throws ParseException, IOException, InvalidTokenOffsetsException {
+        IndexReader indexReader = luceneHelper.indexReader();
 
         Map<String, String> filterMap = new HashMap<>();
         filterMap.put("province", province);

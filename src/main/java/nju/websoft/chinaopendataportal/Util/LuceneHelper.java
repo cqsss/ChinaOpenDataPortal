@@ -8,7 +8,6 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.MMapDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -19,6 +18,13 @@ public class LuceneHelper {
 
     @Autowired
     public LuceneHelper(String indexDir) {
+        loadIndex(indexDir);
+    }
+
+    public Boolean loadIndex(String indexDir) {
+        IndexReader originIndexReader = indexReader;
+        IndexSearcher originIndexSearcher = indexSearcher;
+        Map<String, String> originIndexMetadata = indexMetadata;
         try {
             DirectoryReader dirReader = DirectoryReader.open(MMapDirectory.open(Paths.get(indexDir)));
             indexReader = dirReader;
@@ -26,20 +32,22 @@ public class LuceneHelper {
             indexSearcher = new IndexSearcher(indexReader);
         } catch (Exception e) {
             e.printStackTrace();
+            indexReader = originIndexReader;
+            indexSearcher = originIndexSearcher;
+            indexMetadata = originIndexMetadata;
+            return false;
         }
+        return true;
     }
 
-    @Bean
     public IndexReader indexReader() {
         return indexReader;
     }
 
-    @Bean
     public IndexSearcher indexSearcher() {
         return indexSearcher;
     }
 
-    @Bean
     public Map<String, String> indexMetadata() {
         return indexMetadata;
     }

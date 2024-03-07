@@ -23,6 +23,12 @@ public class GlobalVariances {
         return indexDir;
     }
 
+    public void setIndexDir(String indexDir) {
+        if (indexDir != null && !indexDir.equals(this.indexDir)) {
+            this.indexDir = indexDir;
+        }
+    }
+
     public static Analyzer globalAnalyzer;
     public static String[] queryFields = { "title", "description", "department", "province", "city", "category",
             "industry" };
