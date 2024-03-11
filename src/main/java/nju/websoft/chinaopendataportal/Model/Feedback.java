@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @Setter
+@Deprecated
 public class Feedback {
     private String user;
     private String content;
