@@ -11,9 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import nju.websoft.chinaopendataportal.Model.Feedback;
 import nju.websoft.chinaopendataportal.Model.DTO.ActivityDTO;
 import nju.websoft.chinaopendataportal.Model.DTO.StatisticsDTO;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
@@ -48,5 +51,14 @@ public class RestHomeController {
                 .stream(newsService.getTop5News().spliterator(), false)
                 .map(news -> new ActivityDTO(news.title(), news.detail(), news.date()))
                 .collect(Collectors.toList()));
+    }
+
+    @CrossOrigin(origins = "*")
+    @PostMapping(value = "/feedback")
+    public ResponseEntity<String> feedback(
+            @RequestBody Feedback feedback) {
+        // TODO: process feedback in a more logical way
+        System.out.println(String.format("[%s] says: \"%s\"", feedback.user(), feedback.content()));
+        return ResponseEntity.ok("success");
     }
 }
