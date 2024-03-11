@@ -49,9 +49,9 @@ public class RestSearchController {
             @RequestParam(required = false, defaultValue = "全部") String province,
             @RequestParam(required = false, defaultValue = "全部") String city,
             @RequestParam(required = false, defaultValue = "全部") String industry,
-            @RequestParam(required = false, defaultValue = "全部") String isopen) {
+            @RequestParam(required = false, defaultValue = "全部") String openness) {
         try {
-            List<Metadata> results = searchHelper.search(query, province, city, industry, isopen);
+            List<Metadata> results = searchHelper.search(query, province, city, industry, openness);
             return ResponseEntity.ok(StreamSupport.stream(results.spliterator(), false)
                     .map(m -> {
                         try {
