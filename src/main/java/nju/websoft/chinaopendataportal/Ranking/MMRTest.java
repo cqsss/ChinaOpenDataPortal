@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javafx.util.Pair;
-import nju.websoft.chinaopendataportal.Bean.Metadata;
+import nju.websoft.chinaopendataportal.Model.Metadata;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
 
 @Component

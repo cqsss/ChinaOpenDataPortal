@@ -19,31 +19,43 @@ import nju.websoft.chinaopendataportal.GlobalVariances;
 
 public class HtmlHelper {
 
-    private static String preTag = "<span style='color:red'>";
+    private static String preTagFormat = "<span %s>";
     private static String postTag = "</span>";
 
     public static String getHighlighter(String query, String fieldValues)
+            throws ParseException, IOException, InvalidTokenOffsetsException {
+        return getHighlighter(query, fieldValues, true, "style='color:red'");
+    }
+
+    public static String getHighlighter(String query, String fieldValues, Boolean cutOff, String tagStyle)
             throws ParseException, IOException, InvalidTokenOffsetsException {
 
         Analyzer analyzer = GlobalVariances.globalAnalyzer;
         QueryParser queryParser = new QueryParser("title", analyzer);
         query = QueryParser.escape(query);
         Query parsedQuery = queryParser.parse(query);
-        Fragmenter fragmenter = new SimpleFragmenter(GlobalVariances.maxCharOfDescription);
+
+        String preTag = String.format(preTagFormat, tagStyle);
         SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(preTag, postTag);
+
+        Fragmenter fragmenter = new SimpleFragmenter();
+        if (cutOff) {
+            fragmenter = new SimpleFragmenter(GlobalVariances.maxCharOfDescription);
+        }
         Highlighter highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(parsedQuery));
         highlighter.setTextFragmenter(fragmenter);
+
         TokenStream tokenStream = analyzer.tokenStream("", new StringReader(fieldValues));
         String res = highlighter.getBestFragment(tokenStream, fieldValues);
         if (res == null) {
             res = fieldValues;
-            if (res.length() > GlobalVariances.maxCharOfDescription) {
+            if (cutOff && res.length() > GlobalVariances.maxCharOfDescription) {
                 res = res.substring(0, GlobalVariances.maxCharOfDescription - 1);
                 res += "...";
             }
         } else {
             String frag = res.replaceAll(preTag, "").replaceAll(postTag, "");
-            if (frag.length() < fieldValues.length()) {
+            if (cutOff && frag.length() < fieldValues.length()) {
                 res += "...";
             }
         }

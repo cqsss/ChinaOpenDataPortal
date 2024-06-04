@@ -13,7 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import nju.websoft.chinaopendataportal.Bean.News;
+import nju.websoft.chinaopendataportal.Model.News;
 
 @Service
 public class NewsService {
@@ -25,7 +25,7 @@ public class NewsService {
     public NewsService() {
     }
 
-     @PostConstruct
+    @PostConstruct
     private void init() {
         try (JsonReader reader = new JsonReader(new FileReader(newsPath))) {
             Gson gson = new Gson();
