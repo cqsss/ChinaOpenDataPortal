@@ -2,7 +2,10 @@ package nju.websoft.chinaopendataportal.Controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import nju.websoft.chinaopendataportal.GlobalVariances;
 import nju.websoft.chinaopendataportal.Model.Metadata;
 import nju.websoft.chinaopendataportal.Model.DTO.FiltersDTO;
+import nju.websoft.chinaopendataportal.Model.DTO.QueryHitsDTO;
+import nju.websoft.chinaopendataportal.Model.DTO.QueryResultDTO;
 import nju.websoft.chinaopendataportal.Model.DTO.ResultDTO;
 import nju.websoft.chinaopendataportal.Service.MetadataService;
 import nju.websoft.chinaopendataportal.Service.PortalService;
+import nju.websoft.chinaopendataportal.Service.PythonBackendService;
 import nju.websoft.chinaopendataportal.Util.HtmlHelper;
 import nju.websoft.chinaopendataportal.Util.SearchHelper;
 
@@ -34,6 +40,8 @@ public class RestSearchController {
 
     @Autowired
     private SearchHelper searchHelper;
+    @Autowired
+    private PythonBackendService pythonBackendService;
 
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/filters", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -52,7 +60,23 @@ public class RestSearchController {
             @RequestParam(required = false, defaultValue = "全部") String openness) {
         try {
             List<Metadata> results = searchHelper.search(query, province, city, industry, openness);
-            return ResponseEntity.ok(StreamSupport.stream(results.spliterator(), false)
+
+            QueryHitsDTO hits = new QueryHitsDTO(query, IntStream.range(0, results.size())
+                    .mapToObj(i -> {
+                        Metadata m = results.get(i);
+                        return new QueryResultDTO(0, i + 1, m.doc_id(),
+                                String.format("%s: %s", m.title(), m.description()),
+                                Double.valueOf(results.size() - i));
+                    })
+                    .collect(Collectors.toList()));
+            pythonBackendService.rerankHits(hits);
+            Map<Integer, Metadata> docidToMetadata = results.stream()
+                    .collect(Collectors.toMap(Metadata::doc_id, Function.identity()));
+            List<Metadata> rerankedResults = hits.getHits().stream()
+                    .map(h -> docidToMetadata.get(h.getDocid()))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(StreamSupport.stream(rerankedResults.spliterator(), false)
                     .map(m -> {
                         try {
                             return EntityModel.of(new ResultDTO(
