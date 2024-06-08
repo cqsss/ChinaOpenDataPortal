@@ -57,26 +57,30 @@ public class RestSearchController {
             @RequestParam(required = false, defaultValue = "全部") String province,
             @RequestParam(required = false, defaultValue = "全部") String city,
             @RequestParam(required = false, defaultValue = "全部") String industry,
-            @RequestParam(required = false, defaultValue = "全部") String openness) {
+            @RequestParam(required = false, defaultValue = "全部") String openness,
+            @RequestParam(required = false, defaultValue = "0") Integer rerank) {
         try {
             List<Metadata> results = searchHelper.search(query, province, city, industry, openness);
 
-            QueryHitsDTO hits = new QueryHitsDTO(query, IntStream.range(0, results.size())
-                    .mapToObj(i -> {
-                        Metadata m = results.get(i);
-                        return new QueryResultDTO(0, i + 1, m.doc_id(),
-                                String.format("%s: %s", m.title(), m.description()),
-                                Double.valueOf(results.size() - i));
-                    })
-                    .collect(Collectors.toList()));
-            pythonBackendService.rerankHits(hits);
-            Map<Integer, Metadata> docidToMetadata = results.stream()
-                    .collect(Collectors.toMap(Metadata::doc_id, Function.identity()));
-            List<Metadata> rerankedResults = hits.getHits().stream()
-                    .map(h -> docidToMetadata.get(h.getDocid()))
-                    .collect(Collectors.toList());
+            List<Metadata> finalResults = results;
+            if (rerank != null && rerank > 0) {
+                QueryHitsDTO hits = new QueryHitsDTO(query, IntStream.range(0, results.size())
+                        .mapToObj(i -> {
+                            Metadata m = results.get(i);
+                            return new QueryResultDTO(0, i + 1, m.doc_id(),
+                                    String.format("%s: %s", m.title(), m.description()),
+                                    Double.valueOf(results.size() - i));
+                        })
+                        .collect(Collectors.toList()));
+                pythonBackendService.rerankHits(hits);
+                Map<Integer, Metadata> docidToMetadata = results.stream()
+                        .collect(Collectors.toMap(Metadata::doc_id, Function.identity()));
+                finalResults = hits.getHits().stream()
+                        .map(h -> docidToMetadata.get(h.getDocid()))
+                        .collect(Collectors.toList());
+            }
 
-            return ResponseEntity.ok(StreamSupport.stream(rerankedResults.spliterator(), false)
+            return ResponseEntity.ok(StreamSupport.stream(finalResults.spliterator(), false)
                     .map(m -> {
                         try {
                             return EntityModel.of(new ResultDTO(
