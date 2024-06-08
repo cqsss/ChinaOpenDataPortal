@@ -1,5 +1,9 @@
 package nju.websoft.chinaopendataportal.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +19,8 @@ import nju.websoft.chinaopendataportal.Model.DTO.QueryHitsDTO;
 
 @Service
 public class PythonBackendService {
+    @Autowired
+    private MetadataService metadataService;
 
     @Value("${websoft.chinaopendataportal.python.api}")
     private String pythonBackendUrl;
@@ -33,5 +39,26 @@ public class PythonBackendService {
                 String.class);
 
         return gson.fromJson(response.getBody(), QueryHitsDTO.class);
+    }
+
+    public String explainRelevance(String query, Integer docId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("query", query);
+            data.put("metadata", metadataService.getMetadataByDocId(docId));
+
+            HttpEntity<String> entity = new HttpEntity<>(gson.toJson(data), headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(String.format("%s/explain", pythonBackendUrl),
+                    HttpMethod.POST, entity,
+                    String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Metadata Not Found";
+        }
     }
 }

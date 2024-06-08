@@ -52,6 +52,17 @@ public class RestSearchController {
     }
 
     @CrossOrigin(origins = "*")
+    @GetMapping(value = "/explain", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> explainApi(@RequestParam("q") String query, @RequestParam("docid") Integer docId) {
+        try {
+            return ResponseEntity.ok(pythonBackendService.explainRelevance(query, docId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @CrossOrigin(origins = "*")
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EntityModel<ResultDTO>>> searchApi(@RequestParam("q") String query,
             @RequestParam(required = false, defaultValue = "全部") String province,

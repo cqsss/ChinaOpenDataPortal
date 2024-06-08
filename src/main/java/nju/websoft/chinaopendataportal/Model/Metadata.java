@@ -1,5 +1,7 @@
 package nju.websoft.chinaopendataportal.Model;
 
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -7,7 +9,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @Setter
-public class Metadata {
+public class Metadata implements Serializable {
     private Integer doc_id;
     private String province;
     private String city;
