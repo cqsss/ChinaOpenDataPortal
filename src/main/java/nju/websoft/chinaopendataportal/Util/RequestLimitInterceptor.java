@@ -12,7 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 public class RequestLimitInterceptor implements HandlerInterceptor {
 
-    private int MAX_REQUESTS_PER_SECOND = 80;
+    private int MAX_REQUESTS_LIMIT = 10;
     private int TIME_WINDOW_SECONDS = 60;
 
     private final ConcurrentMap<String, Map.Entry<Integer, Instant>> requestCounts = new ConcurrentHashMap<>();
@@ -30,7 +30,7 @@ public class RequestLimitInterceptor implements HandlerInterceptor {
     public boolean isLimitExceeded(String ip) {
         Map.Entry<Integer, Instant> entry = requestCounts.get(ip);
         return entry != null && entry.getValue().isAfter(Instant.now().minusSeconds(TIME_WINDOW_SECONDS))
-                && entry.getKey() > MAX_REQUESTS_PER_SECOND;
+                && entry.getKey() > MAX_REQUESTS_LIMIT;
     }
 
     @Override
