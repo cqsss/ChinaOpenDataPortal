@@ -106,8 +106,6 @@ public class RestSearchController {
                                     HtmlHelper.getHighlighter(query,
                                             m.description(), false, "class='server-set-highlight-description'"),
                                     m.is_open(),
-                                    m.telephone(),
-                                    m.email(),
                                     Arrays.stream(m.tags().split(" "))
                                             .filter(s -> s.length() > 0)
                                             .toArray(String[]::new),
@@ -116,7 +114,6 @@ public class RestSearchController {
                                             .toArray(String[]::new),
                                     m.department(),
                                     m.industry(),
-                                    m.category(),
                                     m.publish_time(),
                                     m.update_time(),
                                     m.update_frequency(),

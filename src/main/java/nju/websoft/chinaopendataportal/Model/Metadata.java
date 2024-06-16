@@ -11,6 +11,8 @@ import lombok.experimental.Accessors;
 @Setter
 public class Metadata implements Serializable {
     private Integer doc_id;
+    private Integer dataset_id;
+
     private String province;
     private String city;
     private String url;
@@ -18,14 +20,9 @@ public class Metadata implements Serializable {
     private String title;
     private String description;
     private String is_open;
-
-    private String telephone;
-    private String email;
-
     private String tags;
     private String department;
     private String industry;
-    private String category;
     private String publish_time;
     private String update_time;
     private String update_frequency;

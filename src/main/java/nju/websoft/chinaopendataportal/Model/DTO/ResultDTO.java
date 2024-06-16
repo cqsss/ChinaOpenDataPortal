@@ -20,13 +20,9 @@ public class ResultDTO implements Serializable {
     String description;
     String is_open;
 
-    String telephone;
-    String email;
-
     String[] tags;
     String[] data_formats;
     String department;
-    String category;
     String industry;
     String publish_time;
     String update_time;
