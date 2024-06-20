@@ -25,6 +25,9 @@ public class PythonBackendService {
     @Value("${websoft.chinaopendataportal.python.api}")
     private String pythonBackendUrl;
 
+    @Value("${websoft.chinaopendataportal.python.maxreranktimes}")
+    private Integer maxRerankTimes;
+
     private RestTemplate restTemplate = new RestTemplate();
     private Gson gson = new Gson();
 
@@ -34,11 +37,19 @@ public class PythonBackendService {
 
         HttpEntity<String> entity = new HttpEntity<>(gson.toJson(hits), headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/rerank", pythonBackendUrl),
-                HttpMethod.POST, entity,
-                String.class);
+        QueryHitsDTO finalHits = hits;
+        for (int i = 0; i < maxRerankTimes; i++) {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    String.format("%s/rerank", pythonBackendUrl),
+                    HttpMethod.POST, entity, String.class);
+            QueryHitsDTO rerankedHits = gson.fromJson(response.getBody(), QueryHitsDTO.class);
+            if (rerankedHits.getHits().size() >= finalHits.getHits().size()) {
+                finalHits = rerankedHits;
+                break;
+            }
+        }
 
-        return gson.fromJson(response.getBody(), QueryHitsDTO.class);
+        return finalHits;
     }
 
     public String explainRelevance(String query, Integer docId) {
