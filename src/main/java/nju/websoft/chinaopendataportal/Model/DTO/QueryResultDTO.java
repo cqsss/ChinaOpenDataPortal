@@ -14,6 +14,7 @@ public class QueryResultDTO implements Serializable {
     Integer rank;
 
     Integer docid;
+    Integer datasetid;
     String content;
     Double score;
 }

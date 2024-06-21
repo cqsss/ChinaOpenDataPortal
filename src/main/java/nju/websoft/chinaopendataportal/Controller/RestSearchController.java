@@ -78,7 +78,7 @@ public class RestSearchController {
                 QueryHitsDTO hits = new QueryHitsDTO(query, IntStream.range(0, results.size())
                         .mapToObj(i -> {
                             Metadata m = results.get(i);
-                            return new QueryResultDTO(0, i + 1, m.doc_id(),
+                            return new QueryResultDTO(0, i + 1, m.doc_id(), m.dataset_id(),
                                     String.format("%s: %s", m.title(), m.description()),
                                     Double.valueOf(results.size() - i));
                         })
