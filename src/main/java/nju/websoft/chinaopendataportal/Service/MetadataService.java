@@ -110,6 +110,12 @@ public class MetadataService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            try {
+                Metadata.class.getMethod(key, Integer.class).invoke(metadata, Integer.parseInt(value));
+            } catch (NoSuchMethodException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         // TODO: temporary process of `data_format` field
