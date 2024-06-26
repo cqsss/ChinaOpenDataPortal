@@ -83,10 +83,9 @@ public class RestSearchController {
                                     Double.valueOf(results.size() - i));
                         })
                         .collect(Collectors.toList()));
-                pythonBackendService.rerankHits(hits);
                 Map<Integer, Metadata> docidToMetadata = results.stream()
                         .collect(Collectors.toMap(Metadata::doc_id, Function.identity()));
-                finalResults = hits.getHits().stream()
+                finalResults = pythonBackendService.rerankHits(hits).getHits().stream()
                         .map(h -> docidToMetadata.get(h.getDocid()))
                         .collect(Collectors.toList());
             }
