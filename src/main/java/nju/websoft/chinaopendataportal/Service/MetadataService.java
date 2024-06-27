@@ -75,7 +75,10 @@ public class MetadataService {
     }
 
     public int getCityCount() {
-        return locations.values().stream().mapToInt(cities -> cities.size()).reduce(0, (a, b) -> a + b);
+        // avoid counting the "全部" city
+        return locations.values().stream()
+                .mapToInt(cities -> cities.size() > 0 ? cities.size() - 1 : 0)
+                .reduce(0, (a, b) -> a + b);
     }
 
     public Map<String, List<String>> getLocations() {
